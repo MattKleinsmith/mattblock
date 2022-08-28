@@ -1,0 +1,45 @@
+/* canvas {
+    // display: block;
+    border: 1px solid black;
+    padding: 0;
+    margin: 0;
+} */
+
+
+/************/
+/* Template */
+/************/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    color-scheme: dark !important;
+}
+
+body {
+    font-family: Helvetica;
+    background-color: #181a1b;
+    color: rgb(216, 212, 207);
+}
+
+button {
+    color: white;
+}
+
+a,
+a:visited {
+    color: rgb(216, 212, 207);
+}
+
+a:hover {
+    color: #b1aeab;
+}
+
+input,
+textarea {
+    color: rgb(216, 212, 207);
+}
