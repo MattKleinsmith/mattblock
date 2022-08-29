@@ -8,6 +8,7 @@ const server = new WebSocket.Server({ port: 8080 });
 let id = -1;
 
 const colors = [];
+const positions = [];
 
 server.on('connection', socket => {
     id++;
@@ -15,15 +16,18 @@ server.on('connection', socket => {
     socket.send(JSON.stringify(payload));
     socket.id = id;
 
+    colors.forEach((color, i) => socket.send(JSON.stringify({ id: i, color: color })));
+    positions.forEach((position, i) => socket.send(JSON.stringify({ id: i, position: position })));
+
     socket.on('message', unparsedData => {
         const payload = JSON.parse(unparsedData);
         console.log(payload);
         if ("color" in payload) {
             colors[payload.id] = payload.color;
-            colors.forEach((color, i) => broadcast(server, { id: i, color: color }));
-        } else {
-            broadcast(server, payload, payload.id); // Relay to all except sender;
+        } else if ("position" in payload) {
+            positions[payload.id] = payload.position;
         }
+        broadcast(server, payload, payload.id); // Relay to all except sender;
     });
 
     socket.on('close', () => {

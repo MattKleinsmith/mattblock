@@ -4,4 +4,4 @@
 - [x] Sync player positions over the Internet
 - [x] Allow 100 players
 - [x] Right click to change color
-- [ ] Send all game data when a player joins
+- [x] Send all game data when player joins
