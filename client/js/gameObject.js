@@ -1,14 +1,19 @@
 class GameObject {
-    constructor(id, position = { x: 0, y: 0 }, fillStyle = 'rgb(200, 0, 0)', size = { width: 50, height: 50 }) {
-        this.id = id;  // TODO: Didn't end up using this.
+    constructor(position = { x: 0, y: 0 }, color = { r: 255, g: 255, b: 255 }, size = { width: 50, height: 50 }) {
         this.position = position;
         this.oldPosition = { ...position };
-        this.fillStyle = fillStyle;
         this.size = size;
+        this.color = color;
+        this.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
     }
 
     update() {
         this.oldPosition = { ...this.position };
+    }
+
+    setColor(color = { r: 255, g: 255, b: 255 }) {
+        this.color = color;
+        this.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
     }
 
     // Idea: What if instead of moving ourself, we moved the world?

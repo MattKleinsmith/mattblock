@@ -2,3 +2,5 @@
 - [x] Implement game loop
 - [x] Sync player positions between two browser tabs
 - [x] Sync player positions over the Internet
+- [x] Allow 100 players
+- [ ] Right click to change color

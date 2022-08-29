@@ -2,26 +2,28 @@
 //// https://www.youtube.com/watch?v=1BfCnjr_Vjg
 
 const WebSocket = require('ws');
+const { broadcast, sendPayload } = require('./helpers');
+
 const server = new WebSocket.Server({ port: 8080 });
-let lastId = -1;
+let id = -1;
+
+const colors = [];
 
 server.on('connection', socket => {
-    lastId++;
-    const payload = { id: lastId };
+    id++;
+    const payload = { id: id };
     socket.send(JSON.stringify(payload));
-    socket.id = lastId;
+    socket.id = id;
 
     socket.on('message', unparsedData => {
-
         const payload = JSON.parse(unparsedData);
         console.log(payload);
-
-        // Send to all except the sender
-        server.clients.forEach(function each(otherSocket) {
-            if (otherSocket.id !== payload.id) {
-                otherSocket.send(JSON.stringify(payload));
-            }
-        });
+        if ("color" in payload) {
+            colors[payload.id] = payload.color;
+            colors.forEach((color, i) => broadcast(server, { id: i, color: color }));
+        } else {
+            broadcast(server, payload, payload.id); // Relay to all except sender;
+        }
     });
 
     socket.on('close', () => {

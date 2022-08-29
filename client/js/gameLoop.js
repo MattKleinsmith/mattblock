@@ -1,7 +1,6 @@
 let id;
 let controller;
-let who;
-let otherWho;
+let player;
 
 setInterval(gameLoop, frameTime)
 
@@ -16,32 +15,42 @@ function gameLoop() {
 // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
 
 socket.onmessage = message => {
+
     const payload = JSON.parse(message.data);
 
     if (id === undefined) {
-
-        console.log(payload);
-
-        id = Number(payload.id);
-
-        [who, otherWho] = id === 0 ? [player, otherPlayer] : [otherPlayer, player];
-
+        console.log("id", payload.id);
+        id = payload.id;
+        player = gameObjects[id];
         controller = {
-            "w": { pressed: false, func: who.move.bind(who, { x: 0, y: -1 }) },
-            "a": { pressed: false, func: who.move.bind(who, { x: -1, y: 0 }) },
-            "s": { pressed: false, func: who.move.bind(who, { x: 0, y: 1 }) },
-            "d": { pressed: false, func: who.move.bind(who, { x: 1, y: 0 }) },
-            " ": { pressed: false, func: who.move.bind(who, { x: 0, y: -1 }) },  // should affect velocity
+            "w": { pressed: false, func: player.move.bind(player, { x: 0, y: -1 }) },
+            "a": { pressed: false, func: player.move.bind(player, { x: -1, y: 0 }) },
+            "s": { pressed: false, func: player.move.bind(player, { x: 0, y: 1 }) },
+            "d": { pressed: false, func: player.move.bind(player, { x: 1, y: 0 }) },
+            " ": { pressed: false, func: player.move.bind(player, { x: 0, y: -1 }) },  // should affect velocity
         }
+
+        const colorPayload = { id: id, color: player.color };
+        socket.send(JSON.stringify(colorPayload));
     } else {
-        otherWho.position = payload.position;
+        if ("position" in payload) gameObjects[payload.id].position = payload.position;
+        if ("color" in payload) {
+            gameObjects[payload.id].setColor(payload.color);
+        }
+    }
+}
+
+function send() {
+    if (!player) return;
+    if (player.position.x !== player.oldPosition.x ||
+        player.position.y !== player.oldPosition.y) {
+        const payload = { id: id, position: player.position };
+        socket.send(JSON.stringify(payload));
     }
 }
 
 function update() {
-    for (const gameObject of Object.values(gameObjects)) {
-        gameObject.update();
-    }
+    gameObjects.forEach(gameObject => gameObject.update())
 }
 
 function handleInputs() {
@@ -54,22 +63,11 @@ function draw() {
     const canvas = document.getElementById('canvas');
     canvas.width = window.innerWidth * .98;
     canvas.height = window.innerHeight * .95;
-    if (canvas.getContext) {
-        const ctx = canvas.getContext('2d');
 
-        for (const gameObject of Object.values(gameObjects)) {
-            gameObject.draw(ctx);
-        }
-    }
-}
+    if (!canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
 
-function send() {
-    if (!who) return;
-    if (who.position.x !== who.oldPosition.x ||
-        who.position.y !== who.oldPosition.y) {
-        const payload = { id: id, position: who.position };
-        socket.send(JSON.stringify(payload));
-    }
+    gameObjects.forEach(gameObject => gameObject.draw(ctx))
 }
 
 document.addEventListener("keydown", event => {
