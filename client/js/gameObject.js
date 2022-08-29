@@ -1,6 +1,6 @@
 class GameObject {
     constructor(id, position = { x: 0, y: 0 }, fillStyle = 'rgb(200, 0, 0)', size = { width: 50, height: 50 }) {
-        this.id = id;
+        this.id = id;  // TODO: Didn't end up using this.
         this.position = position;
         this.oldPosition = { ...position };
         this.fillStyle = fillStyle;
@@ -13,8 +13,8 @@ class GameObject {
 
     // Idea: What if instead of moving ourself, we moved the world?
     move(direction) {
-        this.position.x += direction.x * frameTime * frameRateMultiplier;
-        this.position.y += direction.y * frameTime * frameRateMultiplier;
+        this.position.x += direction.x * frameTime;
+        this.position.y += direction.y * frameTime;
     }
 
     draw(ctx) {

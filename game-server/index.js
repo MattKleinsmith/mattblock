@@ -5,14 +5,11 @@ const WebSocket = require('ws');
 const server = new WebSocket.Server({ port: 8080 });
 let lastId = -1;
 
-const sockets = {};
-
 server.on('connection', socket => {
-
     lastId++;
     const payload = { id: lastId };
     socket.send(JSON.stringify(payload));
-    sockets[lastId] = socket;
+    socket.id = lastId;
 
     socket.on('message', unparsedData => {
 
@@ -20,11 +17,16 @@ server.on('connection', socket => {
         console.log(payload);
 
         // Send to all except the sender
-        for (const id in sockets) {
-            if (Number(id) !== payload.id) {
-                sockets[id].send(JSON.stringify(payload));
+        server.clients.forEach(function each(otherSocket) {
+            if (otherSocket.id !== payload.id) {
+                otherSocket.send(JSON.stringify(payload));
             }
-        }
+        });
     });
+
+    socket.on('close', () => {
+        console.log("Closing", socket.id);
+        // TODO: Make their ID available for use.
+    })
 
 });

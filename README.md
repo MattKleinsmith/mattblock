@@ -1,4 +1,4 @@
 - [x] Draw a square
 - [x] Implement game loop
 - [x] Sync player positions between two browser tabs
-- [ ] Sync player positions between two clients over the Internet
+- [x] Sync player positions over the Internet
