@@ -6,8 +6,8 @@ setInterval(gameLoop, frameTime)
 
 function gameLoop() {
     time += frameTime;
-    update();
-    handleInputs();
+
+    updatePlayer();
     draw();
     send();
 }
@@ -43,16 +43,18 @@ socket.onmessage = message => {
         console.log("id", payload.id);
         id = payload.id;
         player = gameObjects[id];
+        colorPicker.value = rgbToHex(player.color.r, player.color.g, player.color.b);
         controller = {
-            "w": { pressed: false, func: player.move.bind(player, { x: 0, y: -1 }) },
-            "a": { pressed: false, func: player.move.bind(player, { x: -1, y: 0 }) },
-            "s": { pressed: false, func: player.move.bind(player, { x: 0, y: 1 }) },
-            "d": { pressed: false, func: player.move.bind(player, { x: 1, y: 0 }) },
-            " ": { pressed: false, func: player.move.bind(player, { x: 0, y: -1 }) },  // should affect velocity
+            "w": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },
+            "a": { pressed: false, move: () => { player.move({ x: -1, y: 0 }) } },
+            "s": { pressed: false, move: () => { player.move({ x: 0, y: 1 }) } },
+            "d": { pressed: false, move: () => { player.move({ x: 1, y: 0 }) } },
+            " ": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },  // should affect velocity
         }
 
         sendColor();
     } else {
+        gameObjects[payload.id].isActive = true;
         if ("position" in payload) gameObjects[payload.id].position = payload.position;
         if ("color" in payload) {
             gameObjects[payload.id].setColor(payload.color);
@@ -69,14 +71,22 @@ function send() {
     }
 }
 
-function update() {
-    gameObjects.forEach(gameObject => gameObject.update())
-}
+// // TODO: Move to server
+// function update() {
+//     gameObjects.forEach(gameObject => gameObject.update())
+// }
+// Can maybe do client-side prediction for non-controlled. But at least interpolation.
 
-function handleInputs() {
+function updatePlayer() {
+    if (!player) return;
+
+    player.oldPosition = { ...player.position };
+
+    let isMoved = false;
     for (const key in controller) {
-        controller[key].pressed && controller[key].func()
+        if (controller[key].pressed) controller[key].move();  // TODO: Can get hit by multiple gravities
     }
+    if (!isMoved) player.move();
 }
 
 function draw() {

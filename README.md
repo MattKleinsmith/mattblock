@@ -5,3 +5,5 @@
 - [x] Allow 100 players
 - [x] Right click to change color
 - [x] Send all game data when player joins
+- [x] Add gravity and a ground
+- [ ] Keep player centered on screen
