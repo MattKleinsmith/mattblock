@@ -2,7 +2,7 @@
 //// https://www.youtube.com/watch?v=1BfCnjr_Vjg
 
 const WebSocket = require('ws');
-const { broadcast, sendPayload } = require('./helpers');
+const { broadcast } = require('./helpers');
 
 const server = new WebSocket.Server({ port: 8080 });
 let id = -1;
@@ -29,6 +29,10 @@ server.on('connection', socket => {
     socket.on('close', () => {
         console.log("Closing", socket.id);
         // TODO: Make their ID available for use.
+        /*
+            When there's a new person, pop an ID from availableIds.
+            When a person disconnects, push their ID back into availableIds, to recycle it.
+        */
     })
 
 });

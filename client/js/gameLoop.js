@@ -12,7 +12,28 @@ function gameLoop() {
     send();
 }
 
-// Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
+colorPicker.style.position = "absolute"
+colorPicker.style.left = 500 + 'px';
+colorPicker.style.top = 500 + 'px';
+
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+colorPicker.oninput = function (event) {
+    player.setColor(hexToRgb(colorPicker.value))
+    sendColor();
+}
+
+function sendColor() {
+    const colorPayload = { id: id, color: player.color };
+    socket.send(JSON.stringify(colorPayload));
+}
 
 socket.onmessage = message => {
 
@@ -30,8 +51,7 @@ socket.onmessage = message => {
             " ": { pressed: false, func: player.move.bind(player, { x: 0, y: -1 }) },  // should affect velocity
         }
 
-        const colorPayload = { id: id, color: player.color };
-        socket.send(JSON.stringify(colorPayload));
+        sendColor();
     } else {
         if ("position" in payload) gameObjects[payload.id].position = payload.position;
         if ("color" in payload) {
@@ -61,8 +81,8 @@ function handleInputs() {
 
 function draw() {
     const canvas = document.getElementById('canvas');
-    canvas.width = window.innerWidth * .98;
-    canvas.height = window.innerHeight * .95;
+    canvas.width = window.innerWidth * .99;
+    canvas.height = window.innerHeight * .99;
 
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
@@ -70,6 +90,7 @@ function draw() {
     gameObjects.forEach(gameObject => gameObject.draw(ctx))
 }
 
+// Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
 document.addEventListener("keydown", event => {
     if (controller[event.key]) controller[event.key].pressed = true;
 })
@@ -77,3 +98,12 @@ document.addEventListener("keydown", event => {
 document.addEventListener("keyup", event => {
     if (controller[event.key]) controller[event.key].pressed = false;
 })
+
+document.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
+
+    colorPicker.style.left = event.clientX + 'px';
+    colorPicker.style.top = event.clientY + 'px';
+
+    setTimeout(colorPicker.showPicker.bind(colorPicker), frameTime * 2)
+}, false);

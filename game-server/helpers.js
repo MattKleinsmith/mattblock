@@ -9,4 +9,4 @@ function sendPayload(socket, payload) {
     socket.send(JSON.stringify(payload))
 }
 
-module.exports = { broadcast, sendPayload }
+module.exports = { broadcast }
