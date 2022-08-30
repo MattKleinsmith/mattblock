@@ -33,9 +33,9 @@ function initializePlayer(payload) {
     id = payload.id;
     player = gameObjects[id];
     controller = {
-        "w": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },
+        // "w": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },
         "a": { pressed: false, move: () => { player.move({ x: -1, y: 0 }) } },
-        "s": { pressed: false, move: () => { player.move({ x: 0, y: 1 }) } },
+        // "s": { pressed: false, move: () => { player.move({ x: 0, y: 1 }) } },
         "d": { pressed: false, move: () => { player.move({ x: 1, y: 0 }) } },
         " ": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },  // should affect velocity
     }

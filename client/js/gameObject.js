@@ -37,19 +37,29 @@ class GameObject {
         // Player only
         this.playerPositionWorldSpace = { ...positionWorldSpace };
         this.oldPlayerPositionWorldSpace = { ...this.playerPositionWorldSpace };
+
+        this.velocity = { x: 0, y: 0 };
     }
 
-    static velocityFromGravity = 0;
+    static gravity = 0.001;
     static height = 50;
-    static ground = 850;
+    static ground = 400;
+    static jumpForce = 0.75;
 
     // Idea: What if instead of moving ourself, we moved the world?
     move(direction = { x: 0, y: 0 }) {
-        this.playerPositionWorldSpace.x += direction.x * frameTime;
 
-        let yDisplacement = direction.y;
-        // if (this.playerPositionWorldSpace.y < GameObject.ground) yDisplacement += GameObject.velocityFromGravity;
-        this.playerPositionWorldSpace.y += yDisplacement * frameTime;
+        // Velocity
+        if (this.playerPositionWorldSpace.y <= GameObject.ground) {
+            this.velocity.y += GameObject.gravity * frameTime;
+        } else {
+            this.velocity.y = GameObject.jumpForce * direction.y;
+        }
+        this.velocity.x += GameObject.gravity.x * frameTime;
+
+        // Position
+        this.playerPositionWorldSpace.x += direction.x * frameTime;
+        this.playerPositionWorldSpace.y += this.velocity.y * frameTime;
 
         // Move everything else.
         gameObjects.forEach(gameObject => {

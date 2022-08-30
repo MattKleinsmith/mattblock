@@ -1,4 +1,5 @@
 const maxPlayers = 100;
+const playerHeight = 50;
 const gameObjects = new Array(maxPlayers);
 
 function randomHexColor() {
@@ -9,20 +10,20 @@ for (let i = 0; i < 100; i++) {
     gameObjects[i] = new GameObject(
         { x: 0, y: 0 },
         `#${randomHexColor()}${randomHexColor()}${randomHexColor()}`,
-        { width: 50, height: 50 }
+        { width: playerHeight, height: playerHeight }
     );
 }
 
-const referencePoint = new GameObject(
-    { x: window.innerWidth * .1, y: window.innerHeight * .1 },
-    "#7d7d7d",
-    { width: 10, height: 10 }
+const ground = new GameObject(
+    { x: 0, y: GameObject.ground + playerHeight * 0.5 + 5 },
+    "#000000",
+    { width: 10000, height: 10 }
 );
-gameObjects.push(referencePoint);
+gameObjects.push(ground);
 
 const spawner = new GameObject(
     { x: 0, y: 0 },
-    "#000000",
+    "#181A1B",
     { width: 53, height: 53 }
 );
 gameObjects.push(spawner);
