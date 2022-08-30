@@ -7,4 +7,4 @@
 - [x] Send all game data when player joins
 - [x] Add gravity and a ground
 - [x] Keep player centered on screen
-- [ ] Fix key staying down if picking a color while moving
+- [x] Fix key staying down if picking a color while moving

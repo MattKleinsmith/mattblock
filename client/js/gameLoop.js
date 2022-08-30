@@ -112,8 +112,12 @@ document.addEventListener("keyup", event => {
 document.addEventListener('contextmenu', function (event) {
     event.preventDefault();
 
+    for (const key in controller) {
+        controller[key].pressed = false;
+    }
+
     colorPicker.style.left = event.clientX + 'px';
     colorPicker.style.top = event.clientY + 'px';
 
-    setTimeout(colorPicker.showPicker.bind(colorPicker), frameTime * 2)
+    setTimeout(colorPicker.showPicker.bind(colorPicker), frameTime * 2);
 }, false);

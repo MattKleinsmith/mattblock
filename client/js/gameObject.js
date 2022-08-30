@@ -7,9 +7,33 @@ function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-// World space
-// Screen space
-// Player space (which is screen space - an offset)
+function playerToScreenSpace(gameObject) {
+    return {
+        x: 0.5 * (window.innerWidth - gameObject.size.width),
+        y: 0.5 * (window.innerHeight - gameObject.size.height)
+    }
+}
+
+function worldToPlayerSpace(gameObject) {
+    return {
+        x: gameObject.positionWorldSpace.x - player.playerPositionWorldSpace.x,
+        y: gameObject.positionWorldSpace.y - player.playerPositionWorldSpace.y,
+    }
+}
+
+function worldToScreenSpace(gameObject) {
+    // World --> Player
+    const positionPlayerSpace = worldToPlayerSpace(gameObject);
+
+    // Player --> Screen
+    const offsetFromPlayerToScreenSpace = playerToScreenSpace(gameObject);
+
+    // World --> Player --> Screen
+    return {
+        x: positionPlayerSpace.x + offsetFromPlayerToScreenSpace.x,
+        y: positionPlayerSpace.y + offsetFromPlayerToScreenSpace.y
+    }
+}
 
 class GameObject {
     constructor(positionWorldSpace = { x: 0, y: 0 }, color = { r: 255, g: 255, b: 255 }, size = { width: 50, height: 50 }) {
@@ -18,7 +42,7 @@ class GameObject {
         this.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
 
         this.positionWorldSpace = { ...positionWorldSpace };
-        this.positionPlayerSpace = { x: window.innerWidth * .5, y: window.innerHeight * .5 };
+        this.positionScreenSpace = { x: window.innerWidth * .5, y: window.innerHeight * .5 };
 
         // Player only
         this.playerPositionWorldSpace = { ...positionWorldSpace };
@@ -45,16 +69,15 @@ class GameObject {
         // Move everything else.
         gameObjects.forEach(gameObject => {
             if (gameObject !== player) {
-                gameObject.positionPlayerSpace.x = gameObject.positionWorldSpace.x - player.playerPositionWorldSpace.x + window.innerWidth * .5 - gameObject.size.width * .5;
-                gameObject.positionPlayerSpace.y = gameObject.positionWorldSpace.y - player.playerPositionWorldSpace.y + window.innerHeight * .5 - gameObject.size.height * .5;
+                gameObject.positionScreenSpace = worldToScreenSpace(gameObject);
             } else {
-                gameObject.positionPlayerSpace = { x: window.innerWidth * .5 - this.size.width * .5, y: window.innerHeight * .5 - this.size.height * .5 };
+                gameObject.positionScreenSpace = playerToScreenSpace(player);
             }
         })
     }
 
     draw(ctx) {
         ctx.fillStyle = this.fillStyle;
-        ctx.fillRect(this.positionPlayerSpace.x, this.positionPlayerSpace.y, this.size.width, this.size.height);
+        ctx.fillRect(this.positionScreenSpace.x, this.positionScreenSpace.y, this.size.width, this.size.height);
     }
 }
