@@ -6,8 +6,8 @@ for (let i = 0; i < 100; i++) {
 
     gameObjects[i] = new GameObject(
         {
-            x: window.innerWidth * .5,
-            y: window.innerHeight * .5
+            x: 0,
+            y: 0
         },
         {
             r: ~~(Math.random() * 255),
@@ -40,8 +40,8 @@ gameObjects.push(referencePoint);
 
 const spawner = new GameObject(
     {
-        x: window.innerWidth * .5 - 1,
-        y: window.innerHeight * .5 - 1
+        x: 0,
+        y: 0
     },
     {
         r: 0,
