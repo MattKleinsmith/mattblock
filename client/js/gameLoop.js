@@ -18,22 +18,13 @@ function gameLoop() {
     sendPosition();
 }
 
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-
 colorPicker.oninput = function (event) {
-    player.setColor(hexToRgb(colorPicker.value))
+    player.fillStyle = colorPicker.value;
     sendColor();
 }
 
 function sendColor() {
-    const colorPayload = { id: id, color: player.color };
+    const colorPayload = { id: id, color: player.fillStyle };
     socket.send(JSON.stringify(colorPayload));
 }
 
@@ -48,7 +39,7 @@ function initializePlayer(payload) {
         "d": { pressed: false, move: () => { player.move({ x: 1, y: 0 }) } },
         " ": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },  // should affect velocity
     }
-    colorPicker.value = rgbToHex(player.color.r, player.color.g, player.color.b);
+    colorPicker.value = player.fillStyle;
     sendColor();
 }
 
@@ -63,7 +54,7 @@ socket.onmessage = message => {
             gameObjects[payload.id].positionWorldSpace = payload.position;
         }
         if ("color" in payload) {
-            gameObjects[payload.id].setColor(payload.color);
+            gameObjects[payload.id].fillStyle = payload.color;
         }
     }
 }

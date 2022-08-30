@@ -1,12 +1,3 @@
-function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-}
-
-function rgbToHex(r, g, b) {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
-
 function playerToScreenSpace(gameObject) {
     return {
         x: 0.5 * (window.innerWidth - gameObject.size.width),
@@ -36,10 +27,9 @@ function worldToScreenSpace(gameObject) {
 }
 
 class GameObject {
-    constructor(positionWorldSpace = { x: 0, y: 0 }, color = { r: 255, g: 255, b: 255 }, size = { width: 50, height: 50 }) {
+    constructor(positionWorldSpace = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }) {
         this.size = size;
-        this.color = color;
-        this.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
+        this.fillStyle = fillStyle;
 
         this.positionWorldSpace = { ...positionWorldSpace };
         this.positionScreenSpace = { x: window.innerWidth * .5, y: window.innerHeight * .5 };
@@ -52,11 +42,6 @@ class GameObject {
     static velocityFromGravity = 0;
     static height = 50;
     static ground = 850;
-
-    setColor(color = { r: 255, g: 255, b: 255 }) {
-        this.color = color;
-        this.fillStyle = `rgb(${this.color.r}, ${this.color.g}, ${this.color.b})`;
-    }
 
     // Idea: What if instead of moving ourself, we moved the world?
     move(direction = { x: 0, y: 0 }) {
