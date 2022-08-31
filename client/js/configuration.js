@@ -3,8 +3,9 @@ let controller;
 let player;
 
 colorPicker.style.position = "absolute";
+
 nameInput.style.position = "absolute";
-nameInput.value = Math.random() > 0.5 ? "new phone" : "who dis";
+const nameFieldSpaceCount = 2;
 
 let time = 0;
 let frameRate = 120;

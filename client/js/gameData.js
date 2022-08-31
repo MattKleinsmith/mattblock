@@ -2,14 +2,10 @@ const maxPlayers = 100;
 const playerHeight = 50;
 const gameObjects = new Array(maxPlayers);
 
-function randomHexColor() {
-    return (~~(Math.random() * 255)).toString(16).padStart(2, '0');
-}
-
 for (let i = 0; i < 100; i++) {
     gameObjects[i] = new GameObject(
         { x: 0, y: 0 },
-        `#${randomHexColor()}${randomHexColor()}${randomHexColor()}`,
+        `#FFFFFF`,
         { width: playerHeight, height: playerHeight },
     );
 }

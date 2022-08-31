@@ -15,10 +15,12 @@ function sendProfile() {
     socket.send(JSON.stringify(profilePayload));
 }
 
-function initializePlayer(payload) {
-    console.log("id", payload.id);
-    id = payload.id;
+function initializePlayer(incomingId) {
+    console.log("id", incomingId);
+    id = incomingId;
     player = gameObjects[id];
+    colorPicker.value = player.fillStyle;
+    nameInput.value = player.name;
     controller = {
         // "w": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },
         "a": { pressed: false, move: () => { player.move({ x: -1, y: 0 }) } },
@@ -26,22 +28,24 @@ function initializePlayer(payload) {
         "d": { pressed: false, move: () => { player.move({ x: 1, y: 0 }) } },
         " ": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },  // should affect velocity
     }
-    colorPicker.value = player.fillStyle;
-    player.name = nameInput.value;
-    sendProfile();
+    body.style.visibility = "visible";
 }
+
+socket.addEventListener('open', (event) => {
+    getIPs().then(result => socket.send(JSON.stringify({ id: id, ip: result[0] })));
+});
 
 socket.onmessage = message => {
 
     const payload = JSON.parse(message.data);
 
-    if (id === undefined) {
+    if (typeof payload === "number") {
         initializePlayer(payload);
     } else {
         if ("position" in payload) {
             gameObjects[payload.id].positionWorldSpace = payload.position;
         }
-        if ("color" in payload) {
+        else if ("color" in payload) {
             gameObjects[payload.id].fillStyle = payload.color;
             gameObjects[payload.id].name = payload.name;
         }
@@ -87,6 +91,8 @@ colorPicker.oninput = function (event) {
 
 nameInput.oninput = function (event) {
     player.name = nameInput.value;
+    nameInput.style.width = nameInput.value.length + nameFieldSpaceCount + "ch";
+    colorPicker.style.width = 2 * nameInput.value.length + 2 + nameFieldSpaceCount + "ch";
     sendProfile();
 }
 
@@ -108,20 +114,22 @@ document.addEventListener('contextmenu', function (event) {
         controller[key].pressed = false;
     }
 
-    const offset = 5;
-
-    colorPicker.style.display = "hidden";
-    colorPicker.style.left = event.clientX - offset + 'px';
-    colorPicker.style.top = event.clientY - offset + 'px';
-
     nameInput.style.display = "block";
-    nameInput.style.left = colorPicker.style.left;
-    nameInput.style.top = colorPicker.style.top;
+    nameInput.style.left = event.clientX + 'px';
+    nameInput.style.top = event.clientY + 'px';
+    nameInput.style.width = nameInput.value.length + nameFieldSpaceCount + "ch";
+    nameInput.style.fontFamily = "monospace";
+    nameInput.focus();
 
-    setTimeout(colorPicker.showPicker.bind(colorPicker), frameTime * 2);
+    colorPicker.style.display = "block";
+    colorPicker.style.left = event.clientX + 'px';
+    colorPicker.style.top = event.clientY + 50 + 'px';
+    colorPicker.style.width = 2 * nameInput.value.length + 2 + nameFieldSpaceCount + "ch";
+    colorPicker.style.height = 40 + "px";
 }, false);
 
-canvas.addEventListener('click', (event) => {
+canvas.addEventListener('click', event => {
     nameInput.style.display = "none";
+    colorPicker.style.display = "none";
     allowMovement = true;
 });

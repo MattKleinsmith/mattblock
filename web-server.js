@@ -24,6 +24,9 @@ const server = http.createServer((req, res) => {
         case "/css/main.css":
             sendFile(res, "css/main.css");
             break;
+        case "/js/ip.js":
+            sendFile(res, "js/ip.js");
+            break;
         case "/js/auth.js":
             sendFile(res, "js/auth.js");
             break;

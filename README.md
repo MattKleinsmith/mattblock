@@ -9,5 +9,9 @@
 - [x] Keep player centered on screen
 - [x] Fix key staying down if picking a color while moving
 - [x] Right click to change name
-- [ ] Assign player's old character when they join again
+- [x] Assign player's old character when they join again
+- [x] Focus text box upon right click
+- [x] Hide loading
+- [ ] Load server position, not local reset position
 - [ ] Write world data to a file. Load when server starts
+- [ ] Interpolate remote player character positions

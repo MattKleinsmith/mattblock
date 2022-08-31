@@ -77,7 +77,6 @@ class GameObject {
     draw(ctx) {
         ctx.fillStyle = this.fillStyle;
         ctx.fillRect(this.positionScreenSpace.x, this.positionScreenSpace.y, this.size.width, this.size.height);
-        // ctx.fillStyle = invertColor(this.fillStyle);
         ctx.font = '48px sans-serif';
         ctx.fillText(this.name, this.positionScreenSpace.x + this.nameOffset.x, this.positionScreenSpace.y + this.nameOffset.y);
     }
