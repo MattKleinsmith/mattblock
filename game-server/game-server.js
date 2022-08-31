@@ -29,6 +29,7 @@ server.on('connection', socket => {
                     name: Math.random() > 0.5 ? "new phone" : "who dis"
                 }
                 profiles[id] = profilePayload;
+                positions[id] = { id: id, position: { x: 0, y: 0 } };
                 console.log(`New player: "${profiles[id].name}", id: ${id}`);
                 broadcast(server, profilePayload); // Send to all, including sender
             } else {
@@ -36,7 +37,9 @@ server.on('connection', socket => {
                 console.log(`Old player: "${profiles[id].name}", id: ${id}`);
             }
             socket.id = id;
-            socket.send(JSON.stringify(id));
+            const initializationPayload = { initialization: true, ...positions[id] };
+            console.log("Sending", JSON.stringify(initializationPayload));
+            socket.send(JSON.stringify(initializationPayload));
             return;
         }
         else if ("color" in payload) {
@@ -49,11 +52,6 @@ server.on('connection', socket => {
 
     socket.on('close', () => {
         console.log("Closing", socket.id);
-        // TODO: Make their ID available for use.
-        /*
-            When there's a new person, pop an ID from availableIds.
-            When a person disconnects, push their ID back into availableIds, to recycle it.
-        */
     })
 
 });

@@ -10,7 +10,7 @@ for (let i = 0; i < 100; i++) {
     );
 }
 
-const groundHeight = 1000;
+const groundHeight = 2000;
 const ground = new GameObject(
     { x: 0, y: GameObject.ground + (playerHeight + groundHeight) * 0.5 },
     "#222222",

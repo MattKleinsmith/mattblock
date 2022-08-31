@@ -15,10 +15,12 @@ function sendProfile() {
     socket.send(JSON.stringify(profilePayload));
 }
 
-function initializePlayer(incomingId) {
-    console.log("id", incomingId);
-    id = incomingId;
+function initializePlayer(payload) {
+    console.log("id", payload.id);
+    id = payload.id;
     player = gameObjects[id];
+    player.playerPositionWorldSpace = payload.position;
+    player.oldPlayerPositionWorldSpace = { ...player.playerPositionWorldSpace };
     colorPicker.value = player.fillStyle;
     nameInput.value = player.name;
     controller = {
@@ -39,7 +41,7 @@ socket.onmessage = message => {
 
     const payload = JSON.parse(message.data);
 
-    if (typeof payload === "number") {
+    if ("initialization" in payload) {
         initializePlayer(payload);
     } else {
         if ("position" in payload) {

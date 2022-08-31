@@ -12,6 +12,6 @@
 - [x] Assign player's old character when they join again
 - [x] Focus text box upon right click
 - [x] Hide loading
-- [ ] Load server position, not local reset position
+- [x] Load server position, not default position
 - [ ] Write world data to a file. Load when server starts
 - [ ] Interpolate remote player character positions

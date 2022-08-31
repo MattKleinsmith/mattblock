@@ -1,11 +1,11 @@
-function playerToScreenSpace(gameObject) {
+function playerSpaceToScreenSpace(gameObject) {
     return {
-        x: 0.5 * (window.innerWidth - gameObject.size.width),
+        x: 0.5 * (window.innerWidth - gameObject.size.width),  // TODO: Should this be the player's size?
         y: 0.5 * (window.innerHeight - gameObject.size.height)
     }
 }
 
-function worldToPlayerSpace(gameObject) {
+function worldSpaceToPlayerSpace(gameObject) {
     return {
         x: gameObject.positionWorldSpace.x - player.playerPositionWorldSpace.x,
         y: gameObject.positionWorldSpace.y - player.playerPositionWorldSpace.y,
@@ -14,10 +14,10 @@ function worldToPlayerSpace(gameObject) {
 
 function worldToScreenSpace(gameObject) {
     // World --> Player
-    const positionPlayerSpace = worldToPlayerSpace(gameObject);
+    const positionPlayerSpace = worldSpaceToPlayerSpace(gameObject);
 
     // Player --> Screen
-    const offsetFromPlayerToScreenSpace = playerToScreenSpace(gameObject);
+    const offsetFromPlayerToScreenSpace = playerSpaceToScreenSpace(gameObject);
 
     // World --> Player --> Screen
     return {
@@ -39,7 +39,7 @@ class GameObject {
 
         // Player only
         this.playerPositionWorldSpace = { ...positionWorldSpace };
-        this.oldPlayerPositionWorldSpace = { ...this.playerPositionWorldSpace };
+        this.oldPlayerPositionWorldSpace = { ...positionWorldSpace };
 
         this.velocity = { x: 0, y: 0 };
     }
@@ -69,7 +69,7 @@ class GameObject {
             if (gameObject !== player) {
                 gameObject.positionScreenSpace = worldToScreenSpace(gameObject);
             } else {
-                gameObject.positionScreenSpace = playerToScreenSpace(player);
+                gameObject.positionScreenSpace = playerSpaceToScreenSpace(player);
             }
         })
     }
@@ -80,28 +80,4 @@ class GameObject {
         ctx.font = '48px sans-serif';
         ctx.fillText(this.name, this.positionScreenSpace.x + this.nameOffset.x, this.positionScreenSpace.y + this.nameOffset.y);
     }
-}
-
-function invertColor(hex, bw = true) {
-    if (hex.indexOf('#') === 0) {
-        hex = hex.slice(1);
-    }
-    if (hex.length !== 6) {
-        throw new Error(`Invalid HEX color. Hex: ${hex}`);
-    }
-    var r = parseInt(hex.slice(0, 2), 16),
-        g = parseInt(hex.slice(2, 4), 16),
-        b = parseInt(hex.slice(4, 6), 16);
-    if (bw) {
-        // https://stackoverflow.com/a/3943023/112731
-        return (r * 0.299 + g * 0.587 + b * 0.114) > 186
-            ? '#000000'
-            : '#FFFFFF';
-    }
-    // invert color components
-    r = (255 - r).toString(16);
-    g = (255 - g).toString(16);
-    b = (255 - b).toString(16);
-    // pad each with zeros and return
-    return "#" + padZero(r) + padZero(g) + padZero(b);
 }
