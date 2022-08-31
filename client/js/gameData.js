@@ -3,27 +3,30 @@ const playerHeight = 50;
 const gameObjects = new Array(maxPlayers);
 
 function randomHexColor() {
-    return (~~(Math.random() * 255)).toString(16);
+    return (~~(Math.random() * 255)).toString(16).padStart(2, '0');
 }
 
 for (let i = 0; i < 100; i++) {
     gameObjects[i] = new GameObject(
         { x: 0, y: 0 },
         `#${randomHexColor()}${randomHexColor()}${randomHexColor()}`,
-        { width: playerHeight, height: playerHeight }
+        { width: playerHeight, height: playerHeight },
     );
 }
 
+const groundHeight = 1000;
 const ground = new GameObject(
-    { x: 0, y: GameObject.ground + playerHeight * 0.5 + 5 },
-    "#000000",
-    { width: 10000, height: 10 }
+    { x: 0, y: GameObject.ground + (playerHeight + groundHeight) * 0.5 },
+    "#222222",
+    { width: 10000, height: groundHeight },
+    "don't do it"
 );
 gameObjects.push(ground);
 
 const spawner = new GameObject(
     { x: 0, y: 0 },
-    "#181A1B",
-    { width: 53, height: 53 }
+    // "#181A1B",
+    "#000000",
+    { width: 53, height: 53 },
 );
 gameObjects.push(spawner);

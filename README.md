@@ -8,3 +8,6 @@
 - [x] Add gravity and a ground
 - [x] Keep player centered on screen
 - [x] Fix key staying down if picking a color while moving
+- [x] Right click to change name
+- [ ] Assign player's old character when they join again
+- [ ] Write world data to a file. Load when server starts

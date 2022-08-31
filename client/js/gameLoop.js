@@ -1,14 +1,6 @@
-let id;
-let controller;
-let player;
-
-colorPicker.style.position = "absolute"
-colorPicker.style.left = 500 + 'px';
-colorPicker.style.top = 500 + 'px';
+const socket = new WebSocket(url);
 
 setInterval(gameLoop, frameTime)
-
-///////////////////////////////////////////////////////////////////////////////////////
 
 function gameLoop() {
     time += frameTime;
@@ -18,14 +10,9 @@ function gameLoop() {
     sendPosition();
 }
 
-colorPicker.oninput = function (event) {
-    player.fillStyle = colorPicker.value;
-    sendColor();
-}
-
-function sendColor() {
-    const colorPayload = { id: id, color: player.fillStyle };
-    socket.send(JSON.stringify(colorPayload));
+function sendProfile() {
+    const profilePayload = { id: id, color: player.fillStyle, name: player.name };
+    socket.send(JSON.stringify(profilePayload));
 }
 
 function initializePlayer(payload) {
@@ -40,7 +27,8 @@ function initializePlayer(payload) {
         " ": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },  // should affect velocity
     }
     colorPicker.value = player.fillStyle;
-    sendColor();
+    player.name = nameInput.value;
+    sendProfile();
 }
 
 socket.onmessage = message => {
@@ -55,6 +43,7 @@ socket.onmessage = message => {
         }
         if ("color" in payload) {
             gameObjects[payload.id].fillStyle = payload.color;
+            gameObjects[payload.id].name = payload.name;
         }
     }
 }
@@ -82,8 +71,8 @@ function movePlayer() {
 
 function drawWorld() {
     const canvas = document.getElementById('canvas');
-    canvas.width = window.innerWidth * .99;
-    canvas.height = window.innerHeight * .99;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight; // * .996;
 
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
@@ -91,9 +80,19 @@ function drawWorld() {
     gameObjects.forEach(gameObject => gameObject.draw(ctx))
 }
 
+colorPicker.oninput = function (event) {
+    player.fillStyle = colorPicker.value;
+    sendProfile();
+}
+
+nameInput.oninput = function (event) {
+    player.name = nameInput.value;
+    sendProfile();
+}
+
 // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
 document.addEventListener("keydown", event => {
-    if (controller[event.key]) controller[event.key].pressed = true;
+    if (allowMovement && controller[event.key]) controller[event.key].pressed = true;
 })
 
 document.addEventListener("keyup", event => {
@@ -103,12 +102,26 @@ document.addEventListener("keyup", event => {
 document.addEventListener('contextmenu', function (event) {
     event.preventDefault();
 
+    allowMovement = false;
+
     for (const key in controller) {
         controller[key].pressed = false;
     }
 
-    colorPicker.style.left = event.clientX + 'px';
-    colorPicker.style.top = event.clientY + 'px';
+    const offset = 5;
+
+    colorPicker.style.display = "hidden";
+    colorPicker.style.left = event.clientX - offset + 'px';
+    colorPicker.style.top = event.clientY - offset + 'px';
+
+    nameInput.style.display = "block";
+    nameInput.style.left = colorPicker.style.left;
+    nameInput.style.top = colorPicker.style.top;
 
     setTimeout(colorPicker.showPicker.bind(colorPicker), frameTime * 2);
 }, false);
+
+canvas.addEventListener('click', (event) => {
+    nameInput.style.display = "none";
+    allowMovement = true;
+});

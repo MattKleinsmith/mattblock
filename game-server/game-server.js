@@ -7,7 +7,7 @@ const { broadcast } = require('./helpers');
 const server = new WebSocket.Server({ port: 8080 });
 let id = -1;
 
-const colors = [];
+const profiles = [];
 const positions = [];
 
 server.on('connection', socket => {
@@ -16,14 +16,14 @@ server.on('connection', socket => {
     socket.send(JSON.stringify(payload));
     socket.id = id;
 
-    colors.forEach((color, i) => socket.send(JSON.stringify({ id: i, color: color })));
+    profiles.forEach((profile) => socket.send(JSON.stringify(profile)));
     positions.forEach((position, i) => socket.send(JSON.stringify({ id: i, position: position })));
 
     socket.on('message', unparsedData => {
         const payload = JSON.parse(unparsedData);
         console.log(payload);
         if ("color" in payload) {
-            colors[payload.id] = payload.color;
+            profiles[payload.id] = payload;
         } else if ("position" in payload) {
             positions[payload.id] = payload.position;
         }

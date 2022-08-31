@@ -27,9 +27,6 @@ const server = http.createServer((req, res) => {
         case "/js/auth.js":
             sendFile(res, "js/auth.js");
             break;
-        case "/js/netcode.js":
-            sendFile(res, "js/netcode.js");
-            break;
         case "/js/configuration.js":
             sendFile(res, "js/configuration.js");
             break;

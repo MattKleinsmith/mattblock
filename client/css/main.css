@@ -13,25 +13,13 @@ html {
 }
 
 body {
-    font-family: Helvetica;
     background-color: #181a1b;
-    color: rgb(216, 212, 207);
+    overflow: hidden;
 }
 
-button {
-    color: white;
-}
-
-a,
-a:visited {
-    color: rgb(216, 212, 207);
-}
-
-a:hover {
-    color: #b1aeab;
-}
-
-input,
-textarea {
-    color: rgb(216, 212, 207);
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
 }
