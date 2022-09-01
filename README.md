@@ -14,4 +14,8 @@
 - [x] Hide loading
 - [x] Load server position, not default position
 - [x] Write world data to a file. Load when server starts
+- [x] Decollide players from platforms
+- [ ] Scroll vertically only when near the top or bottom
+- [ ] Spawn platforms from the server. Press a button to randomize them
+- [ ] Turn players into platforms
 - [ ] Interpolate remote player character positions

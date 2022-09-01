@@ -53,6 +53,7 @@ server.on('connection', socket => {
         }
         else if ("color" in payload) {
             world.profiles[payload.id] = payload;
+            console.log(world.profiles[payload.id].name, payload);
         } else if ("position" in payload) {
             world.positions[payload.id] = payload;
             console.log(world.profiles[payload.id].name, payload);

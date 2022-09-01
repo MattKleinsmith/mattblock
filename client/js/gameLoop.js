@@ -24,11 +24,11 @@ function initializePlayer(payload) {
     colorPicker.value = player.fillStyle;
     nameInput.value = player.name;
     controller = {
-        // "w": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },
-        "a": { pressed: false, move: () => { player.move({ x: -1, y: 0 }) } },
-        // "s": { pressed: false, move: () => { player.move({ x: 0, y: 1 }) } },
-        "d": { pressed: false, move: () => { player.move({ x: 1, y: 0 }) } },
-        " ": { pressed: false, move: () => { player.move({ x: 0, y: -1 }) } },  // should affect velocity
+        " ": { pressed: false, direction: { x: 0, y: -1 } },  // should affect velocity
+        // "s": { pressed: false, direction: { x: 0, y: 1 } },
+        "a": { pressed: false, direction: { x: -1, y: 0 } },
+        "d": { pressed: false, direction: { x: 1, y: 0 } },
+        "r": { pressed: false, direction: { x: 0, y: 0 } },
     }
     body.style.visibility = "visible";
 }
@@ -68,11 +68,18 @@ function movePlayer() {
 
     player.oldPlayerPositionWorldSpace = { ...player.playerPositionWorldSpace };
 
-    let isMoved = false;
+    const totalDirection = { x: 0, y: 0 };
     for (const key in controller) {
-        if (controller[key].pressed) controller[key].move();  // TODO: Can get hit by multiple gravities
+        if (controller[key].pressed) {
+            totalDirection.x += controller[key].direction.x;
+            totalDirection.y += controller[key].direction.y;
+            if (key === "r") {
+                player.playerPositionWorldSpace = { x: 0, y: 0 };
+                player.velocity = { x: 0, y: 0 };
+            }
+        }
     }
-    if (!isMoved) player.move();
+    player.move(totalDirection);
 }
 
 function drawWorld() {
@@ -83,7 +90,8 @@ function drawWorld() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
-    gameObjects.forEach(gameObject => gameObject.draw(ctx))
+    gameObjects.forEach(gameObject => gameObject.draw(ctx));
+    platforms.forEach(platform => platform.draw(ctx));
 }
 
 colorPicker.oninput = function (event) {
