@@ -13,5 +13,5 @@
 - [x] Focus text box upon right click
 - [x] Hide loading
 - [x] Load server position, not default position
-- [ ] Write world data to a file. Load when server starts
+- [x] Write world data to a file. Load when server starts
 - [ ] Interpolate remote player character positions

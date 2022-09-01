@@ -12,9 +12,9 @@ for (let i = 0; i < 100; i++) {
 
 const groundHeight = 2000;
 const ground = new GameObject(
-    { x: 0, y: GameObject.ground + (playerHeight + groundHeight) * 0.5 },
+    { x: 0, y: GameObject.ground + (playerHeight + groundHeight) * 0.5 + 5 },
     "#222222",
-    { width: 10000, height: groundHeight },
+    { width: 7000, height: groundHeight },
     "don't do it"
 );
 gameObjects.push(ground);
