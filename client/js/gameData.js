@@ -14,7 +14,7 @@ for (let i = 0; i < 100; i++) {
 
 const spawner = new GameObject(
     { x: -4, y: -4 },
-    "#000000",
+    "#181a1b",
     { width: 60, height: 60 },
 );
 gameObjects.push(spawner);
@@ -24,7 +24,7 @@ const maxPlatformWidth = 1000;
 const platformWidthRange = maxPlatformWidth - minPlatformWidth;
 
 const groundHeight = 2000;
-const groundWidth = 7000;
+const groundWidth = 4000;
 
 const minPlatformX = -groundWidth * 0.5;
 const maxPlatformX = groundWidth * 0.5;
@@ -34,49 +34,66 @@ const minPlatformY = -7000;
 const maxPlatformY = 400;
 const platformYRange = maxPlatformY - minPlatformY;
 
-for (let i = 0; i < 200; i++) {
-    platforms.push(new Platform(
-        {
-            x: Math.random() * platformXRange + minPlatformX,
-            y: Math.random() * platformYRange + minPlatformY
-        },
-        "#000000",
-        { width: Math.random() * platformWidthRange + minPlatformWidth, height: 100 },
-    ));
-}
+// for (let i = 0; i < 200; i++) {
+//     platforms.push(new Platform(
+//         {
+//             x: Math.random() * platformXRange + minPlatformX,
+//             y: Math.random() * platformYRange + minPlatformY
+//         },
+//         "#000000",
+//         { width: Math.random() * platformWidthRange + minPlatformWidth, height: 100 },
+//     ));
+// }
 
 platforms.push(new Platform(
     {
-        x: -groundWidth * 0.5,
+        x: -500,
         y: GameObject.ground + playerHeight
     },
     "#222222",
     { width: groundWidth, height: groundHeight },
 ));
 
-platforms.push(new Platform(
-    {
-        x: -400,
-        y: 350
-    },
-    "#000000",
-    { width: 250, height: 100 },
-));
-
+// R
 platforms.push(new Platform(
     {
         x: 250,
         y: -350
     },
-    "#000000",
+    "#AA5555",
     { width: 250, height: 500 },
 ));
 
+// G
 platforms.push(new Platform(
     {
         x: 450,
         y: 250
     },
-    "#000000",
+    "#55AA55",
     { width: 250, height: 100 },
 ));
+
+// UP
+for (let i = 0; i < 10; i++) {
+    platforms.push(new Platform(
+        {
+            x: -600 + (i * -200),
+            y: 250 + (i * -100)
+        },
+        "#5555AA",
+        { width: 250, height: 100 },
+    ));
+}
+
+// DOWN
+for (let i = 0; i < 100; i++) {
+    platforms.push(new Platform(
+        {
+            x: -600 + (i * -200),
+            y: 450 + (i * 100)
+        },
+        "#5555AA",
+        { width: 250, height: 100 },
+    ));
+}

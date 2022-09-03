@@ -19,8 +19,8 @@ function initializePlayer(payload) {
     console.log("id", payload.id);
     id = payload.id;
     player = gameObjects[id];
-    player.playerPositionWorldSpace = payload.position;
-    player.oldPlayerPositionWorldSpace = { ...player.playerPositionWorldSpace };
+    player.playerPositionWS = payload.position;
+    player.oldplayerPositionWS = { ...player.playerPositionWS };
     colorPicker.value = player.fillStyle;
     nameInput.value = player.name;
     controller = {
@@ -29,8 +29,42 @@ function initializePlayer(payload) {
         "a": { pressed: false, direction: { x: -1, y: 0 } },
         "d": { pressed: false, direction: { x: 1, y: 0 } },
         "r": { pressed: false, direction: { x: 0, y: 0 } },
+        "ArrowUp": { pressed: false, direction: { x: 0, y: -1 } },  // should affect velocity
+        // "s": { pressed: false, direction: { x: 0, y: 1 } },
+        "ArrowLeft": { pressed: false, direction: { x: -1, y: 0 } },
+        "ArrowRight": { pressed: false, direction: { x: 1, y: 0 } },
     }
     body.style.visibility = "visible";
+
+    {
+        player.leftScrollPercentage = 0.42;
+        player.rightScrollPercentage = 1 - player.leftScrollPercentage;
+
+        player.leftScrollSS = window.innerWidth * player.leftScrollPercentage;
+        player.rightScrollSS = window.innerWidth * player.rightScrollPercentage;
+
+        player.noScrollZoneHalfWidth = (player.rightScrollSS - player.leftScrollSS) * 0.5;
+
+        player.leftScrollWS = player.playerPositionWS.x - player.noScrollZoneHalfWidth;
+        player.rightScrollWS = player.playerPositionWS.x + player.noScrollZoneHalfWidth;
+
+        player.leftScreenWS = player.playerPositionWS.x - window.innerWidth * 0.5;
+    }
+
+    {
+        player.topScrollPercentage = 0.35;
+        player.bottomScrollPercentage = 1 - player.topScrollPercentage;
+
+        player.topScrollSS = window.innerHeight * player.topScrollPercentage;
+        player.bottomScrollSS = window.innerHeight * player.bottomScrollPercentage;
+
+        player.noScrollZoneHalfHeight = (player.bottomScrollSS - player.topScrollSS) * 0.5;
+
+        player.topScrollWS = player.playerPositionWS.y - player.noScrollZoneHalfHeight;
+        player.bottomScrollWS = player.playerPositionWS.y + player.noScrollZoneHalfHeight;
+
+        player.topScreenWS = player.playerPositionWS.y - window.innerHeight * 0.5;
+    }
 }
 
 socket.addEventListener('open', (event) => {
@@ -45,7 +79,7 @@ socket.onmessage = message => {
         initializePlayer(payload);
     } else {
         if ("position" in payload) {
-            gameObjects[payload.id].positionWorldSpace = payload.position;
+            gameObjects[payload.id].positionWS = payload.position;
         }
         else if ("color" in payload) {
             gameObjects[payload.id].fillStyle = payload.color;
@@ -56,9 +90,9 @@ socket.onmessage = message => {
 
 function sendPosition() {
     if (!player) return;
-    if (player.playerPositionWorldSpace.x !== player.oldPlayerPositionWorldSpace.x ||
-        player.playerPositionWorldSpace.y !== player.oldPlayerPositionWorldSpace.y) {
-        const payload = { id: id, position: player.playerPositionWorldSpace };
+    if (player.playerPositionWS.x !== player.oldplayerPositionWS.x ||
+        player.playerPositionWS.y !== player.oldplayerPositionWS.y) {
+        const payload = { id: id, position: player.playerPositionWS };
         socket.send(JSON.stringify(payload));
     }
 }
@@ -66,7 +100,7 @@ function sendPosition() {
 function movePlayer() {
     if (!player) return;
 
-    player.oldPlayerPositionWorldSpace = { ...player.playerPositionWorldSpace };
+    player.oldplayerPositionWS = { ...player.playerPositionWS };
 
     const totalDirection = { x: 0, y: 0 };
     for (const key in controller) {
@@ -74,7 +108,7 @@ function movePlayer() {
             totalDirection.x += controller[key].direction.x;
             totalDirection.y += controller[key].direction.y;
             if (key === "r") {
-                player.playerPositionWorldSpace = { x: 0, y: 0 };
+                player.playerPositionWS = { x: 0, y: 0 };
                 player.velocity = { x: 0, y: 0 };
             }
         }

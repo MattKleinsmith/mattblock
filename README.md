@@ -15,7 +15,18 @@
 - [x] Load server position, not default position
 - [x] Write world data to a file. Load when server starts
 - [x] Decollide players from platforms
-- [ ] Scroll vertically only when near the top or bottom
-- [ ] Spawn platforms from the server. Press a button to randomize them
+- [x] Scroll screen only when near an edge
+---
 - [ ] Turn players into platforms
+- [ ] Show tutorial
+- [ ] 💤 if logged off. Tiny. In bottom right of character. Part of profile object.
+---
+### Maybe
+- [ ] Spawn platforms from the server. Press a button to randomize them. Can sync with refreshing
 - [ ] Interpolate remote player character positions
+- [ ] Minimap
+- [ ] Splitscreen
+- [ ] Randomly place emojis in the world. Players unlock by touching them. Right click to show unlocked emojis.
+- [ ] The more emojis you have, the higher you can jump. Hold space to use full jump. Tap to use standard minimum jump.
+- [ ] Can give people some of your emojis. Emojis are currency.
+- [ ] Right click shows player list, with coordinates
