@@ -5,9 +5,9 @@ setInterval(gameLoop, frameTime)
 function gameLoop() {
     time += frameTime;
 
-    movePlayer();
-    drawWorld();
-    sendPosition();
+    movePlayer();  // Simulation
+    drawWorld(); // Presentation
+    sendPosition(); // Communication
 }
 
 function sendProfile() {
@@ -37,7 +37,7 @@ function initializePlayer(payload) {
     body.style.visibility = "visible";
 
     {
-        player.leftScrollPercentage = 0.42;
+        player.leftScrollPercentage = 0.42;  // 0.50 for instascroll
         player.rightScrollPercentage = 1 - player.leftScrollPercentage;
 
         player.leftScrollSS = window.innerWidth * player.leftScrollPercentage;

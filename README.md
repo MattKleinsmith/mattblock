@@ -17,7 +17,11 @@
 - [x] Decollide players from platforms
 - [x] Scroll the screen only when near an edge
 - [x] Turn players into platforms
+- [x] Fix phasing-through-other-players bug.
 ---
+- [ ] Fix partial phasing-through-other-players bug.
+- [ ] Make a more precise jump, via holding.
+- [ ] Teamwork example: Double jump off each other.
 - [ ] Show tutorial
 - [ ] 💤 if logged off. Tiny. In bottom right of character. Part of profile object.
 ---

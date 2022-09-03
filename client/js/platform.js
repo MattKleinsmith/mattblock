@@ -11,12 +11,17 @@ class Platform {
         this.oldPositionWS = { ...positionWS };
         this.positionSS = { ...positionWS };
         this.velocity = { x: 0, y: 0 };
+
+        this.x0 = this.positionWS.x;
+        this.x1 = this.x0 + this.size.width;
+        this.y0 = this.positionWS.y;
+        this.y1 = this.y0 + this.size.height;
     }
 
     static gravity = 0.0045;
     static height = 50;
     static ground = 400;
-    static jumpForce = 1.35;
+    static jumpForce = 1.35 * 2;
     static runningForce = .0625;
     static maxRunSpeed = 1;
     static friction = .4;
@@ -25,15 +30,11 @@ class Platform {
 
         // Decollision
         {
-            this.allowedDirections = {
-                up: true,
-                down: true,
-                left: true,
-                right: true
-            };
+            this.updateCorners();
 
+            this.allowedDirections = { up: true, down: true, left: true, right: true };
             for (const platform of platforms) {
-                platform.decollide();
+                if (platform !== player) platform.decollide();
             }
         }
 
@@ -59,7 +60,6 @@ class Platform {
             this.positionWS.y += this.velocity.y * frameTime;
         }
 
-        let worldSpaceHorizontalDisplacement;
         // Horizontal movement
         {
             if (this.allowedDirections.left && direction.x < 0) {
@@ -87,8 +87,7 @@ class Platform {
                 this.velocity.x = 0;
             }
             // Move
-            worldSpaceHorizontalDisplacement = this.velocity.x * frameTime;
-            this.positionWS.x += worldSpaceHorizontalDisplacement;
+            this.positionWS.x += this.velocity.x * frameTime;
         }
 
         //////////////////////////
@@ -226,90 +225,97 @@ class Platform {
         }
     }
 
-    decollide() {
+    updateCorners() {
         this.x0 = this.positionWS.x;
         this.x1 = this.x0 + this.size.width;
         this.y0 = this.positionWS.y;
         this.y1 = this.y0 + this.size.height;
+    }
+
+    decollide() {
+        this.updateCorners();
+        const withinXRange = (point, includeBoundary) => withinRange(point, this.x0, this.x1, includeBoundary);
+        const withinYRange = (point, includeBoundary) => withinRange(point, this.y0, this.y1, includeBoundary);
 
         const error = { x: 0, y: 0 };
 
-        const tentativeRestrictions = {
-            up: true,
-            down: true,
-            left: true,
-            right: true
-        };
-
-        let collisionCount = 0;
-
-        const platformLeft = this.x0;
-        const platformRight = this.x1;
-        const platformTop = this.y0;
-        const platformBottom = this.y1;
-
-        const playerLeft = player.positionWS.x;
-        const playerRight = player.positionWS.x + player.size.width;
-        const playerTop = player.positionWS.y;
-        const playerBottom = player.positionWS.y + player.size.height;
-        const withinXRange = (point, relax = false) => {
-            return relax ? point > this.x0 && point < this.x1 : point >= this.x0 && point <= this.x1;
-        }
-        const withinYRange = (point, relax = false) => {
-            return relax ? point > this.y0 && point < this.y1 : point >= this.y0 && point <= this.y1;
-        }
+        const tentativeAllowedDirections = { up: true, down: true, left: true, right: true };
 
         // Vertical
         {
-            if (withinXRange(playerLeft, true) || withinXRange(playerRight, true)) {
-                if (withinYRange(playerTop)) {
-                    error.y = playerTop - platformBottom;
-                    tentativeRestrictions.up = false;
-                    collisionCount++;
-                } else if (withinYRange(playerBottom)) {
-                    error.y = playerBottom - platformTop;
-                    tentativeRestrictions.down = false;
-                    collisionCount++;
+            // RELAX CONSTRAINTS TO ALLOW MOVEMENT
+            const isLeftInRange = withinXRange(player.x0, false);
+            const isRightInRange = withinXRange(player.x1, false);
+            if (isLeftInRange || isRightInRange) {
+                if (withinYRange(player.y0, true)) {
+                    error.y = player.y0 - this.y1;
+                    tentativeAllowedDirections.up = false;
+                } else if (withinYRange(player.y1, true)) {
+                    error.y = player.y1 - this.y0;
+                    tentativeAllowedDirections.down = false;
                 }
             }
         }
 
         // Horizontal
         {
-            if (withinYRange(playerTop, true) || withinYRange(playerBottom, true)) {
-                if (withinXRange(playerRight)) {
-                    error.x = playerRight - platformLeft;
-                    tentativeRestrictions.right = false;
-                    collisionCount++;
-                } else
-                    if (withinXRange(playerLeft)) {
-                        error.x = playerLeft - platformRight;
-                        tentativeRestrictions.left = false;
-                        collisionCount++;
+            const sameHeight = this.size.height === player.size.height;
+            if (sameHeight) {
+                if (player.y0 === this.y0 && player.y1 === this.y1) {
+                    if (withinXRange(player.x1, true)) {
+                        error.x = player.x1 - this.x0;
+                        tentativeAllowedDirections.right = false;
+                    } else if (withinXRange(player.x0, true)) {
+                        error.x = player.x0 - this.x1;
+                        tentativeAllowedDirections.left = false;
                     }
+                }
+            } else {
+                const isTopInRange = withinYRange(player.y0, false);
+                const isBottomInRange = withinYRange(player.y1, false);
+                if (isTopInRange || isBottomInRange) {
+                    if (withinXRange(player.x1, true)) {
+                        error.x = player.x1 - this.x0;
+                        console.log("Who?", this.name);
+                        tentativeAllowedDirections.right = false;
+                    } else if (withinXRange(player.x0, true)) {
+                        error.x = player.x0 - this.x1;
+                        tentativeAllowedDirections.left = false;
+                    }
+                }
             }
         }
 
-        if (error.x && Math.abs(error.x) < Math.abs(error.y)) {
-            player.positionWS.x -= error.x;
+        // Decollide and update constraints
+        {
+            if (error.x && Math.abs(error.x) < Math.abs(error.y)) {
+                player.positionWS.x -= error.x;
+            }
+
+            if (error.y && Math.abs(error.y) < Math.abs(error.x)) {
+                player.positionWS.y -= error.y;
+            }
+
+            player.allowedDirections.up &= tentativeAllowedDirections.up;
+            player.allowedDirections.down &= tentativeAllowedDirections.down;
+            player.allowedDirections.left &= tentativeAllowedDirections.left;
+            player.allowedDirections.right &= tentativeAllowedDirections.right;
         }
-
-        if (error.y && Math.abs(error.y) < Math.abs(error.x)) {
-            player.positionWS.y -= error.y;
-        }
-
-        player.allowedDirections.up &= tentativeRestrictions.up;
-        player.allowedDirections.down &= tentativeRestrictions.down;
-        player.allowedDirections.left &= tentativeRestrictions.left;
-        player.allowedDirections.right &= tentativeRestrictions.right;
-
-        return collisionCount;
     }
 
     draw(ctx) {
+        // Draw the rectangle
         ctx.fillStyle = this.fillStyle;
         ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width, this.size.height);
+
+        // Draw the text
         ctx.font = '48px sans-serif';
         ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
     }
+}
+
+function withinRange(number, min, max, includeBoundary) {
+    return includeBoundary ?
+        number >= min && number <= max :
+        number > min && number < max;
 }

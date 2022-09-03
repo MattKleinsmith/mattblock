@@ -6,18 +6,18 @@ const platforms = new Array(maxPlayers);
 for (let i = 0; i < 100; i++) {
     platforms[i] = new Platform(
         { x: 0, y: 0 },
-        `#FFFFFF`,
+        `#222222`,
         { width: playerHeight, height: playerHeight },
     );
 }
 
-// SPAWNER
-const spawner = new Platform(
-    { x: -4, y: -4 },
-    "#181a1b",
-    { width: 60, height: 60 },
-);
-platforms.push(spawner);
+// // SPAWNER
+// const spawner = new Platform(
+//     { x: -4, y: -4 },
+//     "#181a1b",
+//     { width: 60, height: 60 },
+// );
+// platforms.push(spawner);
 
 const minPlatformWidth = 100;
 const maxPlatformWidth = 1000;
@@ -42,6 +42,7 @@ platforms.push(new Platform(
     },
     "#222222",
     { width: groundWidth, height: groundHeight },
+    "ground"
 ));
 
 // RANDOM PLATFORMS
@@ -64,6 +65,7 @@ platforms.push(new Platform(
     },
     "#AA5555",
     { width: 250, height: 500 },
+    "red"
 ));
 
 // G
@@ -74,6 +76,7 @@ platforms.push(new Platform(
     },
     "#55AA55",
     { width: 250, height: 100 },
+    "green"
 ));
 
 // UP
@@ -85,6 +88,7 @@ for (let i = 0; i < 10; i++) {
         },
         "#5555AA",
         { width: 250, height: 100 },
+        "up " + i
     ));
 }
 
@@ -97,5 +101,6 @@ for (let i = 0; i < 100; i++) {
         },
         "#5555AA",
         { width: 250, height: 100 },
+        "down " + i
     ));
 }

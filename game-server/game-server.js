@@ -64,7 +64,6 @@ server.on('connection', socket => {
     socket.on('close', () => {
         console.log("Closing", socket.id);
     })
-
 });
 
 setInterval(() => {
