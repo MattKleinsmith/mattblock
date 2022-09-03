@@ -1,20 +1,15 @@
-class GameObject {
+class Platform {
     constructor(positionWS = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }, name = "") {
-        this.size = size;
+        // Profile
         this.fillStyle = fillStyle;
-
-        this.positionWS = { ...positionWS };
-        this.positionSS = { x: window.innerWidth * .5, y: window.innerHeight * .5 };
-
+        this.size = size;
         this.name = name;
         this.nameOffset = { x: 0, y: -5 };
 
-        // TODO: Can we use positionWS instead?
-        // Player only
-        // TODO: Please use positionWS instead. Please test.
-        this.playerPositionWS = { ...positionWS };
-        this.oldplayerPositionWS = { ...positionWS };
-
+        // Motion
+        this.positionWS = { ...positionWS };
+        this.oldPositionWS = { ...positionWS };
+        this.positionSS = { ...positionWS };
         this.velocity = { x: 0, y: 0 };
     }
 
@@ -45,12 +40,12 @@ class GameObject {
         // Vertical movement
         {
             if (this.allowedDirections.down) {
-                this.velocity.y += GameObject.gravity * frameTime;
+                this.velocity.y += Platform.gravity * frameTime;
             }
 
             if (!this.allowedDirections.down) {
                 this.velocity.y = 0;
-                this.velocity.y += GameObject.jumpForce * direction.y;
+                this.velocity.y += Platform.jumpForce * direction.y;
             }
 
             if (!this.allowedDirections.down && this.velocity.y > 0) {
@@ -61,18 +56,18 @@ class GameObject {
                 this.velocity.y = 0;
             }
 
-            this.playerPositionWS.y += this.velocity.y * frameTime;
+            this.positionWS.y += this.velocity.y * frameTime;
         }
 
         let worldSpaceHorizontalDisplacement;
         // Horizontal movement
         {
             if (this.allowedDirections.left && direction.x < 0) {
-                this.velocity.x += GameObject.runningForce * direction.x;
+                this.velocity.x += Platform.runningForce * direction.x;
             }
 
             if (this.allowedDirections.right && direction.x > 0) {
-                this.velocity.x += GameObject.runningForce * direction.x;
+                this.velocity.x += Platform.runningForce * direction.x;
             }
 
             if (!this.allowedDirections.left && this.velocity.x < 0) {
@@ -84,8 +79,8 @@ class GameObject {
             }
 
             // Max speed
-            if (Math.abs(this.velocity.x) > GameObject.maxRunSpeed) {
-                this.velocity.x = Math.sign(this.velocity.x) * GameObject.maxRunSpeed;
+            if (Math.abs(this.velocity.x) > Platform.maxRunSpeed) {
+                this.velocity.x = Math.sign(this.velocity.x) * Platform.maxRunSpeed;
             }
             // Friction
             if (!this.allowedDirections.down && !direction.x && this.velocity.x) {
@@ -93,7 +88,7 @@ class GameObject {
             }
             // Move
             worldSpaceHorizontalDisplacement = this.velocity.x * frameTime;
-            this.playerPositionWS.x += worldSpaceHorizontalDisplacement;
+            this.positionWS.x += worldSpaceHorizontalDisplacement;
         }
 
         //////////////////////////
@@ -104,31 +99,31 @@ class GameObject {
             player.rightScrollSS = window.innerWidth * player.rightScrollPercentage;
             player.noScrollZoneWidth = player.rightScrollSS - player.leftScrollSS;
 
-            if (this.playerPositionWS.x <= this.leftScrollWS) {
-                // console.log("LEFT", "DIFF", this.playerPositionWS.x - this.leftScrollWS, "WS", this.playerPositionWS.x, "CUTOFF", this.leftScrollWS);
+            if (this.positionWS.x <= this.leftScrollWS) {
+                // console.log("LEFT", "DIFF", this.positionWS.x - this.leftScrollWS, "WS", this.positionWS.x, "CUTOFF", this.leftScrollWS);
                 if (!this.isScrollingLeft) {
                     this.xLimitSS = this.leftScrollSS;
                     this.isScrollingLeft = true;
                 }
 
-                this.leftScrollWS = this.playerPositionWS.x;
+                this.leftScrollWS = this.positionWS.x;
                 this.rightScrollWS = this.leftScrollWS + player.noScrollZoneWidth;
 
-                this.leftScreenWS = player.playerPositionWS.x - window.innerWidth * player.leftScrollPercentage;
+                this.leftScreenWS = player.positionWS.x - window.innerWidth * player.leftScrollPercentage;
             } else {
                 this.isScrollingLeft = false;
             }
 
-            if (this.playerPositionWS.x >= this.rightScrollWS) {
-                // console.log("RIGHT", "DIFF", this.playerPositionWS.x - this.rightScrollWS, "WS", this.playerPositionWS.x, "CUTOFF", this.rightScrollWS);
+            if (this.positionWS.x >= this.rightScrollWS) {
+                // console.log("RIGHT", "DIFF", this.positionWS.x - this.rightScrollWS, "WS", this.positionWS.x, "CUTOFF", this.rightScrollWS);
                 if (!this.isScrollingRight) {
                     this.xLimitSS = this.rightScrollSS;
                     this.isScrollingRight = true;
                 }
-                this.rightScrollWS = this.playerPositionWS.x;
+                this.rightScrollWS = this.positionWS.x;
                 this.leftScrollWS = this.rightScrollWS - player.noScrollZoneWidth;
 
-                this.leftScreenWS = player.playerPositionWS.x - window.innerWidth * player.rightScrollPercentage;
+                this.leftScreenWS = player.positionWS.x - window.innerWidth * player.rightScrollPercentage;
             } else {
                 this.isScrollingRight = false;
             }
@@ -144,44 +139,44 @@ class GameObject {
             player.bottomScrollSS = window.innerHeight * player.bottomScrollPercentage;
             player.noScrollZoneHeight = player.bottomScrollSS - player.topScrollSS;
 
-            if (this.playerPositionWS.y <= this.topScrollWS) {
-                // console.log("TOP", "DIFF", this.playerPositionWS.y - this.topScrollWS, "WS", this.playerPositionWS.y, "CUTOFF", this.topScrollWS);
+            if (this.positionWS.y <= this.topScrollWS) {
+                // console.log("TOP", "DIFF", this.positionWS.y - this.topScrollWS, "WS", this.positionWS.y, "CUTOFF", this.topScrollWS);
                 if (!this.isScrollingUp) {
                     this.yLimitSS = this.topScrollSS;
                     this.isScrollingUp = true;
                 }
 
-                this.topScrollWS = this.playerPositionWS.y;
+                this.topScrollWS = this.positionWS.y;
                 this.bottomScrollWS = this.topScrollWS + player.noScrollZoneHeight;
 
-                this.topScreenWS = player.playerPositionWS.y - window.innerHeight * player.topScrollPercentage;
+                this.topScreenWS = player.positionWS.y - window.innerHeight * player.topScrollPercentage;
             } else {
-                // console.log("y", this.playerPositionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.playerPositionWS.y - this.bottomScrollWS);
+                // console.log("y", this.positionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.positionWS.y - this.bottomScrollWS);
                 this.isScrollingUp = false;
             }
 
-            if (this.playerPositionWS.y >= this.bottomScrollWS) {
-                // console.log("CROSSED y", this.playerPositionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.playerPositionWS.y - this.bottomScrollWS);
+            if (this.positionWS.y >= this.bottomScrollWS) {
+                // console.log("CROSSED y", this.positionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.positionWS.y - this.bottomScrollWS);
                 if (!this.isScrollingDown) {
 
                     // EITHER bottomScrollSS is wrong, or, we have some weird transition
                     this.yLimitSS = this.bottomScrollSS;
                     this.isScrollingDown = true;
                 }
-                this.bottomScrollWS = this.playerPositionWS.y;
+                this.bottomScrollWS = this.positionWS.y;
                 this.topScrollWS = this.bottomScrollWS - player.noScrollZoneHeight;
 
-                this.topScreenWS = player.playerPositionWS.y - window.innerHeight * player.bottomScrollPercentage;
+                this.topScreenWS = player.positionWS.y - window.innerHeight * player.bottomScrollPercentage;
             } else {
-                // console.log("y", this.playerPositionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.playerPositionWS.y - this.bottomScrollWS);
+                // console.log("y", this.positionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.positionWS.y - this.bottomScrollWS);
                 this.isScrollingDown = false;
             }
 
             this.isScrollingVertically = this.isScrollingUp || this.isScrollingDown;
         }
 
-
-        gameObjects.forEach(PROBABLY_NOT_THE_PLAYER => {
+        // Calibrate the world presentation to the player's position
+        platforms.forEach(PROBABLY_NOT_THE_PLAYER => {
             ////////////////
             // THE PLAYER //
             ////////////////
@@ -189,16 +184,14 @@ class GameObject {
                 if (this.isScrollingHorizontally) {
                     player.positionSS.x = player.xLimitSS;
                 } else {
-                    player.positionSS.x = player.playerPositionWS.x - player.leftScreenWS;
+                    player.positionSS.x = player.positionWS.x - player.leftScreenWS;
                 }
 
                 if (this.isScrollingVertically) {
                     player.positionSS.y = player.yLimitSS;
-                    // console.log("yLimitSS", player.yLimitSS);
 
                 } else {
-                    player.positionSS.y = player.playerPositionWS.y - player.topScreenWS;
-                    // console.log("player.positionSS.y", player.positionSS.y);
+                    player.positionSS.y = player.positionWS.y - player.topScreenWS;
                 }
             }
             ////////////////////
@@ -211,98 +204,34 @@ class GameObject {
                 };
             }
         })
-        ///////////////
-        // PLATFORMS //
-        ///////////////
-        platforms.forEach(platform => {
-            platform.positionSS = {
-                x: platform.positionWS.x - player.leftScreenWS,
-                y: platform.positionWS.y - player.topScreenWS
-            };
-        })
     }
 
-    worldToScreenSpace(gameObject) {
+    worldToScreenSpace(platform) {
         // World --> Player
         const positionPS = {
-            x: gameObject.positionWS.x - player.playerPositionWS.x,
-            y: gameObject.positionWS.y - player.playerPositionWS.y,
+            x: platform.positionWS.x - player.positionWS.x,
+            y: platform.positionWS.y - player.positionWS.y,
         }
 
         // Player --> Screen
         const offsetFromPlayerToScreenSpace = {
-            x: player.playerPositionWS.x,
-            y: player.playerPositionWS.y
+            x: player.positionWS.x,
+            y: player.positionWS.y
         }
 
         // World --> Player --> Screen
-        gameObject.positionSS = {
+        platform.positionSS = {
             x: positionPS.x + offsetFromPlayerToScreenSpace.x,
             y: positionPS.y + offsetFromPlayerToScreenSpace.y
         }
     }
 
-
-    draw(ctx) {
-        ctx.fillStyle = this.fillStyle;
-        ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width, this.size.height);
-        ctx.font = '48px sans-serif';
-        ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
-    }
-}
-
-function playerSpaceToScreenSpace() {
-    const screenCenter = {
-        x: 0.5 * window.innerWidth,
-        y: 0.5 * window.innerHeight
-    }
-    return {
-        x: screenCenter.x,
-        y: screenCenter.y
-    }
-}
-
-function worldSpaceToPlayerSpace(gameObject) {
-    return {
-        x: gameObject.positionWS.x - player.playerPositionWS.x,
-        y: gameObject.positionWS.y - player.playerPositionWS.y,
-    }
-}
-
-// gameObjects.forEach(gameObject => {
-//     if (gameObject === player) {
-//         if (scroll) {
-//             const screenOffset = {
-//                 x: 0.5 * window.innerWidth,
-//                 y: 0.5 * window.innerHeight
-//             }
-//             // gameObject.positionSS = screenOffset;
-//             console.log("scrolling", gameObject.positionSS);
-//         } else {
-//             console.log("not scrolling", gameObject.positionSS);
-//             gameObject.positionSS = this.playerPositionWS;
-//         }
-//     } else {
-//         gameObject.positionSS = worldToScreenSpace(gameObject, scroll);
-//     }
-// })
-
-class Platform {
-    constructor(positionWS = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }) {
-        this.fillStyle = fillStyle;
-
-        this.positionWS = { ...positionWS };
-        this.positionSS = { ...positionWS };
-
-        this.size = size;
-
-        this.x0 = positionWS.x;
-        this.x1 = this.x0 + size.width;
-        this.y0 = positionWS.y;
-        this.y1 = this.y0 + size.height;
-    }
-
     decollide() {
+        this.x0 = this.positionWS.x;
+        this.x1 = this.x0 + this.size.width;
+        this.y0 = this.positionWS.y;
+        this.y1 = this.y0 + this.size.height;
+
         const error = { x: 0, y: 0 };
 
         const tentativeRestrictions = {
@@ -319,10 +248,10 @@ class Platform {
         const platformTop = this.y0;
         const platformBottom = this.y1;
 
-        const playerLeft = player.playerPositionWS.x;
-        const playerRight = player.playerPositionWS.x + player.size.width;
-        const playerTop = player.playerPositionWS.y;
-        const playerBottom = player.playerPositionWS.y + player.size.height;
+        const playerLeft = player.positionWS.x;
+        const playerRight = player.positionWS.x + player.size.width;
+        const playerTop = player.positionWS.y;
+        const playerBottom = player.positionWS.y + player.size.height;
         const withinXRange = (point, relax = false) => {
             return relax ? point > this.x0 && point < this.x1 : point >= this.x0 && point <= this.x1;
         }
@@ -362,11 +291,11 @@ class Platform {
         }
 
         if (error.x && Math.abs(error.x) < Math.abs(error.y)) {
-            player.playerPositionWS.x -= error.x;
+            player.positionWS.x -= error.x;
         }
 
         if (error.y && Math.abs(error.y) < Math.abs(error.x)) {
-            player.playerPositionWS.y -= error.y;
+            player.positionWS.y -= error.y;
         }
 
         player.allowedDirections.up &= tentativeRestrictions.up;
@@ -380,5 +309,7 @@ class Platform {
     draw(ctx) {
         ctx.fillStyle = this.fillStyle;
         ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width, this.size.height);
+        ctx.font = '48px sans-serif';
+        ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
     }
 }

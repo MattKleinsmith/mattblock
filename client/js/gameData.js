@@ -1,23 +1,23 @@
 const maxPlayers = 100;
 const playerHeight = 50;
-const gameObjects = new Array(maxPlayers);
-const platforms = [];
+const platforms = new Array(maxPlayers);
 
+// PLAYERS
 for (let i = 0; i < 100; i++) {
-    gameObjects[i] = new GameObject(
+    platforms[i] = new Platform(
         { x: 0, y: 0 },
         `#FFFFFF`,
         { width: playerHeight, height: playerHeight },
     );
 }
 
-
-const spawner = new GameObject(
+// SPAWNER
+const spawner = new Platform(
     { x: -4, y: -4 },
     "#181a1b",
     { width: 60, height: 60 },
 );
-gameObjects.push(spawner);
+platforms.push(spawner);
 
 const minPlatformWidth = 100;
 const maxPlatformWidth = 1000;
@@ -34,6 +34,17 @@ const minPlatformY = -7000;
 const maxPlatformY = 400;
 const platformYRange = maxPlatformY - minPlatformY;
 
+// GROUND
+platforms.push(new Platform(
+    {
+        x: -500,
+        y: Platform.ground + playerHeight
+    },
+    "#222222",
+    { width: groundWidth, height: groundHeight },
+));
+
+// RANDOM PLATFORMS
 // for (let i = 0; i < 200; i++) {
 //     platforms.push(new Platform(
 //         {
@@ -44,15 +55,6 @@ const platformYRange = maxPlatformY - minPlatformY;
 //         { width: Math.random() * platformWidthRange + minPlatformWidth, height: 100 },
 //     ));
 // }
-
-platforms.push(new Platform(
-    {
-        x: -500,
-        y: GameObject.ground + playerHeight
-    },
-    "#222222",
-    { width: groundWidth, height: groundHeight },
-));
 
 // R
 platforms.push(new Platform(

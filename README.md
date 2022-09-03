@@ -15,9 +15,9 @@
 - [x] Load server position, not default position
 - [x] Write world data to a file. Load when server starts
 - [x] Decollide players from platforms
-- [x] Scroll screen only when near an edge
+- [x] Scroll the screen only when near an edge
+- [x] Turn players into platforms
 ---
-- [ ] Turn players into platforms
 - [ ] Show tutorial
 - [ ] 💤 if logged off. Tiny. In bottom right of character. Part of profile object.
 ---

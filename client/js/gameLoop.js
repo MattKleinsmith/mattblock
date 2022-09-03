@@ -18,9 +18,9 @@ function sendProfile() {
 function initializePlayer(payload) {
     console.log("id", payload.id);
     id = payload.id;
-    player = gameObjects[id];
-    player.playerPositionWS = payload.position;
-    player.oldplayerPositionWS = { ...player.playerPositionWS };
+    player = platforms[id];
+    player.positionWS = payload.position;
+    player.oldPositionWS = { ...player.positionWS };
     colorPicker.value = player.fillStyle;
     nameInput.value = player.name;
     controller = {
@@ -45,10 +45,10 @@ function initializePlayer(payload) {
 
         player.noScrollZoneHalfWidth = (player.rightScrollSS - player.leftScrollSS) * 0.5;
 
-        player.leftScrollWS = player.playerPositionWS.x - player.noScrollZoneHalfWidth;
-        player.rightScrollWS = player.playerPositionWS.x + player.noScrollZoneHalfWidth;
+        player.leftScrollWS = player.positionWS.x - player.noScrollZoneHalfWidth;
+        player.rightScrollWS = player.positionWS.x + player.noScrollZoneHalfWidth;
 
-        player.leftScreenWS = player.playerPositionWS.x - window.innerWidth * 0.5;
+        player.leftScreenWS = player.positionWS.x - window.innerWidth * 0.5;
     }
 
     {
@@ -60,10 +60,10 @@ function initializePlayer(payload) {
 
         player.noScrollZoneHalfHeight = (player.bottomScrollSS - player.topScrollSS) * 0.5;
 
-        player.topScrollWS = player.playerPositionWS.y - player.noScrollZoneHalfHeight;
-        player.bottomScrollWS = player.playerPositionWS.y + player.noScrollZoneHalfHeight;
+        player.topScrollWS = player.positionWS.y - player.noScrollZoneHalfHeight;
+        player.bottomScrollWS = player.positionWS.y + player.noScrollZoneHalfHeight;
 
-        player.topScreenWS = player.playerPositionWS.y - window.innerHeight * 0.5;
+        player.topScreenWS = player.positionWS.y - window.innerHeight * 0.5;
     }
 }
 
@@ -79,20 +79,20 @@ socket.onmessage = message => {
         initializePlayer(payload);
     } else {
         if ("position" in payload) {
-            gameObjects[payload.id].positionWS = payload.position;
+            platforms[payload.id].positionWS = payload.position;
         }
         else if ("color" in payload) {
-            gameObjects[payload.id].fillStyle = payload.color;
-            gameObjects[payload.id].name = payload.name;
+            platforms[payload.id].fillStyle = payload.color;
+            platforms[payload.id].name = payload.name;
         }
     }
 }
 
 function sendPosition() {
     if (!player) return;
-    if (player.playerPositionWS.x !== player.oldplayerPositionWS.x ||
-        player.playerPositionWS.y !== player.oldplayerPositionWS.y) {
-        const payload = { id: id, position: player.playerPositionWS };
+    if (player.positionWS.x !== player.oldPositionWS.x ||
+        player.positionWS.y !== player.oldPositionWS.y) {
+        const payload = { id: id, position: player.positionWS };
         socket.send(JSON.stringify(payload));
     }
 }
@@ -100,7 +100,7 @@ function sendPosition() {
 function movePlayer() {
     if (!player) return;
 
-    player.oldplayerPositionWS = { ...player.playerPositionWS };
+    player.oldPositionWS = { ...player.positionWS };
 
     const totalDirection = { x: 0, y: 0 };
     for (const key in controller) {
@@ -108,7 +108,7 @@ function movePlayer() {
             totalDirection.x += controller[key].direction.x;
             totalDirection.y += controller[key].direction.y;
             if (key === "r") {
-                player.playerPositionWS = { x: 0, y: 0 };
+                player.positionWS = { x: 0, y: 0 };
                 player.velocity = { x: 0, y: 0 };
             }
         }
@@ -124,7 +124,6 @@ function drawWorld() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
-    gameObjects.forEach(gameObject => gameObject.draw(ctx));
     platforms.forEach(platform => platform.draw(ctx));
 }
 

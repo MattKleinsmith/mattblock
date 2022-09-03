@@ -33,8 +33,8 @@ const server = http.createServer((req, res) => {
         case "/js/configuration.js":
             sendFile(res, "js/configuration.js");
             break;
-        case "/js/gameObject.js":
-            sendFile(res, "js/gameObject.js");
+        case "/js/platform.js":
+            sendFile(res, "js/platform.js");
             break;
         case "/js/gameData.js":
             sendFile(res, "js/gameData.js");
