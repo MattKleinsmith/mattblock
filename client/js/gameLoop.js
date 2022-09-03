@@ -1,9 +1,11 @@
 const socket = new WebSocket(url);
 
+
+
 setInterval(gameLoop, frameTime)
 
 function gameLoop() {
-    time += frameTime;
+    // console.log((performance.now() - beginning) / ++numFrames);
 
     movePlayer();  // Simulation
     drawWorld(); // Presentation
@@ -80,6 +82,7 @@ socket.onmessage = message => {
     } else {
         if ("position" in payload) {
             platforms[payload.id].positionWS = payload.position;
+            platforms[payload.id].isEnabled = true;
         }
         else if ("color" in payload) {
             platforms[payload.id].fillStyle = payload.color;
@@ -124,7 +127,10 @@ function drawWorld() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
-    platforms.forEach(platform => platform.draw(ctx));
+
+    platforms.forEach(platform => {
+        if (platform.isEnabled) platform.draw(ctx);
+    })
 }
 
 colorPicker.oninput = function (event) {

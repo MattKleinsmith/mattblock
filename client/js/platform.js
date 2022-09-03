@@ -1,30 +1,29 @@
 class Platform {
-    constructor(positionWS = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }, name = "") {
+    constructor(positionWS = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }, name = "", isEnabled = true) {
         // Profile
-        this.fillStyle = fillStyle;
-        this.size = size;
-        this.name = name;
-        this.nameOffset = { x: 0, y: -5 };
+        {
+            this.fillStyle = fillStyle;
+            this.size = size;
+            this.name = name;
+            this.nameOffset = { x: 0, y: -5 };
+            this.isEnabled = isEnabled;
+        }
 
         // Motion
-        this.positionWS = { ...positionWS };
-        this.oldPositionWS = { ...positionWS };
-        this.positionSS = { ...positionWS };
-        this.velocity = { x: 0, y: 0 };
-
-        this.x0 = this.positionWS.x;
-        this.x1 = this.x0 + this.size.width;
-        this.y0 = this.positionWS.y;
-        this.y1 = this.y0 + this.size.height;
+        {
+            this.positionWS = { ...positionWS };
+            this.oldPositionWS = { ...positionWS };
+            this.positionSS = { ...positionWS };
+            this.velocity = { x: 0, y: 0 };
+            this.updateCorners();
+        }
     }
 
     static gravity = 0.0045;
-    static height = 50;
-    static ground = 400;
     static jumpForce = 1.35 * 2;
     static runningForce = .0625;
     static maxRunSpeed = 1;
-    static friction = .4;
+    static ground = 400;
 
     move(direction = { x: 0, y: 0 }) {
 
@@ -34,7 +33,7 @@ class Platform {
 
             this.allowedDirections = { up: true, down: true, left: true, right: true };
             for (const platform of platforms) {
-                if (platform !== player) platform.decollide();
+                if (platform !== player && platform.isEnabled) platform.decollide();
             }
         }
 
@@ -252,6 +251,7 @@ class Platform {
                     tentativeAllowedDirections.up = false;
                 } else if (withinYRange(player.y1, true)) {
                     error.y = player.y1 - this.y0;
+                    // console.log("No to down. Error: ", error.y);
                     tentativeAllowedDirections.down = false;
                 }
             }
@@ -276,7 +276,6 @@ class Platform {
                 if (isTopInRange || isBottomInRange) {
                     if (withinXRange(player.x1, true)) {
                         error.x = player.x1 - this.x0;
-                        console.log("Who?", this.name);
                         tentativeAllowedDirections.right = false;
                     } else if (withinXRange(player.x0, true)) {
                         error.x = player.x0 - this.x1;
@@ -288,11 +287,13 @@ class Platform {
 
         // Decollide and update constraints
         {
-            if (error.x && Math.abs(error.x) < Math.abs(error.y)) {
+            if (error.x && (!error.y || Math.abs(error.x) < Math.abs(error.y))) {
+                // console.log("Chose violence", error.x);
                 player.positionWS.x -= error.x;
             }
 
-            if (error.y && Math.abs(error.y) < Math.abs(error.x)) {
+            if (error.y && (!error.x || Math.abs(error.y) < Math.abs(error.x))) {
+                // console.log("Chose peace", error.y);
                 player.positionWS.y -= error.y;
             }
 
