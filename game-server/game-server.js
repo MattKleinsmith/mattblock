@@ -45,10 +45,12 @@ server.on('connection', socket => {
             if (!(payload.ip in world.ids)) {
                 id = ++world.highestId;
                 world.ids[payload.ip] = id;
+                const names = ["WASD to move", "Right click", "R to respawn"];
+                const name = names[~~(Math.random() * names.length)]
                 const profilePayload = {
                     id: id,
                     color: `#${randomHexColor()}${randomHexColor()}${randomHexColor()}`,
-                    name: Math.random() > 0.5 ? "new phone" : "who dis"
+                    name: name
                 }
                 world.profiles[id] = profilePayload;
                 world.positions[id] = { id: id, position: { x: 0, y: 0 } };

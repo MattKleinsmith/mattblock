@@ -39,7 +39,10 @@ function initializePlayer(payload) {
         " ": { pressed: false, direction: { x: 0, y: -1 } },
     }
     body.style.visibility = "visible";
+    recalibrateScreen();
+}
 
+function recalibrateScreen() {
     {
         player.leftScrollPercentage = 0.42;  // 0.50 for instascroll
         player.rightScrollPercentage = 1 - player.leftScrollPercentage;
@@ -141,12 +144,54 @@ function drawWorld() {
     drawHighscore(ctx);
     drawAltitude(ctx);
     drawServerStatus(ctx);
+
+    // const minimap = calibrateMinimap();
+    // drawPlatforms_Minimap(minimap);
+}
+
+function drawPlatforms_Minimap(ctx) {
+    ctx.fillStyle = "red";
+    ctx.fillRect(100, 100, 100, 100);
+    // Only draw players on the minimap, for now.
+    // for (let i = 0; i < 100; i++) {
+    //     const platform = platforms[i];
+    //     if (platform.isEnabled) platform.draw_Minimap(ctx);
+    // }
+}
+
+//for zoom detection
+px_ratio = window.devicePixelRatio || window.screen.availWidth / document.documentElement.clientWidth;
+
+addEventListener('resize', (event) => isZooming());
+
+function isZooming() {
+    var newPx_ratio = window.devicePixelRatio || window.screen.availWidth / document.documentElement.clientWidth;
+    recalibrateScreen();
+    if (newPx_ratio != px_ratio) {
+        px_ratio = newPx_ratio;
+        console.log("zooming");
+        return true;
+    } else {
+        console.log("just resizing");
+        return false;
+    }
 }
 
 function calibrateCanvas() {
     const canvas = document.getElementById('canvas');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight; // * .996;
+
+    if (!canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+
+    return ctx;
+}
+
+function calibrateMinimap() {
+    const canvas = document.getElementById('minimap');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');

@@ -23,7 +23,7 @@ class Platform {
     static jumpForce = 1.35 * 2;
     static runningForce = .0625;
     static maxRunSpeed = 1;
-    static ground = 400;
+    static ground = 600;
 
     move(direction = { x: 0, y: 0 }) {
 
@@ -313,6 +313,19 @@ class Platform {
         // Draw the text
         ctx.font = '48px sans-serif';
         ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
+    }
+
+    draw_Minimap(ctx) {
+        if (!highScorePayload) return;
+
+        ctx.fillStyle = this.fillStyle;
+
+        const minimap = {};
+        minimap.y = (this.positionWS.y / -highScorePayload.highScore) * window.innerHeight + window.innerHeight;
+
+        const size = 5;
+        // ctx.fillRect(window.innerWidth * 0.5, minimap.y, size, size);
+        ctx.fillRect(100, 100, 100, 100);
     }
 }
 
