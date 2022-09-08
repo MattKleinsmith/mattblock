@@ -26,15 +26,17 @@ function initializePlayer(payload) {
     colorPicker.value = player.fillStyle;
     nameInput.value = player.name;
     controller = {
-        " ": { pressed: false, direction: { x: 0, y: -1 } },  // should affect velocity
-        // "s": { pressed: false, direction: { x: 0, y: 1 } },
-        "a": { pressed: false, direction: { x: -1, y: 0 } },
-        "d": { pressed: false, direction: { x: 1, y: 0 } },
         "r": { pressed: false, direction: { x: 0, y: 0 } },
-        "ArrowUp": { pressed: false, direction: { x: 0, y: -1 } },  // should affect velocity
-        // "s": { pressed: false, direction: { x: 0, y: 1 } },
+
         "ArrowLeft": { pressed: false, direction: { x: -1, y: 0 } },
+        "a": { pressed: false, direction: { x: -1, y: 0 } },
+
         "ArrowRight": { pressed: false, direction: { x: 1, y: 0 } },
+        "d": { pressed: false, direction: { x: 1, y: 0 } },
+
+        "ArrowUp": { pressed: false, direction: { x: 0, y: -1 } },
+        "w": { pressed: false, direction: { x: 0, y: -1 } },
+        " ": { pressed: false, direction: { x: 0, y: -1 } },
     }
     body.style.visibility = "visible";
 
@@ -88,7 +90,21 @@ socket.onmessage = message => {
             platforms[payload.id].fillStyle = payload.color;
             platforms[payload.id].name = payload.name;
         }
+        else if ("highScore" in payload) {
+            highScorePayload = payload;
+        }
+        else if ("serverDown" in payload) {
+            isServerDown = true;
+        }
     }
+}
+
+function drawServerStatus(ctx) {
+    if (!isServerDown) return;
+    ctx.fillStyle = 'red';
+    ctx.font = '48px sans-serif';
+    ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100);
+    ctx.fillText(`(will automate this eventually)`, 100, 100 + 48);
 }
 
 function sendPosition() {
@@ -120,6 +136,14 @@ function movePlayer() {
 }
 
 function drawWorld() {
+    const ctx = calibrateCanvas();
+    drawPlatforms(ctx);
+    drawHighscore(ctx);
+    drawAltitude(ctx);
+    drawServerStatus(ctx);
+}
+
+function calibrateCanvas() {
     const canvas = document.getElementById('canvas');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight; // * .996;
@@ -127,10 +151,29 @@ function drawWorld() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
+    return ctx;
+}
 
-    platforms.forEach(platform => {
+function drawPlatforms(ctx) {
+    // Backwards to draw player names over NPC platforms
+    for (let i = platforms.length - 1; i >= 0; i--) {
+        const platform = platforms[i];
         if (platform.isEnabled) platform.draw(ctx);
-    })
+    }
+}
+
+function drawHighscore(ctx) {
+    if (!highScorePayload) return;
+    ctx.fillStyle = highScorePayload.profile.color;
+    ctx.font = '24px sans-serif';
+    ctx.fillText(`Highest player: ${highScorePayload.profile.name}: ${-highScorePayload.highScore}`, window.innerWidth * .5, 25);
+}
+
+function drawAltitude(ctx) {
+    if (!player) return;
+    ctx.fillStyle = player.fillStyle;
+    ctx.font = '24px sans-serif';
+    ctx.fillText(`Your altitude: ${-player.positionWS.y}`, window.innerWidth * .5, 60);
 }
 
 colorPicker.oninput = function (event) {

@@ -14,3 +14,7 @@ const beginning = performance.now();
 let numFrames = 0;
 
 let allowMovement = true;
+
+let highScorePayload;
+
+let isServerDown = false;

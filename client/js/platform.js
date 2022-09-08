@@ -305,8 +305,9 @@ class Platform {
     }
 
     draw(ctx) {
-        // Draw the rectangle
         ctx.fillStyle = this.fillStyle;
+
+        // Draw the rectangle
         ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width, this.size.height);
 
         // Draw the text
