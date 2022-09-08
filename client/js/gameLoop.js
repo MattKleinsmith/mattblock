@@ -102,14 +102,6 @@ socket.onmessage = message => {
     }
 }
 
-function drawServerStatus(ctx) {
-    if (!isServerDown) return;
-    ctx.fillStyle = 'red';
-    ctx.font = '48px sans-serif';
-    ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100);
-    ctx.fillText(`(will automate this eventually)`, 100, 100 + 48);
-}
-
 function sendPosition() {
     if (!player) return;
     if (player.positionWS.x !== player.oldPositionWS.x ||
@@ -165,11 +157,11 @@ px_ratio = window.devicePixelRatio || window.screen.availWidth / document.docume
 addEventListener('resize', (event) => isZooming());
 
 function isZooming() {
-    var newPx_ratio = window.devicePixelRatio || window.screen.availWidth / document.documentElement.clientWidth;
+    const newPx_ratio = window.devicePixelRatio || window.screen.availWidth / document.documentElement.clientWidth;
     recalibrateScreen();
     if (newPx_ratio != px_ratio) {
         px_ratio = newPx_ratio;
-        console.log("zooming");
+        console.log("zooming", newPx_ratio);
         return true;
     } else {
         console.log("just resizing");
@@ -207,18 +199,32 @@ function drawPlatforms(ctx) {
     }
 }
 
+function drawServerStatus(ctx) {
+    if (!isServerDown) return;
+    ctx.fillStyle = 'red';
+    const fontSize = 48 / px_ratio;
+    ctx.font = fontSize + 'px sans-serif';
+    ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100);
+    ctx.fillText(`(will automate this eventually)`, 100, 100 + 48);
+}
+
+function drawTopText(ctx, text, fillStyle, order = 1) {
+    const fontSize = 19 / px_ratio;
+    ctx.fillStyle = fillStyle;
+    ctx.font = fontSize + 'px sans-serif';
+    ctx.fillText(text, window.innerWidth * .45, fontSize * order);
+}
+
 function drawHighscore(ctx) {
     if (!highScorePayload) return;
-    ctx.fillStyle = highScorePayload.profile.color;
-    ctx.font = '24px sans-serif';
-    ctx.fillText(`Highest player: ${highScorePayload.profile.name}: ${-highScorePayload.highScore}`, window.innerWidth * .5, 25);
+    const text = `Highest player: ${highScorePayload.profile.name}: ${-highScorePayload.highScore}`;
+    drawTopText(ctx, text, highScorePayload.profile.color, 1);
 }
 
 function drawAltitude(ctx) {
     if (!player) return;
-    ctx.fillStyle = player.fillStyle;
-    ctx.font = '24px sans-serif';
-    ctx.fillText(`Your altitude: ${-player.positionWS.y}`, window.innerWidth * .5, 60);
+    const text = `Your altitude: ${-player.positionWS.y}`;
+    drawTopText(ctx, text, player.fillStyle, 2);
 }
 
 colorPicker.oninput = function (event) {
