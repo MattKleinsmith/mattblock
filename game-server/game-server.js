@@ -40,6 +40,7 @@ server.on('connection', socket => {
     socket.on('message', unparsedData => {
         const payload = JSON.parse(unparsedData);
         if ("ip" in payload) {
+            if (socket.id >= 0) return;
             // Associate ip with id, and send id to player.
             let id;
             if (!(payload.ip in world.ids)) {
@@ -72,7 +73,7 @@ server.on('connection', socket => {
             console.log(world.profiles[payload.id].name, payload);
         } else if ("position" in payload) {
             world.positions[payload.id] = payload;
-            console.log(world.profiles[payload.id].name, payload);
+            if (payload.position.y < 1e4) console.log(world.profiles[payload.id].name, payload);
         }
         broadcast(server, payload, payload.id); // Relay to all except sender;
     });

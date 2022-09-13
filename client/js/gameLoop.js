@@ -56,6 +56,7 @@ function recalibrateScreen() {
         player.rightScrollWS = player.positionWS.x + player.noScrollZoneHalfWidth;
 
         player.leftScreenWS = player.positionWS.x - window.innerWidth * 0.5;
+        player.leftMMWS = player.positionWS.x - window.innerWidth * .10 * 0.5;
     }
 
     {
@@ -137,18 +138,47 @@ function drawWorld() {
     drawAltitude(ctx);
     drawServerStatus(ctx);
 
-    // const minimap = calibrateMinimap();
-    // drawPlatforms_Minimap(minimap);
+    const [minimapCtx, minimap] = calibrateMinimap();
+    drawPlatforms_Minimap(minimapCtx, minimap);
 }
 
-function drawPlatforms_Minimap(ctx) {
-    ctx.fillStyle = "red";
-    ctx.fillRect(100, 100, 100, 100);
-    // Only draw players on the minimap, for now.
-    // for (let i = 0; i < 100; i++) {
-    //     const platform = platforms[i];
-    //     if (platform.isEnabled) platform.draw_Minimap(ctx);
-    // }
+function calibrateMinimap() {
+    const canvas = document.getElementById('minimap');
+    canvas.width = window.innerWidth * 0.099;  // TODO: Remove CSS width rule.
+    canvas.height = window.innerHeight * 0.999;
+
+    if (!canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+
+    return [ctx, canvas];
+}
+
+function drawPlatforms_Minimap(ctx, canvas) {
+    if (!player) return;
+
+    const minimapCenterX = canvas.width * 0.5;
+    const minimapCenterY = canvas.height * 2;
+
+    ctx.fillStyle = "#282A2B";
+    // ctx.fillStyle = "#28662B";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.scale(.33, .33);
+    ctx.fillStyle = player.fillStyle;
+
+    const scale = 1;
+    ctx.fillRect(
+        minimapCenterX,
+        minimapCenterY,
+        player.size.width * scale,
+        player.size.height * scale);
+    player.MM = { x: minimapCenterX, y: minimapCenterY };
+
+    for (let i = platforms.length - 1; i >= 0; i--) {
+        if (i === id) continue;
+        const platform = platforms[i];
+        if (platform.isEnabled) platform.draw_Minimap(ctx, scale);
+    }
 }
 
 //for zoom detection
@@ -180,16 +210,6 @@ function calibrateCanvas() {
     return ctx;
 }
 
-function calibrateMinimap() {
-    const canvas = document.getElementById('minimap');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    if (!canvas.getContext) return;
-    const ctx = canvas.getContext('2d');
-
-    return ctx;
-}
 
 function drawPlatforms(ctx) {
     // Backwards to draw player names over NPC platforms
@@ -204,8 +224,8 @@ function drawServerStatus(ctx) {
     ctx.fillStyle = 'red';
     const fontSize = 48 / px_ratio;
     ctx.font = fontSize + 'px sans-serif';
-    ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100);
-    ctx.fillText(`(will automate this eventually)`, 100, 100 + 48);
+    ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100 + fontSize * 0.5);
+    ctx.fillText(`(will automate this eventually)`, 100, 100 + fontSize * 1.5);
 }
 
 function drawTopText(ctx, text, fillStyle, order = 1) {

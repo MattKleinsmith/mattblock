@@ -34,6 +34,7 @@
 - [ ] Let players push other players
 ### Bugs
 - [ ] Players fall through each other if they have the same x-position. Could solve spawn area problem by having players stack
+    - [ ] Consider adding a random tiny value after each movement, to avoid exact x-coordinate
 - [ ] Keep spawn area clear for new people. If someone logs out from the spawn area, move them somewhere.
 ### Zooming
 - [ ] Zooming out or in requires a refresh. Can maybe add a callback to the zoom event to recalibrate the world-to-screen conversion
@@ -57,3 +58,5 @@
 - [ ] Randomly place emojis in the world. Players unlock by touching them. Right click to show unlocked emojis.
 - [ ] The more emojis you have, the higher you can jump. Hold space to use full jump. Tap to use standard minimum jump.
 - [ ] Can give people some of your emojis. Emojis are currency.
+- [ ] Push an object together
+    - [ ] Go underneath a big object together and jump to push it up

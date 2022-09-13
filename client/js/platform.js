@@ -23,7 +23,7 @@ class Platform {
     static jumpForce = 1.35 * 2;
     static runningForce = .0625;
     static maxRunSpeed = 1;
-    static ground = 600;
+    static ground = 800;
 
     move(direction = { x: 0, y: 0 }) {
 
@@ -200,6 +200,11 @@ class Platform {
                     x: PROBABLY_NOT_THE_PLAYER.positionWS.x - player.leftScreenWS,
                     y: PROBABLY_NOT_THE_PLAYER.positionWS.y - player.topScreenWS
                 };
+
+                PROBABLY_NOT_THE_PLAYER.positionPS = {
+                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - player.positionWS.x,
+                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - player.positionWS.y
+                };
             }
         })
     }
@@ -315,17 +320,16 @@ class Platform {
         ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
     }
 
-    draw_Minimap(ctx) {
-        if (!highScorePayload) return;
-
+    draw_Minimap(ctx, scale) {
         ctx.fillStyle = this.fillStyle;
-
-        const minimap = {};
-        minimap.y = (this.positionWS.y / -highScorePayload.highScore) * window.innerHeight + window.innerHeight;
-
-        const size = 5;
-        // ctx.fillRect(window.innerWidth * 0.5, minimap.y, size, size);
-        ctx.fillRect(100, 100, 100, 100);
+        if (this.positionPS === undefined) {
+            console.log(this.name, "did something");
+        }
+        const pos = {
+            x: this.positionPS.x + player.MM.x,
+            y: this.positionPS.y + player.MM.y
+        }
+        ctx.fillRect(pos.x, pos.y, this.size.width * scale, this.size.height * scale);
     }
 }
 

@@ -25,7 +25,7 @@ const minPlatformWidth = 100;
 const maxPlatformWidth = 1000;
 const platformWidthRange = maxPlatformWidth - minPlatformWidth;
 
-const groundHeight = 2000;
+const groundHeight = 20000;
 const groundWidth = 4000;
 
 const minPlatformX = -groundWidth * 0.5;
@@ -58,6 +58,17 @@ platforms.push(new Platform(
 //         { width: Math.random() * platformWidthRange + minPlatformWidth, height: 100 },
 //     ));
 // }
+
+//
+platforms.push(new Platform(
+    {
+        x: -991.6666666666918,
+        y: -20153.4375
+    },
+    "#5213e7",
+    { width: 50, height: 50 },
+    "Please keep it sfw 🤦"
+));
 
 // R
 platforms.push(new Platform(
