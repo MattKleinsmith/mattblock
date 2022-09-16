@@ -70,6 +70,18 @@ platforms.push(new Platform(
     "Please keep it sfw 🤦"
 ));
 
+platforms.push(new Platform(
+    {
+        x: -4011.9791666666756,
+        y: -58073.4375
+    },
+    "#722cc7",
+    { width: 50, height: 50 },
+    "chaos is a ladder"
+));
+
+
+
 // R
 platforms.push(new Platform(
     {

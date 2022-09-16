@@ -1,5 +1,5 @@
 const http = require("http");
-const fs = require('fs').promises;
+const fsPromises = require('fs').promises;
 const path = require('node:path');
 
 const host = '0.0.0.0';
@@ -7,7 +7,7 @@ const port = 8000;
 
 function sendFile(res, file) {
     const filename = path.join(__dirname, "/client", file);
-    fs.readFile(filename).then(data => {
+    fsPromises.readFile(filename).then(data => {
         res.end(data);
     }).catch(err => {
         console.log(err);
@@ -16,7 +16,7 @@ function sendFile(res, file) {
     });
 }
 
-const server = http.createServer((req, res) => {
+const cb = (req, res) => {
     switch (req.url) {
         case "/":
             sendFile(res, "index.html");
@@ -47,7 +47,9 @@ const server = http.createServer((req, res) => {
             res.end();
             break;
     }
-});
+};
+
+const server = http.createServer(cb);
 
 server.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);

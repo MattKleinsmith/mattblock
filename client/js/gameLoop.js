@@ -156,17 +156,19 @@ function calibrateMinimap() {
 function drawPlatforms_Minimap(ctx, canvas) {
     if (!player) return;
 
-    const minimapCenterX = canvas.width * 0.5;
-    const minimapCenterY = canvas.height * 2;
-
-    ctx.fillStyle = "#282A2B";
+    // ctx.fillStyle = "#282A2B";
+    // ctx.fillStyle = "black"
     // ctx.fillStyle = "#28662B";
+    ctx.fillStyle = "#181A1B";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.scale(.33, .33);
+
     ctx.fillStyle = player.fillStyle;
 
     const scale = 1;
+    ctx.scale(.29, .29);
+    const minimapCenterX = canvas.width * 1.75;
+    const minimapCenterY = canvas.height * 2;
     ctx.fillRect(
         minimapCenterX,
         minimapCenterY,
