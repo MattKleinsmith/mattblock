@@ -2,3 +2,5 @@ node_modules
 auth.js
 game-server/cache
 .well-known
+
+node_modules

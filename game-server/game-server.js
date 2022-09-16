@@ -1,11 +1,22 @@
 // Props: WebSockets in 100 Seconds & Beyond with Socket.io
 //// https://www.youtube.com/watch?v=1BfCnjr_Vjg
 
-const WebSocket = require('ws');
-const { broadcast, randomHexColor, sendWorld } = require('./helpers');
+const https = require("https");
 const fs = require('fs');
 
-const server = new WebSocket.Server({ port: 8080 });
+const WebSocket = require('ws');
+const { broadcast, randomHexColor, sendWorld } = require('./helpers');
+
+const port = 8081;
+
+const certServer = https.createServer({
+    cert: fs.readFileSync('../client/.well-known/fullchain.pem'),
+    key: fs.readFileSync('../client/.well-known/privkey.pem')
+}).listen(port);
+
+const webSocketServer = new WebSocket.Server({ server: certServer });
+// const webSocketServer = new WebSocket.Server({ port: port });
+
 const worldPath = "./cache/world.json";
 
 let world;
@@ -33,7 +44,7 @@ function getMaxAltitudeAndProfile() {
     return [min, profile]
 }
 
-server.on('connection', socket => {
+webSocketServer.on('connection', socket => {
 
     sendWorld(socket, world.profiles, world.positions);
 
@@ -56,7 +67,7 @@ server.on('connection', socket => {
                 world.profiles[id] = profilePayload;
                 world.positions[id] = { id: id, position: { x: 0, y: 0 } };
                 console.log(`New player: "${world.profiles[id].name}", id: ${id}`);
-                broadcast(server, profilePayload); // Send to all, including sender
+                broadcast(webSocketServer, profilePayload); // Send to all, including sender
             } else {
                 id = world.ids[payload.ip];
                 console.log(`Old player: "${world.profiles[id].name}", id: ${id}`);
@@ -75,7 +86,7 @@ server.on('connection', socket => {
             world.positions[payload.id] = payload;
             if (payload.position.y < 1e4) console.log(world.profiles[payload.id].name, payload);
         }
-        broadcast(server, payload, payload.id); // Relay to all except sender;
+        broadcast(webSocketServer, payload, payload.id); // Relay to all except sender;
     });
 
     socket.on('close', () => {
@@ -90,11 +101,11 @@ setInterval(() => {
     // TODO: Make this more continous. Make it run on load, and when a new position arrives that beats the high score.
     const [max, profile] = getMaxAltitudeAndProfile();
     const payload = { highScore: max, profile: profile };
-    broadcast(server, payload);
+    broadcast(webSocketServer, payload);
 }, 1000)
 
 process.on('SIGINT', function () {
     console.log("\nCaught interrupt signal");
-    broadcast(server, { serverDown: true });  // Let everyone know to refresh
+    broadcast(webSocketServer, { serverDown: true });  // Let everyone know to refresh
     process.exit();
 });

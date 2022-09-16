@@ -1,13 +1,13 @@
-const http = require("http");
-const fsPromises = require('fs').promises;
+const https = require("https");
+const fs = require('fs');
 const path = require('node:path');
 
 const host = '0.0.0.0';
-const port = 8000;
+const port = 8001;
 
 function sendFile(res, file) {
     const filename = path.join(__dirname, "/client", file);
-    fsPromises.readFile(filename).then(data => {
+    fs.promises.readFile(filename).then(data => {
         res.end(data);
     }).catch(err => {
         console.log(err);
@@ -16,7 +16,12 @@ function sendFile(res, file) {
     });
 }
 
-const cb = (req, res) => {
+const options = {
+    key: fs.readFileSync('./client/.well-known/privkey.pem'),
+    cert: fs.readFileSync('./client/.well-known/fullchain.pem')
+};
+
+const server = https.createServer(options, (req, res) => {
     switch (req.url) {
         case "/":
             sendFile(res, "index.html");
@@ -47,10 +52,8 @@ const cb = (req, res) => {
             res.end();
             break;
     }
-};
-
-const server = http.createServer(cb);
+});
 
 server.listen(port, host, () => {
-    console.log(`Server is running on http://${host}:${port}`);
+    console.log(`Server is running on https://${host}:${port}`);
 });
