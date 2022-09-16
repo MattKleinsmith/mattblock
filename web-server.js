@@ -57,3 +57,14 @@ const server = https.createServer(options, (req, res) => {
 server.listen(port, host, () => {
     console.log(`Server is running on https://${host}:${port}`);
 });
+
+
+//////// HTTP --> HTTPS redirect
+
+const http = require("http");
+const httpPort = 8000;
+const httpServer = http.createServer(function (req, res) {
+    res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+    res.end();
+});
+httpServer.listen(httpPort);
