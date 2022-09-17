@@ -7,15 +7,15 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const { broadcast, randomHexColor, sendWorld } = require('./helpers');
 
-const port = 8081;
+const { webSocketServerPort } = require('../config.js');
 
 const certServer = https.createServer({
     cert: fs.readFileSync('../client/.well-known/fullchain.pem'),
     key: fs.readFileSync('../client/.well-known/privkey.pem')
-}).listen(port);
+}).listen(webSocketServerPort);
 
 const webSocketServer = new WebSocket.Server({ server: certServer });
-// const webSocketServer = new WebSocket.Server({ port: port });
+console.log(`Game server is running on port ${webSocketServerPort}`);
 
 const worldPath = "./cache/world.json";
 
@@ -96,7 +96,6 @@ webSocketServer.on('connection', socket => {
 
 setInterval(() => {
     fs.writeFileSync(worldPath, JSON.stringify(world, null, 2), 'utf-8');
-
     // broadcast max height and name
     // TODO: Make this more continous. Make it run on load, and when a new position arrives that beats the high score.
     const [max, profile] = getMaxAltitudeAndProfile();

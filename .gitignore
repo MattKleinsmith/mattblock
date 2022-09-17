@@ -3,3 +3,4 @@ auth.js
 game-server/cache
 .well-known
 *Zone.Identifier
+config.js
