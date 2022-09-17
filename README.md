@@ -1,52 +1,31 @@
-# Mattblock
+# mattblock
 
 ![image](./docs/intro.gif)
 
 # Changelog
 
-## 2022-09-15
-
-- Switch to HTTPS (https://mattblock.io)
-
-## 2022-09-13
-
-- Add minimap
-
-## 2022-09-08
-
-- Recalibrate game upon zoom
-
-## 2022-09-07
-
-- Add high score and altitude indicators
-
-## 2022-09-02
-
-- Add player-player collision
-- Scroll screen only when near an edge
-
-## 2022-09-01
-
-- Add player-platform collision
-
-## 2022-08-31
-
-- Save world to disk
-- Assign player's old character when they join again
-- Right click to change name
-
-## 2022-08-30
-- Add jump
-- Keep player centered on screen
-
-## 2022-08-29
-- Add gravity and ground
-- Right click to change color
-- Sync player positions over the Internet
-
-## 2022-08-28
-- Create game loop
-- Draw a square
+- 2022-09-15: Switch to HTTPS (https://mattblock.io)
+- 2022-09-13: Add minimap
+- 2022-09-08: Recalibrate game upon zoom
+- 2022-09-07: Add high score and altitude indicators
+- 2022-09-02:
+    - Add player-player collision
+    - Scroll screen only when near an edge
+- 2022-09-01: Add player-platform collision
+- 2022-08-31:
+    - Save world to disk
+    - Assign player's old character when they join again
+    - Right click to change name
+- 2022-08-30:
+    - Add jump
+    - Keep player centered on screen
+- 2022-08-29:
+    - Add gravity and ground
+    - Right click to change color
+    - Sync player positions over the Internet
+- 2022-08-28:
+    - Create game loop
+    - Draw a square
 
 # Unorganized (don't look) (okay you can look)
 
