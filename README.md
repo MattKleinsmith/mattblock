@@ -3,7 +3,10 @@
 ![image](./docs/intro.gif)
 
 # Changelog
-
+- 2022-09-17:
+    - Add test server
+    - Detect high-velocity collisions (collision but no overlap)
+- 2022-09-16: Add changelog and intro gif
 - 2022-09-15: Switch to HTTPS (https://mattblock.io)
 - 2022-09-13: Add minimap
 - 2022-09-08: Recalibrate game upon zoom

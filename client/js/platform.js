@@ -27,23 +27,27 @@ class Platform {
 
     move(direction = { x: 0, y: 0 }) {
 
+
         // Decollision
         {
             this.updateCorners();
 
             this.allowedDirections = { up: true, down: true, left: true, right: true };
             for (const platform of platforms) {
-                if (platform !== player && platform.isEnabled) platform.decollide();
+                if (platform !== player && platform.isEnabled) {
+                    platform.decollide();
+                }
             }
         }
 
+        player.oldPositionWS = { ...player.positionWS };
         // Vertical movement
         {
             if (this.allowedDirections.down) {
                 this.velocity.y += Platform.gravity * frameTime;
             }
 
-            if (!this.allowedDirections.down) {
+            if (!this.allowedDirections.down && direction.y !== 0) {
                 this.velocity.y = 0;
                 this.velocity.y += Platform.jumpForce * direction.y;
             }
@@ -58,6 +62,24 @@ class Platform {
 
             this.positionWS.y += this.velocity.y * frameTime;
         }
+        // Vertical collision detection
+        {
+            // Handle fast vertical case
+            {
+                for (const platform of platforms) {
+                    if (platform !== player && platform.isEnabled &&
+                        withinRange(platform.positionWS.y, player.oldPositionWS.y + playerHeight, player.positionWS.y + playerHeight, true) &&
+                        (withinRange(player.positionWS.x, platform.positionWS.x, platform.positionWS.x + platform.size.width, true) ||
+                            withinRange(player.positionWS.x + player.size.width, platform.positionWS.x, platform.positionWS.x + platform.size.width, true))) {
+
+                        player.positionWS.y = platform.positionWS.y - playerHeight;
+                        player.velocity.y = 0;
+                        this.allowedDirections.down = false;
+                    }
+                }
+            }
+        }
+
 
         // Horizontal movement
         {

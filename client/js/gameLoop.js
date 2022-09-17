@@ -6,6 +6,7 @@ setInterval(gameLoop, frameTime)
 
 function gameLoop() {
     // console.log((performance.now() - beginning) / ++numFrames);
+    ++numFrames;
 
     movePlayer();  // Simulation
     drawWorld(); // Presentation
@@ -27,6 +28,7 @@ function initializePlayer(payload) {
     nameInput.value = player.name;
     controller = {
         "r": { pressed: false, direction: { x: 0, y: 0 } },
+        "v": { pressed: false, direction: { x: 0, y: 0 } },
 
         "ArrowLeft": { pressed: false, direction: { x: -1, y: 0 } },
         "a": { pressed: false, direction: { x: -1, y: 0 } },
@@ -115,16 +117,19 @@ function sendPosition() {
 function movePlayer() {
     if (!player) return;
 
-    player.oldPositionWS = { ...player.positionWS };
-
     const totalDirection = { x: 0, y: 0 };
     for (const key in controller) {
         if (controller[key].pressed) {
             totalDirection.x += controller[key].direction.x;
             totalDirection.y += controller[key].direction.y;
             if (key === "r") {
+                player.oldPositionWS = { x: 0, y: 0 };
                 player.positionWS = { x: 0, y: 0 };
                 player.velocity = { x: 0, y: 0 };
+            }
+            if (key === "v") {
+                player.positionWS = { x: player.positionWS.x, y: player.positionWS.y };
+                player.velocity = { x: 0, y: player.velocity.y + 1 };
             }
         }
     }
