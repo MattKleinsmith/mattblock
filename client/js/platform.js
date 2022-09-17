@@ -15,7 +15,7 @@ class Platform {
             this.oldPositionWS = { ...positionWS };
             this.positionSS = { ...positionWS };
             this.velocity = { x: 0, y: 0 };
-            this.updateCorners();
+            this.allowedDirections = { up: true, down: true, left: true, right: true };
         }
     }
 
@@ -26,176 +26,32 @@ class Platform {
     static ground = 800;
 
     move(direction = { x: 0, y: 0 }) {
-
-
-        // Decollision
-        {
-            this.updateCorners();
-
-            this.allowedDirections = { up: true, down: true, left: true, right: true };
-            for (const platform of platforms) {
-                if (platform !== player && platform.isEnabled) {
-                    platform.decollide();
-                }
-            }
-        }
-
         player.oldPositionWS = { ...player.positionWS };
-        // Vertical movement
-        {
-            if (this.allowedDirections.down) {
-                this.velocity.y += Platform.gravity * frameTime;
-            }
+        this.moveVertically(direction.y);
+        this.moveHorizontally(direction.x);
+        this.decollide();
+        this.scroll();
+        this.updateScreenSpace();
+    }
 
-            if (!this.allowedDirections.down && direction.y !== 0) {
-                this.velocity.y = 0;
-                this.velocity.y += Platform.jumpForce * direction.y;
-            }
-
-            if (!this.allowedDirections.down && this.velocity.y > 0) {
-                this.velocity.y = 0;
-            }
-
-            if (!this.allowedDirections.up && this.velocity.y < 0) {
-                this.velocity.y = 0;
-            }
-
-            this.positionWS.y += this.velocity.y * frameTime;
+    decollide() {
+        this.resetAllowedDirections();
+        for (const platform of platforms) {
+            if (platform === player || !platform.isEnabled) continue;
+            if (this.handleVerticalCollision(platform)) break;
+            if (this.handleHorizontalCollision(platform)) break;
         }
-        // Vertical collision detection
-        {
-            // Handle fast vertical case
-            {
-                for (const platform of platforms) {
-                    if (platform !== player && platform.isEnabled &&
-                        withinRange(platform.positionWS.y, player.oldPositionWS.y + playerHeight, player.positionWS.y + playerHeight, true) &&
-                        (withinRange(player.positionWS.x, platform.positionWS.x, platform.positionWS.x + platform.size.width, true) ||
-                            withinRange(player.positionWS.x + player.size.width, platform.positionWS.x, platform.positionWS.x + platform.size.width, true))) {
+    }
 
-                        player.positionWS.y = platform.positionWS.y - playerHeight;
-                        player.velocity.y = 0;
-                        this.allowedDirections.down = false;
-                    }
-                }
-            }
-        }
+    scroll() {
+        this.scrollHorizontally();
+        this.scrollVertically();
+    }
 
-
-        // Horizontal movement
-        {
-            if (this.allowedDirections.left && direction.x < 0) {
-                this.velocity.x += Platform.runningForce * direction.x;
-            }
-
-            if (this.allowedDirections.right && direction.x > 0) {
-                this.velocity.x += Platform.runningForce * direction.x;
-            }
-
-            if (!this.allowedDirections.left && this.velocity.x < 0) {
-                this.velocity.x = 0;
-            }
-
-            if (!this.allowedDirections.right && this.velocity.x > 0) {
-                this.velocity.x = 0;
-            }
-
-            // Max speed
-            if (Math.abs(this.velocity.x) > Platform.maxRunSpeed) {
-                this.velocity.x = Math.sign(this.velocity.x) * Platform.maxRunSpeed;
-            }
-            // Friction
-            if (!this.allowedDirections.down && !direction.x && this.velocity.x) {
-                this.velocity.x = 0;
-            }
-            // Move
-            this.positionWS.x += this.velocity.x * frameTime;
-        }
-
-        //////////////////////////
-        // HORIZONTAL SCROLLING //
-        //////////////////////////
-        {
-            player.leftScrollSS = window.innerWidth * player.leftScrollPercentage;
-            player.rightScrollSS = window.innerWidth * player.rightScrollPercentage;
-            player.noScrollZoneWidth = player.rightScrollSS - player.leftScrollSS;
-
-            if (this.positionWS.x <= this.leftScrollWS) {
-                // console.log("LEFT", "DIFF", this.positionWS.x - this.leftScrollWS, "WS", this.positionWS.x, "CUTOFF", this.leftScrollWS);
-                if (!this.isScrollingLeft) {
-                    this.xLimitSS = this.leftScrollSS;
-                    this.isScrollingLeft = true;
-                }
-
-                this.leftScrollWS = this.positionWS.x;
-                this.rightScrollWS = this.leftScrollWS + player.noScrollZoneWidth;
-
-                this.leftScreenWS = player.positionWS.x - window.innerWidth * player.leftScrollPercentage;
-            } else {
-                this.isScrollingLeft = false;
-            }
-
-            if (this.positionWS.x >= this.rightScrollWS) {
-                // console.log("RIGHT", "DIFF", this.positionWS.x - this.rightScrollWS, "WS", this.positionWS.x, "CUTOFF", this.rightScrollWS);
-                if (!this.isScrollingRight) {
-                    this.xLimitSS = this.rightScrollSS;
-                    this.isScrollingRight = true;
-                }
-                this.rightScrollWS = this.positionWS.x;
-                this.leftScrollWS = this.rightScrollWS - player.noScrollZoneWidth;
-
-                this.leftScreenWS = player.positionWS.x - window.innerWidth * player.rightScrollPercentage;
-            } else {
-                this.isScrollingRight = false;
-            }
-
-            this.isScrollingHorizontally = this.isScrollingLeft || this.isScrollingRight;
-        }
-
-        ////////////////////////
-        // VERTICAL SCROLLING //
-        ////////////////////////
-        {
-            player.topScrollSS = window.innerHeight * player.topScrollPercentage;
-            player.bottomScrollSS = window.innerHeight * player.bottomScrollPercentage;
-            player.noScrollZoneHeight = player.bottomScrollSS - player.topScrollSS;
-
-            if (this.positionWS.y <= this.topScrollWS) {
-                // console.log("TOP", "DIFF", this.positionWS.y - this.topScrollWS, "WS", this.positionWS.y, "CUTOFF", this.topScrollWS);
-                if (!this.isScrollingUp) {
-                    this.yLimitSS = this.topScrollSS;
-                    this.isScrollingUp = true;
-                }
-
-                this.topScrollWS = this.positionWS.y;
-                this.bottomScrollWS = this.topScrollWS + player.noScrollZoneHeight;
-
-                this.topScreenWS = player.positionWS.y - window.innerHeight * player.topScrollPercentage;
-            } else {
-                // console.log("y", this.positionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.positionWS.y - this.bottomScrollWS);
-                this.isScrollingUp = false;
-            }
-
-            if (this.positionWS.y >= this.bottomScrollWS) {
-                // console.log("CROSSED y", this.positionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.positionWS.y - this.bottomScrollWS);
-                if (!this.isScrollingDown) {
-
-                    // EITHER bottomScrollSS is wrong, or, we have some weird transition
-                    this.yLimitSS = this.bottomScrollSS;
-                    this.isScrollingDown = true;
-                }
-                this.bottomScrollWS = this.positionWS.y;
-                this.topScrollWS = this.bottomScrollWS - player.noScrollZoneHeight;
-
-                this.topScreenWS = player.positionWS.y - window.innerHeight * player.bottomScrollPercentage;
-            } else {
-                // console.log("y", this.positionWS.y, "BOTTOM SCROLL LINE", this.bottomScrollWS, "DIFF", this.positionWS.y - this.bottomScrollWS);
-                this.isScrollingDown = false;
-            }
-
-            this.isScrollingVertically = this.isScrollingUp || this.isScrollingDown;
-        }
-
+    updateScreenSpace() {
         // Calibrate the world presentation to the player's position
+        // That is, calculate the screen space coordinates for each object
+
         platforms.forEach(PROBABLY_NOT_THE_PLAYER => {
             ////////////////
             // THE PLAYER //
@@ -231,6 +87,152 @@ class Platform {
         })
     }
 
+    moveVertically(yDirection) {
+        if (this.allowedDirections.down) {
+            this.velocity.y += Platform.gravity * frameTime;
+        } else if (yDirection !== 0) {
+            this.velocity.y = Platform.jumpForce * yDirection;
+        }
+
+        this.positionWS.y += this.velocity.y * frameTime;
+    }
+
+    moveHorizontally(xDirection) {
+        if (this.allowedDirections.left && xDirection < 0) {
+            this.velocity.x += Platform.runningForce * xDirection;
+        }
+
+        if (this.allowedDirections.right && xDirection > 0) {
+            this.velocity.x += Platform.runningForce * xDirection;
+        }
+
+        // Max speed
+        if (Math.abs(this.velocity.x) > Platform.maxRunSpeed) {
+            this.velocity.x = Math.sign(this.velocity.x) * Platform.maxRunSpeed;
+        }
+        // Friction
+        if (!this.allowedDirections.down && !xDirection && this.velocity.x) {
+            this.velocity.x = 0;
+        }
+
+        this.positionWS.x += this.velocity.x * frameTime;
+    }
+
+    handleVerticalCollision(platform) {
+        if (withinRange(player.positionWS.x, platform.positionWS.x, platform.positionWS.x + platform.size.width, true) ||
+            withinRange(player.positionWS.x + player.size.width, platform.positionWS.x, platform.positionWS.x + platform.size.width, true)) {
+
+            if (withinRange(platform.positionWS.y, player.oldPositionWS.y + playerHeight, player.positionWS.y + playerHeight, true)) {
+                player.positionWS.y = platform.positionWS.y - player.size.height;
+                this.allowedDirections.down = false;
+                this.velocity.y = 0;
+                if (!this.allowedDirections.right || !this.allowedDirections.left) return true;
+            } else if (withinRange(platform.positionWS.y + platform.size.height, player.positionWS.y, player.oldPositionWS.y, true)) {
+                player.positionWS.y = platform.positionWS.y + platform.size.height;
+                this.allowedDirections.up = false;
+                this.velocity.y = 0;
+                if (!this.allowedDirections.right || !this.allowedDirections.left) return true;
+            }
+        }
+        return false;
+    }
+
+    handleHorizontalCollision(platform) {
+        if (withinRange(player.positionWS.y, platform.positionWS.y, platform.positionWS.y + platform.size.height, true) ||
+            withinRange(player.positionWS.y + player.size.height, platform.positionWS.y, platform.positionWS.y + platform.size.height, true)) {
+
+            if (withinRange(platform.positionWS.x, player.oldPositionWS.x + player.size.width, player.positionWS.x + player.size.width, true)) {
+                player.positionWS.x = platform.positionWS.x - player.size.width;
+                this.allowedDirections.right = false;
+                this.velocity.x = 0;
+                if (!this.allowedDirections.down || !this.allowedDirections.up) return true;
+            } else if (withinRange(platform.positionWS.x + platform.size.width, player.positionWS.x, player.oldPositionWS.x, true)) {
+                player.positionWS.x = platform.positionWS.x + platform.size.width;
+                this.allowedDirections.left = false;
+                this.velocity.x = 0;
+                if (!this.allowedDirections.down || !this.allowedDirections.up) return true;
+            }
+        }
+        return false;
+    }
+
+    resetAllowedDirections() {
+        this.allowedDirections.down = true;
+        this.allowedDirections.up = true;
+        this.allowedDirections.right = true;
+        this.allowedDirections.left = true;
+    }
+
+    scrollHorizontally() {
+        player.leftScrollSS = window.innerWidth * player.leftScrollPercentage;
+        player.rightScrollSS = window.innerWidth * player.rightScrollPercentage;
+        player.noScrollZoneWidth = player.rightScrollSS - player.leftScrollSS;
+
+        if (this.positionWS.x <= this.leftScrollWS) {
+            if (!this.isScrollingLeft) {
+                this.xLimitSS = this.leftScrollSS;
+                this.isScrollingLeft = true;
+            }
+
+            this.leftScrollWS = this.positionWS.x;
+            this.rightScrollWS = this.leftScrollWS + player.noScrollZoneWidth;
+
+            this.leftScreenWS = player.positionWS.x - window.innerWidth * player.leftScrollPercentage;
+        } else {
+            this.isScrollingLeft = false;
+        }
+
+        if (this.positionWS.x >= this.rightScrollWS) {
+            if (!this.isScrollingRight) {
+                this.xLimitSS = this.rightScrollSS;
+                this.isScrollingRight = true;
+            }
+            this.rightScrollWS = this.positionWS.x;
+            this.leftScrollWS = this.rightScrollWS - player.noScrollZoneWidth;
+
+            this.leftScreenWS = player.positionWS.x - window.innerWidth * player.rightScrollPercentage;
+        } else {
+            this.isScrollingRight = false;
+        }
+
+        this.isScrollingHorizontally = this.isScrollingLeft || this.isScrollingRight;
+    }
+
+    scrollVertically() {
+        player.topScrollSS = window.innerHeight * player.topScrollPercentage;
+        player.bottomScrollSS = window.innerHeight * player.bottomScrollPercentage;
+        player.noScrollZoneHeight = player.bottomScrollSS - player.topScrollSS;
+
+        if (this.positionWS.y <= this.topScrollWS) {
+            if (!this.isScrollingUp) {
+                this.yLimitSS = this.topScrollSS;
+                this.isScrollingUp = true;
+            }
+
+            this.topScrollWS = this.positionWS.y;
+            this.bottomScrollWS = this.topScrollWS + player.noScrollZoneHeight;
+
+            this.topScreenWS = player.positionWS.y - window.innerHeight * player.topScrollPercentage;
+        } else {
+            this.isScrollingUp = false;
+        }
+
+        if (this.positionWS.y >= this.bottomScrollWS) {
+            if (!this.isScrollingDown) {
+                this.yLimitSS = this.bottomScrollSS;
+                this.isScrollingDown = true;
+            }
+            this.bottomScrollWS = this.positionWS.y;
+            this.topScrollWS = this.bottomScrollWS - player.noScrollZoneHeight;
+
+            this.topScreenWS = player.positionWS.y - window.innerHeight * player.bottomScrollPercentage;
+        } else {
+            this.isScrollingDown = false;
+        }
+
+        this.isScrollingVertically = this.isScrollingUp || this.isScrollingDown;
+    }
+
     worldToScreenSpace(platform) {
         // World --> Player
         const positionPS = {
@@ -251,86 +253,6 @@ class Platform {
         }
     }
 
-    updateCorners() {
-        this.x0 = this.positionWS.x;
-        this.x1 = this.x0 + this.size.width;
-        this.y0 = this.positionWS.y;
-        this.y1 = this.y0 + this.size.height;
-    }
-
-    decollide() {
-        this.updateCorners();
-        const withinXRange = (point, includeBoundary) => withinRange(point, this.x0, this.x1, includeBoundary);
-        const withinYRange = (point, includeBoundary) => withinRange(point, this.y0, this.y1, includeBoundary);
-
-        const error = { x: 0, y: 0 };
-
-        const tentativeAllowedDirections = { up: true, down: true, left: true, right: true };
-
-        // Vertical
-        {
-            // RELAX CONSTRAINTS TO ALLOW MOVEMENT
-            const isLeftInRange = withinXRange(player.x0, false);
-            const isRightInRange = withinXRange(player.x1, false);
-            if (isLeftInRange || isRightInRange) {
-                if (withinYRange(player.y0, true)) {
-                    error.y = player.y0 - this.y1;
-                    tentativeAllowedDirections.up = false;
-                } else if (withinYRange(player.y1, true)) {
-                    error.y = player.y1 - this.y0;
-                    // console.log("No to down. Error: ", error.y);
-                    tentativeAllowedDirections.down = false;
-                }
-            }
-        }
-
-        // Horizontal
-        {
-            const sameHeight = this.size.height === player.size.height;
-            if (sameHeight) {
-                if (player.y0 === this.y0 && player.y1 === this.y1) {
-                    if (withinXRange(player.x1, true)) {
-                        error.x = player.x1 - this.x0;
-                        tentativeAllowedDirections.right = false;
-                    } else if (withinXRange(player.x0, true)) {
-                        error.x = player.x0 - this.x1;
-                        tentativeAllowedDirections.left = false;
-                    }
-                }
-            } else {
-                const isTopInRange = withinYRange(player.y0, false);
-                const isBottomInRange = withinYRange(player.y1, false);
-                if (isTopInRange || isBottomInRange) {
-                    if (withinXRange(player.x1, true)) {
-                        error.x = player.x1 - this.x0;
-                        tentativeAllowedDirections.right = false;
-                    } else if (withinXRange(player.x0, true)) {
-                        error.x = player.x0 - this.x1;
-                        tentativeAllowedDirections.left = false;
-                    }
-                }
-            }
-        }
-
-        // Decollide and update constraints
-        {
-            if (error.x && (!error.y || Math.abs(error.x) < Math.abs(error.y))) {
-                // console.log("Chose violence", error.x);
-                player.positionWS.x -= error.x;
-            }
-
-            if (error.y && (!error.x || Math.abs(error.y) < Math.abs(error.x))) {
-                // console.log("Chose peace", error.y);
-                player.positionWS.y -= error.y;
-            }
-
-            player.allowedDirections.up &= tentativeAllowedDirections.up;
-            player.allowedDirections.down &= tentativeAllowedDirections.down;
-            player.allowedDirections.left &= tentativeAllowedDirections.left;
-            player.allowedDirections.right &= tentativeAllowedDirections.right;
-        }
-    }
-
     draw(ctx) {
         ctx.fillStyle = this.fillStyle;
 
@@ -344,9 +266,6 @@ class Platform {
 
     draw_Minimap(ctx, scale) {
         ctx.fillStyle = this.fillStyle;
-        if (this.positionPS === undefined) {
-            console.log(this.name, "did something");
-        }
         const pos = {
             x: this.positionPS.x + player.MM.x,
             y: this.positionPS.y + player.MM.y

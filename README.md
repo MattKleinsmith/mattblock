@@ -4,28 +4,30 @@
 
 # Changelog
 - 2022-09-17:
-    - Add test server
+    - Refactor (Single Responsibility Principle)
+    - Simplify the collision detection
     - Detect high-velocity collisions (collision but no overlap)
+    - Add test server
 - 2022-09-16: Add changelog and intro gif
 - 2022-09-15: Switch to HTTPS (https://mattblock.io)
 - 2022-09-13: Add minimap
 - 2022-09-08: Recalibrate game upon zoom
 - 2022-09-07: Add high score and altitude indicators
 - 2022-09-02:
-    - Add player-player collision
     - Scroll screen only when near an edge
+    - Add player-player collision
 - 2022-09-01: Add player-platform collision
 - 2022-08-31:
-    - Save world to disk
-    - Assign player's old character when they join again
     - Right click to change name
+    - Assign player's old character when they join again
+    - Save world to disk
 - 2022-08-30:
-    - Add jump
     - Keep player centered on screen
+    - Add jump
 - 2022-08-29:
-    - Add gravity and ground
-    - Right click to change color
     - Sync player positions over the Internet
+    - Right click to change color
+    - Add gravity and ground
 - 2022-08-28:
     - Create game loop
     - Draw a square
