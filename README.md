@@ -1,25 +1,51 @@
-- [x] Draw a square
-- [x] Implement game loop
-- [x] Sync player positions between two browser tabs
-- [x] Sync player positions over the Internet
-- [x] Allow 100 players
-- [x] Right click to change color
-- [x] Send all game data when player joins
-- [x] Add gravity and a ground
-- [x] Keep player centered on screen
-- [x] Fix key staying down if picking a color while moving
-- [x] Right click to change name
-- [x] Assign player's old character when they join again
-- [x] Focus text box upon right click
-- [x] Hide loading
-- [x] Load server position, not default position
-- [x] Write world data to a file. Load when server starts
-- [x] Decollide players from platforms
-- [x] Scroll the screen only when near an edge
-- [x] Turn players into platforms
-- [x] Fix phasing-through-other-players bug
-- [x] Fix partial phasing-through-other-players bug
----
+# Changelog
+
+## 2022-09-15
+
+- Switch to HTTPS (https://mattblock.io)
+
+## 2022-09-13
+
+- Add minimap
+
+## 2022-09-08
+
+- Recalibrate game upon zoom
+
+## 2022-09-07
+
+- Add high score and altitude indicators
+
+## 2022-09-02
+
+- Add player-player collision
+- Scroll screen only when near an edge
+
+## 2022-09-01
+
+- Add player-platform collision
+
+## 2022-08-31
+
+- Save world to disk
+- Assign player's old character when they join again
+- Right click to change name
+
+## 2022-08-30
+- Add jump
+- Keep player centered on screen
+
+## 2022-08-29
+- Add gravity and ground
+- Right click to change color
+- Sync player positions over the Internet
+
+## 2022-08-28
+- Create game loop
+- Draw a square
+
+# Unorganized (don't look) (okay you can look)
+
 ### Critical
 - [ ] Show tutorial
 - [ ] Quest to the upper left
@@ -37,19 +63,14 @@
     - [ ] Consider adding a random tiny value after each movement, to avoid exact x-coordinate
 - [ ] Keep spawn area clear for new people. If someone logs out from the spawn area, move them somewhere.
 ### Zooming
-- [ ] Zooming out or in requires a refresh. Can maybe add a callback to the zoom event to recalibrate the world-to-screen conversion
-- [ ] Zooming makes highest player text too small
 - [ ] Maybe have a min and max zoom. Or just make sure the important icons scale, to avoid limiting players.
-- [ ] Maybe create a minimap to show all players. Press "M" to bring up the full map
+- [ ] Press "M" to bring up the full map
 ---
 - [ ] Create a command to spawn a second character from the spawn machine, to make testing easier.
 ---
 - [ ] Make world space y point up. Flip to get to screen space.
-- [ ] Before closing the server, show a message asking the user to refresh. "Server is down. Refresh page to check if it's up"
 ---
 - [ ] Teamwork example: Double jump off each other.
-### Requests
-- [ ] "We need you to add height indicator"
 ---
 ### Maybe
 - [ ] Spawn platforms from the server. Press a button to randomize them. Can sync with refreshing
