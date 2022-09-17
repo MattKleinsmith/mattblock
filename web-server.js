@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('node:path');
 
 const host = '0.0.0.0';
-const port = 8001;
+const { webServerPort, shouldRedirectHttp } = require('./config.js');
 
 function sendFile(res, file) {
     const filename = path.join(__dirname, "/client", file);
@@ -54,17 +54,18 @@ const server = https.createServer(options, (req, res) => {
     }
 });
 
-server.listen(port, host, () => {
-    console.log(`Server is running on https://${host}:${port}`);
+server.listen(webServerPort, host, () => {
+    console.log(`Server is running on https://${host}:${webServerPort}`);
 });
-
 
 //////// HTTP --> HTTPS redirect
 
-const http = require("http");
-const httpPort = 8000;
-const httpServer = http.createServer(function (req, res) {
-    res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-    res.end();
-});
-httpServer.listen(httpPort);
+if (shouldRedirectHttp) {
+    const http = require("http");
+    const httpPort = 8000;
+    const httpServer = http.createServer(function (req, res) {
+        res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+        res.end();
+    });
+    httpServer.listen(httpPort);
+}
