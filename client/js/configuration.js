@@ -18,3 +18,5 @@ let allowMovement = true;
 let highScorePayload;
 
 let isServerDown = false;
+
+const socket = new WebSocket(url);
