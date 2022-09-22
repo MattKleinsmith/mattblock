@@ -36,16 +36,29 @@ const minPlatformY = -7000;
 const maxPlatformY = 400;
 const platformYRange = maxPlatformY - minPlatformY;
 
+// MONSTER
+const monster = new Platform(
+    {
+        x: 0,
+        y: 0
+    },
+    "black",
+    { width: 150, height: 4800 },
+    "monster"
+)
+// platforms.push(monster);
+
 // GROUND
-platforms.push(new Platform(
+const ground = new Platform(
     {
         x: -500,
         y: Platform.ground + playerHeight
     },
     "#222222",
     { width: groundWidth, height: groundHeight },
-    // "ground"
-));
+    "ground"
+)
+platforms.push(ground);
 
 // RANDOM PLATFORMS
 // for (let i = 0; i < 200; i++) {
@@ -90,7 +103,7 @@ platforms.push(new Platform(
     },
     "#AA5555",
     { width: 250, height: 500 },
-    // "red"
+    "red"
 ));
 
 // G
@@ -101,7 +114,7 @@ platforms.push(new Platform(
     },
     "#55AA55",
     { width: 250, height: 100 },
-    // "green"
+    "green"
 ));
 
 // UP
@@ -113,7 +126,7 @@ for (let i = 0; i < 10; i++) {
         },
         "#5555AA",
         { width: 250, height: 100 },
-        // "up " + i
+        "up " + i
     ));
 }
 
@@ -126,6 +139,6 @@ for (let i = 0; i < 100; i++) {
         },
         "#5555AA",
         { width: 250, height: 100 },
-        // "down " + i
+        "down " + i
     ));
 }

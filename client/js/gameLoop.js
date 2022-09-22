@@ -2,7 +2,7 @@ setInterval(gameLoop, frameTime);
 
 function gameLoop() {
     ++numFrames;
-    // console.log((performance.now() - beginning) / numFrames);
+    console.log((performance.now() - beginning) / numFrames);
 
     movePlayer();  // Simulation
     drawWorld(); // Presentation
@@ -40,6 +40,47 @@ function drawWorld() {
 
     const [minimapCtx, minimap] = calibrateMinimap();
     drawPlatforms_Minimap(minimapCtx, minimap);
+
+    drawMonster(ctx);
+}
+
+function drawMonster(ctx) {
+    const width = 500;
+    const height = 100;
+    const centerX = width / 2 - player.leftScreenWS;
+    const centerY = height / 2 - player.topScreenWS;
+    const amp = height / 2;
+    const frequency = .015;
+    const phi = numFrames / 3;
+    const yOffset = 0;
+    ctx.lineWidth = 75;
+
+    // Matrix transformation
+    ctx.translate(centerX, centerY);
+    ctx.rotate(Math.PI / 2);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.beginPath();
+    ctx.strokeStyle = "black";
+    for (let x = 0; x < width; x++) {
+
+        y = amp * (
+            Math.sin(x * Math.sin(frequency * numFrames) * 0.01 + phi + Math.random() * 0.025 * 0)
+            + 1 + Math.random() * 0.025);
+
+        // y = amp * Math.sin(x * frequency + phi)
+        // ctx.lineTo(x, y);
+        ctx.lineTo(x - player.leftScreenWS, y - player.topScreenWS);
+    }
+    ctx.stroke();
+
+    //
+    //
+
+
+    // Rotate
+
+    // Move toward a target
 }
 
 function sendPosition() {

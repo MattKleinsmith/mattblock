@@ -254,6 +254,8 @@ class Platform {
     }
 
     draw(ctx) {
+        if (this.name === "monster") return;
+
         ctx.fillStyle = this.fillStyle;
 
         // Draw the rectangle
