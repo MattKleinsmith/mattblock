@@ -3,6 +3,8 @@
 ![image](./docs/intro.gif)
 
 # Changelog
+- 2022-09-23:
+    - Refactor game server (Single Responsibility Principle)
 - 2022-09-22:
     - Draw 💤 next to offline players
 - 2022-09-17:
@@ -71,3 +73,8 @@
 - [ ] Can give people some of your emojis. Emojis are currency.
 - [ ] Push an object together
     - [ ] Go underneath a big object together and jump to push it up
+- [ ] Make minimap resizable
+- [ ] Bounce players proportionally to their velocity. This will help with recovery during the climbing game
+- [ ] Slowly zoom the view out for new players. Zoomed in is nice for focus for learning, but zoomed out is better once the player has the hang of it.
+- [ ] Fully zoom out minimap. Adaptively keep it the same zoom level, despite browser zoom changes.
+- [ ] 2D visibility in caves underground: https://www.redblobgames.com/articles/visibility/
