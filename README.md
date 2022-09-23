@@ -3,6 +3,8 @@
 ![image](./docs/intro.gif)
 
 # Changelog
+- 2022-09-22:
+    - Draw 💤 next to offline players
 - 2022-09-17:
     - Refactor (Single Responsibility Principle)
     - Simplify the collision detection
