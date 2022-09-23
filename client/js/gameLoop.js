@@ -135,7 +135,7 @@ socket.onmessage = message => {
             platforms[payload.id].name = payload.name;
             platforms[payload.id].status = payload.status;
         }
-        else if ("highScore" in payload) {
+        else if ("highscore" in payload) {
             highScorePayload = payload;
         }
         else if ("serverDown" in payload) {
@@ -241,7 +241,7 @@ function drawTopText(ctx, text, fillStyle, order = 1) {
 
 function drawHighscore(ctx) {
     if (!highScorePayload) return;
-    const text = `Highest player: ${highScorePayload.profile.name}: ${-highScorePayload.highScore}`;
+    const text = `Highest player: ${highScorePayload.profile.name}: ${-highScorePayload.highscore}`;
     drawTopText(ctx, text, highScorePayload.profile.color, 1);
 }
 

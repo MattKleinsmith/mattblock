@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('node:path');
 
 const host = '0.0.0.0';
-const { webServerPort, shouldRedirectHttp } = require('./config.js');
+const { webServerPort, shouldRedirectHttp, httpsKeyPath, httpsCertificatePath } = require('./config.js');
 
 function sendFile(res, file) {
     const filename = path.join(__dirname, "/client", file);
@@ -17,8 +17,8 @@ function sendFile(res, file) {
 }
 
 const options = {
-    key: fs.readFileSync('./client/.well-known/privkey.pem'),
-    cert: fs.readFileSync('./client/.well-known/fullchain.pem')
+    key: fs.readFileSync(httpsKeyPath),
+    cert: fs.readFileSync(httpsCertificatePath)
 };
 
 const server = https.createServer(options, (req, res) => {
