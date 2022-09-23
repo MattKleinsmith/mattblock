@@ -133,6 +133,7 @@ socket.onmessage = message => {
         else if ("color" in payload) {
             platforms[payload.id].fillStyle = payload.color;
             platforms[payload.id].name = payload.name;
+            platforms[payload.id].status = payload.status;
         }
         else if ("highScore" in payload) {
             highScorePayload = payload;

@@ -7,6 +7,7 @@ class Platform {
             this.name = name;
             this.nameOffset = { x: 0, y: -5 };
             this.isEnabled = isEnabled;
+            this.status = "";
         }
 
         // Motion
@@ -262,6 +263,11 @@ class Platform {
         // Draw the text
         ctx.font = '48px sans-serif';
         ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
+
+        // if (["", "connected"].includes(this.status)) return;
+        // Draw the player status
+        ctx.font = '40px sans-serif';
+        ctx.fillText(this.status, this.positionSS.x + this.nameOffset.x + 50, this.positionSS.y + this.nameOffset.y + 30);
     }
 
     draw_Minimap(ctx, scale) {

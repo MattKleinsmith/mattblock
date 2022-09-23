@@ -8,6 +8,7 @@ const WebSocket = require('ws');
 const { broadcast, randomHexColor, sendWorld } = require('./helpers');
 
 const { webSocketServerPort } = require('../config.js');
+const { workerData } = require("worker_threads");
 
 const certServer = https.createServer({
     cert: fs.readFileSync('../client/.well-known/fullchain.pem'),
@@ -23,7 +24,14 @@ let maxAltitude = 0;
 
 let world;
 // TODO: Keep track of max
-if (fs.existsSync(worldPath)) world = require(worldPath);
+if (fs.existsSync(worldPath)) {
+    world = require(worldPath);
+    world.profiles.forEach(profile => {
+        if (!("status" in profile)) {
+            profile.status = "💤"
+        }
+    });
+}
 else {
     world = {
         highestId: -1,
@@ -81,6 +89,10 @@ webSocketServer.on('connection', socket => {
             const initializationPayload = { initialization: true, ...world.positions[id] };
             console.log("Sending", JSON.stringify(initializationPayload));
             socket.send(JSON.stringify(initializationPayload));
+
+            world.profiles[id].status = "";
+            broadcast(webSocketServer, world.profiles[id]);
+
             return;
         }
         else if ("color" in payload) {
@@ -95,6 +107,9 @@ webSocketServer.on('connection', socket => {
 
     socket.on('close', () => {
         console.log("Closing", socket.id);
+        const profile = world.profiles[socket.id];
+        profile.status = "💤";
+        broadcast(webSocketServer, profile, socket.id); // Relay to all except sender;
     })
 });
 
