@@ -8,6 +8,7 @@ const WebSocket = require('ws');
 const { broadcast, randomHexColor, sendWorld } = require('./helpers');
 
 const { webSocketServerPort } = require('../config.js');
+const { workerData } = require("worker_threads");
 
 const certServer = https.createServer({
     cert: fs.readFileSync('../client/.well-known/fullchain.pem'),
@@ -19,9 +20,18 @@ console.log(`Game server is running on port ${webSocketServerPort}`);
 
 const worldPath = "./cache/world.json";
 
+let maxAltitude = 0;
+
 let world;
 // TODO: Keep track of max
-if (fs.existsSync(worldPath)) world = require(worldPath);
+if (fs.existsSync(worldPath)) {
+    world = require(worldPath);
+    world.profiles.forEach(profile => {
+        if (!("status" in profile)) {
+            profile.status = "💤"
+        }
+    });
+}
 else {
     world = {
         highestId: -1,
@@ -47,6 +57,8 @@ function getMaxAltitudeAndProfile() {
 webSocketServer.on('connection', socket => {
 
     sendWorld(socket, world.profiles, world.positions);
+    const [max, profile] = getMaxAltitudeAndProfile();
+    socket.send(JSON.stringify({ highScore: max, profile: profile }));
 
     socket.on('message', unparsedData => {
         const payload = JSON.parse(unparsedData);
@@ -77,6 +89,10 @@ webSocketServer.on('connection', socket => {
             const initializationPayload = { initialization: true, ...world.positions[id] };
             console.log("Sending", JSON.stringify(initializationPayload));
             socket.send(JSON.stringify(initializationPayload));
+
+            world.profiles[id].status = "";
+            broadcast(webSocketServer, world.profiles[id]);
+
             return;
         }
         else if ("color" in payload) {
@@ -91,6 +107,9 @@ webSocketServer.on('connection', socket => {
 
     socket.on('close', () => {
         console.log("Closing", socket.id);
+        const profile = world.profiles[socket.id];
+        profile.status = "💤";
+        broadcast(webSocketServer, profile, socket.id); // Relay to all except sender;
     })
 });
 
@@ -100,7 +119,10 @@ setInterval(() => {
     // TODO: Make this more continous. Make it run on load, and when a new position arrives that beats the high score.
     const [max, profile] = getMaxAltitudeAndProfile();
     const payload = { highScore: max, profile: profile };
-    broadcast(webSocketServer, payload);
+    if (max > maxAltitude) {
+        maxAltitude = max;
+        broadcast(webSocketServer, payload);
+    }
 }, 1000)
 
 process.on('SIGINT', function () {

@@ -1,16 +1,54 @@
-const socket = new WebSocket(url);
-
-
-
-setInterval(gameLoop, frameTime)
+setInterval(gameLoop, frameTime);
 
 function gameLoop() {
-    // console.log((performance.now() - beginning) / ++numFrames);
     ++numFrames;
+    // console.log((performance.now() - beginning) / numFrames);
 
     movePlayer();  // Simulation
     drawWorld(); // Presentation
     sendPosition(); // Communication
+}
+
+function movePlayer() {
+    if (!player) return;
+
+    const totalDirection = { x: 0, y: 0 };
+    for (const key in controller) {
+        if (controller[key].pressed) {
+            totalDirection.x += controller[key].direction.x;
+            totalDirection.y += controller[key].direction.y;
+            if (key === "r") {
+                player.oldPositionWS = { x: 0, y: 0 };
+                player.positionWS = { x: 0, y: 0 };
+                player.velocity = { x: 0, y: 0 };
+            }
+            if (key === "v") {
+                player.positionWS = { x: player.positionWS.x, y: player.positionWS.y };
+                player.velocity = { x: 0, y: player.velocity.y + 1 };
+            }
+        }
+    }
+    player.move(totalDirection);
+}
+
+function drawWorld() {
+    const ctx = calibrateCanvas();
+    drawPlatforms(ctx);
+    drawHighscore(ctx);
+    drawAltitude(ctx);
+    drawServerStatus(ctx);
+
+    const [minimapCtx, minimap] = calibrateMinimap();
+    drawPlatforms_Minimap(minimapCtx, minimap);
+}
+
+function sendPosition() {
+    if (!player) return;
+    if (player.positionWS.x !== player.oldPositionWS.x ||
+        player.positionWS.y !== player.oldPositionWS.y) {
+        const payload = { id: id, position: player.positionWS };
+        socket.send(JSON.stringify(payload));
+    }
 }
 
 function sendProfile() {
@@ -95,6 +133,7 @@ socket.onmessage = message => {
         else if ("color" in payload) {
             platforms[payload.id].fillStyle = payload.color;
             platforms[payload.id].name = payload.name;
+            platforms[payload.id].status = payload.status;
         }
         else if ("highScore" in payload) {
             highScorePayload = payload;
@@ -103,48 +142,6 @@ socket.onmessage = message => {
             isServerDown = true;
         }
     }
-}
-
-function sendPosition() {
-    if (!player) return;
-    if (player.positionWS.x !== player.oldPositionWS.x ||
-        player.positionWS.y !== player.oldPositionWS.y) {
-        const payload = { id: id, position: player.positionWS };
-        socket.send(JSON.stringify(payload));
-    }
-}
-
-function movePlayer() {
-    if (!player) return;
-
-    const totalDirection = { x: 0, y: 0 };
-    for (const key in controller) {
-        if (controller[key].pressed) {
-            totalDirection.x += controller[key].direction.x;
-            totalDirection.y += controller[key].direction.y;
-            if (key === "r") {
-                player.oldPositionWS = { x: 0, y: 0 };
-                player.positionWS = { x: 0, y: 0 };
-                player.velocity = { x: 0, y: 0 };
-            }
-            if (key === "v") {
-                player.positionWS = { x: player.positionWS.x, y: player.positionWS.y };
-                player.velocity = { x: 0, y: player.velocity.y + 1 };
-            }
-        }
-    }
-    player.move(totalDirection);
-}
-
-function drawWorld() {
-    const ctx = calibrateCanvas();
-    drawPlatforms(ctx);
-    drawHighscore(ctx);
-    drawAltitude(ctx);
-    drawServerStatus(ctx);
-
-    const [minimapCtx, minimap] = calibrateMinimap();
-    drawPlatforms_Minimap(minimapCtx, minimap);
 }
 
 function calibrateMinimap() {
