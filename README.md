@@ -3,6 +3,8 @@
 ![image](./docs/intro.gif)
 
 # Changelog
+- 2022-09-24:
+    - Back up world daily
 - 2022-09-23:
     - Refactor game server (Single Responsibility Principle)
 - 2022-09-22:

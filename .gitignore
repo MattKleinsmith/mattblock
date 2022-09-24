@@ -4,3 +4,4 @@ game-server/cache
 .well-known
 *Zone.Identifier
 config.js
+scratch.js

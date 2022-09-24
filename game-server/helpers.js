@@ -17,8 +17,35 @@ function createGameServer(port) {
     return gameServer;
 }
 
+function getYearMonthDay() {
+    const now = new Date(Date.now());
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const yearMonthDay = [year, month, day].join("-");
+    return yearMonthDay;
+}
+
+function saveToFile(data, path) {
+    fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+function saveDailyBackup(world) {
+    const yearMonthDay = getYearMonthDay();
+    if (world.lastBackupDate !== yearMonthDay) {
+        world.lastBackupDate = yearMonthDay;
+
+        const pathParts = worldPath.split("/");
+        pathParts[pathParts.length - 1] = `world_${yearMonthDay}.json`;
+        const path = pathParts.join("/");
+
+        saveToFile(world, path);
+    }
+}
+
 function saveWorld(world) {
-    fs.writeFileSync(worldPath, JSON.stringify(world, null, 2), 'utf-8');
+    saveDailyBackup(world)
+    saveToFile(world, worldPath);
 }
 
 function loadWorld() {
