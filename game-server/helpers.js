@@ -32,6 +32,7 @@ function loadWorld() {
             if (!("status" in profile)) profile.status = "💤"
         });
         if (!("highscore" in world)) world.highscore = getMaxAltitudeAndProfile(world);
+        if (!("highscoreHistory" in world)) world.highscoreHistory = [world.highscore]
     }
     else {
         world = {
@@ -126,6 +127,13 @@ function checkForHighscore(gameServer, world, payload) {
         world.highscore.highscore = payload.position.y;
         world.highscore.profile = world.profiles[payload.id];
         broadcast(gameServer, world.highscore);
+
+        const previousHighscore = world.highscoreHistory[world.highscoreHistory.length - 1];
+        if (previousHighscore.profile.name === world.highscore.profile.name) {
+            world.highscoreHistory[world.highscoreHistory.length - 1] = world.highscore;
+        } else {
+            world.highscoreHistory.push(world.highscore);
+        }
     }
 }
 
