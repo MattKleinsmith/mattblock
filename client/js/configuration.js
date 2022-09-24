@@ -20,3 +20,5 @@ let highScorePayload;
 let isServerDown = false;
 
 const socket = new WebSocket(url);
+
+let tSpeed = 0;

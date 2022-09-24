@@ -77,6 +77,8 @@ function initializePlayer(payload) {
         "ArrowUp": { pressed: false, direction: { x: 0, y: -1 } },
         "w": { pressed: false, direction: { x: 0, y: -1 } },
         " ": { pressed: false, direction: { x: 0, y: -1 } },
+
+        "s": { pressed: false, direction: { x: 0, y: 1 } }
     }
     body.style.visibility = "visible";
     recalibrateScreen();

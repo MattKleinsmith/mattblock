@@ -89,34 +89,44 @@ class Platform {
     }
 
     moveVertically(yDirection) {
-        if (this.allowedDirections.down) {
-            this.velocity.y += Platform.gravity * frameTime;
-        } else if (yDirection !== 0) {
-            this.velocity.y = Platform.jumpForce * yDirection;
+        if (tSpeed) {
+            this.positionWS.y += yDirection * frameTime * tSpeed;
+            console.log(this.positionWS);
         }
+        else {
+            if (this.allowedDirections.down) {
+                this.velocity.y += Platform.gravity * frameTime;
+            } else if (yDirection !== 0) {
+                this.velocity.y = Platform.jumpForce * yDirection;
+            }
 
-        this.positionWS.y += this.velocity.y * frameTime;
+            this.positionWS.y += this.velocity.y * frameTime;
+        }
     }
 
     moveHorizontally(xDirection) {
-        if (this.allowedDirections.left && xDirection < 0) {
-            this.velocity.x += Platform.runningForce * xDirection;
-        }
+        if (tSpeed) {
+            this.positionWS.x += xDirection * frameTime * tSpeed;
+        } else {
+            if (this.allowedDirections.left && xDirection < 0) {
+                this.velocity.x += Platform.runningForce * xDirection;
+            }
 
-        if (this.allowedDirections.right && xDirection > 0) {
-            this.velocity.x += Platform.runningForce * xDirection;
-        }
+            if (this.allowedDirections.right && xDirection > 0) {
+                this.velocity.x += Platform.runningForce * xDirection;
+            }
 
-        // Max speed
-        if (Math.abs(this.velocity.x) > Platform.maxRunSpeed) {
-            this.velocity.x = Math.sign(this.velocity.x) * Platform.maxRunSpeed;
-        }
-        // Friction
-        if (!this.allowedDirections.down && !xDirection && this.velocity.x) {
-            this.velocity.x = 0;
-        }
+            // Max speed
+            if (Math.abs(this.velocity.x) > Platform.maxRunSpeed) {
+                this.velocity.x = Math.sign(this.velocity.x) * Platform.maxRunSpeed;
+            }
+            // Friction
+            if (!this.allowedDirections.down && !xDirection && this.velocity.x) {
+                this.velocity.x = 0;
+            }
 
-        this.positionWS.x += this.velocity.x * frameTime;
+            this.positionWS.x += this.velocity.x * frameTime;
+        }
     }
 
     handleVerticalCollision(platform) {
