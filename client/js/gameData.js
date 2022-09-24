@@ -47,6 +47,17 @@ platforms.push(new Platform(
     // "ground"
 ));
 
+// GROUND
+platforms.push(new Platform(
+    {
+        x: groundWidth - 600,
+        y: -20000 + 900
+    },
+    "#222222",
+    { width: 100, height: 20000 },
+    // "wall"
+));
+
 // RANDOM PLATFORMS
 // for (let i = 0; i < 200; i++) {
 //     platforms.push(new Platform(
