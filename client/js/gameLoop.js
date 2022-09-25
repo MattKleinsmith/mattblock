@@ -34,12 +34,14 @@ function movePlayer() {
 function drawWorld() {
     const ctx = calibrateCanvas();
     drawPlatforms(ctx);
-    drawHighscore(ctx);
-    drawAltitude(ctx);
-    drawServerStatus(ctx);
 
     const [minimapCtx, minimap] = calibrateMinimap();
     drawPlatforms_Minimap(minimapCtx, minimap);
+
+    const textCtx = calibrateTextCanvas();
+    drawHighscore(textCtx);
+    drawAltitude(textCtx);
+    drawServerStatus(textCtx);
 }
 
 function sendPosition() {
@@ -148,7 +150,7 @@ socket.onmessage = message => {
 
 function calibrateMinimap() {
     const canvas = document.getElementById('minimap');
-    canvas.width = window.innerWidth * 0.099;  // TODO: Remove CSS width rule.
+    canvas.width = window.innerWidth * 0.099;
     canvas.height = window.innerHeight * 0.999;
 
     if (!canvas.getContext) return;
@@ -157,33 +159,28 @@ function calibrateMinimap() {
     return [ctx, canvas];
 }
 
-function drawPlatforms_Minimap(ctx, canvas) {
+function drawPlatforms_Minimap(ctx) {
     if (!player) return;
 
-    // ctx.fillStyle = "#282A2B";
-    // ctx.fillStyle = "black"
-    // ctx.fillStyle = "#28662B";
     ctx.fillStyle = "#181A1B";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     ctx.fillStyle = player.fillStyle;
 
-    const scale = 1;
-    ctx.scale(.29, .29);
-    const minimapCenterX = canvas.width * 1.75;
-    const minimapCenterY = canvas.height * 2;
+    ctx.scale(minimapScale, minimapScale);
+    const minimapCenterX = ctx.canvas.width * .5 / minimapScale;
+    const minimapCenterY = ctx.canvas.height * .5 / minimapScale;
     ctx.fillRect(
         minimapCenterX,
         minimapCenterY,
-        player.size.width * scale,
-        player.size.height * scale);
+        player.size.width,
+        player.size.height);
     player.MM = { x: minimapCenterX, y: minimapCenterY };
 
     for (let i = platforms.length - 1; i >= 0; i--) {
         if (i === id) continue;
         const platform = platforms[i];
-        if (platform.isEnabled) platform.draw_Minimap(ctx, scale);
+        if (platform.isEnabled) platform.draw_Minimap(ctx);
     }
 }
 
@@ -208,14 +205,30 @@ function isZooming() {
 function calibrateCanvas() {
     const canvas = document.getElementById('canvas');
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight; // * .996;
+    canvas.height = window.innerHeight;
+
+    if (!canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+
+    if (gameScale === 0.25) {
+        ctx.setTransform(gameScale, 0, 0, gameScale, ctx.canvas.width * gameScale * 1.5, ctx.canvas.height * gameScale * 1.5)
+    } else if (gameScale === 0.50) {
+        ctx.setTransform(gameScale, 0, 0, gameScale, ctx.canvas.width * gameScale * 0.5, ctx.canvas.height * gameScale * 0.5)
+    }
+
+    return ctx;
+}
+
+function calibrateTextCanvas() {
+    const canvas = document.getElementById('textCanvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
     return ctx;
 }
-
 
 function drawPlatforms(ctx) {
     // Backwards to draw player names over NPC platforms
@@ -235,10 +248,13 @@ function drawServerStatus(ctx) {
 }
 
 function drawTopText(ctx, text, fillStyle, order = 1) {
-    const fontSize = 19 / px_ratio;
+    const fontSize = 19;
     ctx.fillStyle = fillStyle;
     ctx.font = fontSize + 'px sans-serif';
-    ctx.fillText(text, window.innerWidth * .45, fontSize * order);
+    ctx.fillText(
+        text,
+        window.innerWidth * .45,  // x
+        fontSize * order);        // y
 }
 
 function drawHighscore(ctx) {
@@ -265,10 +281,35 @@ nameInput.oninput = function (event) {
     sendProfile();
 }
 
-// Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
+function zoom(shouldZoomIn) {
+    shouldZoomIn ? zoomIn() : zoomOut();
+    gameScale = gameScales[gameScaleIndex];
+}
+
+function zoomIn() {
+    if (++gameScaleIndex === gameScales.length) gameScaleIndex--;
+}
+
+function zoomOut() {
+    if (--gameScaleIndex === -1) gameScaleIndex++;
+}
+
 document.addEventListener("keydown", event => {
+    // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
     if (allowMovement && controller[event.key]) controller[event.key].pressed = true;
+
+    if (((event.ctrlKey || event.metaKey) && ['-', '='].includes(event.key))) {
+        event.preventDefault();
+        zoom(event.key === '=');
+    }
 })
+
+document.addEventListener("wheel", event => {
+    if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+        zoom(event.deltaY < 0);
+    }
+}, { passive: false })
 
 document.addEventListener("keyup", event => {
     if (controller[event.key]) controller[event.key].pressed = false;
@@ -297,7 +338,7 @@ document.addEventListener('contextmenu', function (event) {
     colorPicker.style.height = 40 + "px";
 }, false);
 
-canvas.addEventListener('click', event => {
+textCanvas.addEventListener('click', event => {
     nameInput.style.display = "none";
     colorPicker.style.display = "none";
     allowMovement = true;

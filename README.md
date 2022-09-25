@@ -4,6 +4,7 @@
 
 # Changelog
 - 2022-09-24:
+    - Prevent form fields from zooming out
     - Back up world daily
 - 2022-09-23:
     - Refactor game server (Single Responsibility Principle)

@@ -45,9 +45,10 @@ input[type="text"] {
 
 #minimap {
     position: fixed;
-    /* height: 100%; */
     left: 90%;
-    /* width: 10%; */
     border-left: 1px solid rgb(77, 77, 77);
-    /* width: 100px; */
+}
+
+#textCanvas {
+    position: fixed;
 }

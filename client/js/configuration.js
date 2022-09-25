@@ -22,3 +22,12 @@ let isServerDown = false;
 const socket = new WebSocket(url);
 
 let tSpeed = 0;
+
+const gameScales = [0.25, 0.5, 1];
+let gameScaleIndex = 1;
+
+let gameScale = .5;
+let minimapScale = 0.075;
+
+let gameWidth = window.innerWidth;
+let gameHeight = window.innerHeight;
