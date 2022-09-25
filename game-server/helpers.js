@@ -118,7 +118,7 @@ function sendCharacter(gameServer, world, payload, socket) {
     if (socket.id >= 0) return;
     // Associate ip with id, and send id to player.
     let id;
-    if (!(payload.ip in world.ids)) initializePlayer(gameServer, world);
+    if (!(payload.ip in world.ids)) id = initializePlayer(gameServer, world, payload);
     else {
         id = world.ids[payload.ip];
         console.log(`Old player joined: "${world.profiles[id].name}", id: ${id}`);
@@ -147,6 +147,7 @@ function initializePlayer(gameServer, world, payload) {
     world.positions[id] = { id: id, position: { x: 0, y: 0 } };
     console.log(`New player joined: "${world.profiles[id].name}", id: ${id}`);
     broadcast(gameServer, profilePayload); // Send to all, including sender
+    return id;
 }
 
 function checkForHighscore(gameServer, world, payload) {
