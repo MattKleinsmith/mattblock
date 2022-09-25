@@ -244,26 +244,6 @@ class Platform {
         this.isScrollingVertically = this.isScrollingUp || this.isScrollingDown;
     }
 
-    worldToScreenSpace(platform) {
-        // World --> Player
-        const positionPS = {
-            x: platform.positionWS.x - player.positionWS.x,
-            y: platform.positionWS.y - player.positionWS.y,
-        }
-
-        // Player --> Screen
-        const offsetFromPlayerToScreenSpace = {
-            x: player.positionWS.x,
-            y: player.positionWS.y
-        }
-
-        // World --> Player --> Screen
-        platform.positionSS = {
-            x: positionPS.x + offsetFromPlayerToScreenSpace.x,
-            y: positionPS.y + offsetFromPlayerToScreenSpace.y
-        }
-    }
-
     draw(ctx) {
         ctx.fillStyle = this.fillStyle;
 
@@ -280,13 +260,13 @@ class Platform {
         ctx.fillText(this.status, this.positionSS.x + this.nameOffset.x + 50, this.positionSS.y + this.nameOffset.y + 30);
     }
 
-    draw_Minimap(ctx, scale) {
+    draw_Minimap(ctx) {
         ctx.fillStyle = this.fillStyle;
         const pos = {
             x: this.positionPS.x + player.MM.x,
             y: this.positionPS.y + player.MM.y
         }
-        ctx.fillRect(pos.x, pos.y, this.size.width * scale, this.size.height * scale);
+        ctx.fillRect(pos.x, pos.y, this.size.width, this.size.height);
     }
 }
 
