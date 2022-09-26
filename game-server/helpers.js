@@ -180,9 +180,13 @@ function broadcastPosition(gameServer, world, payload) {
 
 function broadcastOfflineStatus(gameServer, world, socket) {
     console.log("Closing", socket.id);
-    const profile = world.profiles[socket.id];
-    profile.status = "💤";
-    broadcast(gameServer, profile, socket.id); // Relay to all except sender;
+    try {
+        const profile = world.profiles[socket.id];
+        profile.status = "💤";
+        broadcast(gameServer, profile, socket.id); // Relay to all except sender;
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 module.exports = {
