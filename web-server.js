@@ -22,36 +22,8 @@ const options = {
 };
 
 const server = https.createServer(options, (req, res) => {
-    switch (req.url) {
-        case "/":
-            sendFile(res, "index.html");
-            break;
-        case "/css/main.css":
-            sendFile(res, "css/main.css");
-            break;
-        case "/js/ip.js":
-            sendFile(res, "js/ip.js");
-            break;
-        case "/js/auth.js":
-            sendFile(res, "js/auth.js");
-            break;
-        case "/js/configuration.js":
-            sendFile(res, "js/configuration.js");
-            break;
-        case "/js/platform.js":
-            sendFile(res, "js/platform.js");
-            break;
-        case "/js/gameData.js":
-            sendFile(res, "js/gameData.js");
-            break;
-        case "/js/gameLoop.js":
-            sendFile(res, "js/gameLoop.js");
-            break;
-        default:
-            res.statusCode = 404;
-            res.end();
-            break;
-    }
+    const path = req.url === "/" ? "index.html" : req.url;
+    sendFile(res, path);
 });
 
 server.listen(webServerPort, host, () => {
