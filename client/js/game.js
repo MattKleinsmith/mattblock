@@ -1,5 +1,7 @@
-import { movePlayer, drawWorld, sendPosition } from "./gameLoop.js"
 import { frameTime, beginning } from "./configuration.js"
+import { movePlayer } from "./userInterface.js"
+import { drawWorld } from "./draw.js"
+import { sendPosition } from "./network.js"
 
 let numFrames = 0;
 
