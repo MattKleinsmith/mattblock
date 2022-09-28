@@ -27,7 +27,13 @@ export const shared = {
     isServerDown: false,
     tSpeed: 0,
     gameScaleIndex: 1,
-    gameScale: .5,
+    gameScale: 1,
     gameWidth: window.innerWidth,
-    gameHeight: window.innerHeight
+    gameHeight: window.innerHeight,
+}
+
+export const builder = {
+    enabled: false,
+    topLeftWS: { x: 0, y: 0 },
+    bottomRightWS: { x: 0, y: 0 }
 }

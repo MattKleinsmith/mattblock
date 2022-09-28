@@ -1,5 +1,6 @@
-import { shared, minimapScale } from "./configuration.js";
+import { shared, minimapScale, gameScales } from "./configuration.js";
 import { platforms } from "./gameData.js";
+import { Platform } from "./platform.js";
 
 export function drawWorld() {
     const ctx = calibrateCanvas();
@@ -83,9 +84,9 @@ function drawPlatforms_Minimap(ctx) {
     }
 }
 
-addEventListener('resize', (event) => recalibrateScreen);
+addEventListener('resize', recalibrateScreen);
 
-function calibrateCanvas() {
+export function calibrateCanvas() {
     const canvas = document.getElementById('canvas');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -154,13 +155,13 @@ function drawAltitude(ctx) {
 
 export function zoom(shouldZoomIn) {
     shouldZoomIn ? zoomIn() : zoomOut();
-    shared.gameScale = gameScales[gameScaleIndex];
+    shared.gameScale = gameScales[shared.gameScaleIndex];
 }
 
 function zoomIn() {
-    if (++gameScaleIndex === gameScales.length) gameScaleIndex--;
+    if (++shared.gameScaleIndex === gameScales.length) shared.gameScaleIndex--;
 }
 
 function zoomOut() {
-    if (--gameScaleIndex === -1) gameScaleIndex++;
+    if (--shared.gameScaleIndex === -1) shared.gameScaleIndex++;
 }

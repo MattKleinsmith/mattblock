@@ -1,6 +1,9 @@
-import { shared, nameFieldSpaceCount } from "./configuration.js";
+import { shared, nameFieldSpaceCount, builder } from "./configuration.js";
 import { sendProfile } from "./network.js";
-import { zoom } from "./draw.js";
+import { zoom, calibrateCanvas } from "./draw.js";
+import { getMousePositionWS } from "./helpers.js";
+import { platforms } from "./gameData.js";
+import { Platform } from "./platform.js";
 
 export function movePlayer() {
     if (!shared.player) return;
@@ -39,6 +42,12 @@ nameInput.oninput = function (event) {
     sendProfile();
 }
 
+textCanvas.onclick = function (event) {
+    nameInput.style.display = "none";
+    colorPicker.style.display = "none";
+    shared.allowMovement = true;
+};
+
 document.addEventListener("keydown", event => {
     // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
     if (shared.allowMovement && shared.controller[event.key]) shared.controller[event.key].pressed = true;
@@ -46,6 +55,10 @@ document.addEventListener("keydown", event => {
     if (((event.ctrlKey || event.metaKey) && ['-', '='].includes(event.key))) {
         event.preventDefault();
         zoom(event.key === '=');
+    }
+
+    if (event.key === "b") {
+        builder.enabled = !builder.enabled;
     }
 })
 
@@ -60,7 +73,7 @@ document.addEventListener("keyup", event => {
     if (shared.controller[event.key]) shared.controller[event.key].pressed = false;
 })
 
-document.addEventListener('contextmenu', function (event) {
+document.addEventListener('contextmenu', event => {
     event.preventDefault();
 
     shared.allowMovement = false;
@@ -83,8 +96,46 @@ document.addEventListener('contextmenu', function (event) {
     colorPicker.style.height = 40 + "px";
 }, false);
 
-textCanvas.addEventListener('click', event => {
-    nameInput.style.display = "none";
-    colorPicker.style.display = "none";
-    shared.allowMovement = true;
-});
+document.addEventListener('mousedown', event => {
+    if (event.button === 0 && builder.enabled) { // LEFT CLICK
+        builder.canvas = calibrateCanvas().canvas;
+        builder.topLeftWS = getMousePositionWS(builder.canvas, event, shared.player);
+        builder.platform = createPlatform(builder.topLeftWS);
+    }
+})
+
+document.addEventListener('mousemove', event => {
+    if (event.button === 0 && builder.platform && builder.enabled) { // LEFT CLICK
+        builder.bottomRightWS = getMousePositionWS(builder.canvas, event, shared.player);
+        updatePlatform();
+    }
+})
+
+document.addEventListener('mouseup', event => {
+    if (event.button === 0 && builder.enabled) { // LEFT CLICK
+        builder.platform = null;
+    }
+})
+
+function createPlatform(topLeftWS, bottomRightWS = topLeftWS) {
+    const platform = new Platform(
+        topLeftWS,
+        "#AA5555",
+        {
+            width: bottomRightWS.x - topLeftWS.x,
+            height: topLeftWS.y - bottomRightWS.y
+        },
+        "",
+        true
+    );
+    platforms.push(platform);
+    return platform;
+}
+
+
+function updatePlatform() {
+    builder.platform.size = {
+        width: builder.bottomRightWS.x - builder.topLeftWS.x,
+        height: builder.bottomRightWS.y - builder.topLeftWS.y
+    }
+}
