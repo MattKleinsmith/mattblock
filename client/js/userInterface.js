@@ -100,6 +100,7 @@ document.addEventListener('mousedown', event => {
     if (event.button === 0 && builder.enabled) { // LEFT CLICK
         builder.canvas = calibrateCanvas().canvas;
         builder.topLeftWS = getMousePositionWS(builder.canvas, event, shared.player);
+        console.log(builder.topLeftWS);
         builder.platform = createPlatform(builder.topLeftWS);
     }
 })
@@ -122,8 +123,8 @@ function createPlatform(topLeftWS, bottomRightWS = topLeftWS) {
         topLeftWS,
         "#AA5555",
         {
-            width: bottomRightWS.x - topLeftWS.x,
-            height: topLeftWS.y - bottomRightWS.y
+            width: (bottomRightWS.x - topLeftWS.x),
+            height: (topLeftWS.y - bottomRightWS.y)
         },
         "",
         true
@@ -132,10 +133,9 @@ function createPlatform(topLeftWS, bottomRightWS = topLeftWS) {
     return platform;
 }
 
-
 function updatePlatform() {
     builder.platform.size = {
-        width: builder.bottomRightWS.x - builder.topLeftWS.x,
-        height: builder.bottomRightWS.y - builder.topLeftWS.y
+        width: (builder.bottomRightWS.x - builder.topLeftWS.x),
+        height: (builder.bottomRightWS.y - builder.topLeftWS.y)
     }
 }

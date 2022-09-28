@@ -1,7 +1,7 @@
 import { shared, socket } from "./configuration.js";
 import { getIPs } from "./ip.js";
 import { platforms } from "./gameData.js";
-import { recalibrateScreen } from "./draw.js";
+import { zoom } from "./draw.js";
 
 export function sendPosition() {
     if (!shared.player) return;
@@ -42,7 +42,7 @@ function initializePlayer(payload) {
         "s": { pressed: false, direction: { x: 0, y: 1 } }
     }
     body.style.visibility = "visible";
-    recalibrateScreen();
+    zoom(false);
 }
 
 socket.addEventListener('open', (event) => {

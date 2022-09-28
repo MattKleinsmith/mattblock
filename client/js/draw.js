@@ -1,6 +1,5 @@
 import { shared, minimapScale, gameScales } from "./configuration.js";
 import { platforms } from "./gameData.js";
-import { Platform } from "./platform.js";
 
 export function drawWorld() {
     const ctx = calibrateCanvas();
@@ -17,7 +16,9 @@ export function drawWorld() {
 
 export function recalibrateScreen() {
     {
-        shared.player.leftScrollPercentage = 0.42;  // 0.50 for instascroll
+        // const scrollPercentageDelta = 0.08;  // 0 for instascroll
+        const scrollPercentageDelta = 0.0;  // 0 for instascroll
+        shared.player.leftScrollPercentage = 0.5 - scrollPercentageDelta * shared.gameScale;
         shared.player.rightScrollPercentage = 1 - shared.player.leftScrollPercentage;
 
         shared.player.leftScrollSS = window.innerWidth * shared.player.leftScrollPercentage;
@@ -25,15 +26,19 @@ export function recalibrateScreen() {
 
         shared.player.noScrollZoneHalfWidth = (shared.player.rightScrollSS - shared.player.leftScrollSS) * 0.5;
 
-        shared.player.leftScrollWS = shared.player.positionWS.x - shared.player.noScrollZoneHalfWidth;
-        shared.player.rightScrollWS = shared.player.positionWS.x + shared.player.noScrollZoneHalfWidth;
+        // CLUE: THE GAME IS INSENSITIVE TO THESE EXCEPT AT EXTREME VALUES
+        // shared.player.leftScrollWS = shared.player.positionWS.x - shared.player.size.width * 2.5;
+        // shared.player.rightScrollWS = shared.player.positionWS.x + shared.player.size.width * 2.5;
+        shared.player.leftScrollWS = shared.player.positionWS.x;
+        shared.player.rightScrollWS = shared.player.positionWS.x;
 
-        shared.player.leftScreenWS = shared.player.positionWS.x - window.innerWidth * 0.5;
+        shared.player.cameraLeftWS = shared.player.positionWS.x - (window.innerWidth * 0.5) / shared.gameScale;
         shared.player.leftMMWS = shared.player.positionWS.x - window.innerWidth * .10 * 0.5;
     }
 
     {
-        shared.player.topScrollPercentage = 0.35;
+        const scrollPercentageDelta = 0.0;  // 0 for instascroll
+        shared.player.topScrollPercentage = 0.5 - scrollPercentageDelta * shared.gameScale;
         shared.player.bottomScrollPercentage = 1 - shared.player.topScrollPercentage;
 
         shared.player.topScrollSS = window.innerHeight * shared.player.topScrollPercentage;
@@ -44,7 +49,7 @@ export function recalibrateScreen() {
         shared.player.topScrollWS = shared.player.positionWS.y - shared.player.noScrollZoneHalfHeight;
         shared.player.bottomScrollWS = shared.player.positionWS.y + shared.player.noScrollZoneHalfHeight;
 
-        shared.player.topScreenWS = shared.player.positionWS.y - window.innerHeight * 0.5;
+        shared.player.cameraTopWS = shared.player.positionWS.y - (window.innerHeight * 0.5) / shared.gameScale;
     }
 }
 
@@ -94,10 +99,24 @@ export function calibrateCanvas() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
-    if (shared.gameScale === 0.25) {
-        ctx.setTransform(shared.gameScale, 0, 0, shared.gameScale, ctx.canvas.width * shared.gameScale * 1.5, ctx.canvas.height * shared.gameScale * 1.5)
-    } else if (shared.gameScale === 0.50) {
-        ctx.setTransform(shared.gameScale, 0, 0, shared.gameScale, ctx.canvas.width * shared.gameScale * 0.5, ctx.canvas.height * shared.gameScale * 0.5)
+    // if (shared.gameScale === 0.25) {
+    //     ctx.setTransform(
+    //         shared.gameScale, 0, 0,
+    //         shared.gameScale, ctx.canvas.width * shared.gameScale * 1.5,
+    //         ctx.canvas.height * shared.gameScale * 1.5);
+    // }
+    if (shared.gameScale === 0.50) {
+        // ctx.setTransform(
+        //     shared.gameScale, 0, 0,
+        //     shared.gameScale, ctx.canvas.width * shared.gameScale * 0.5,
+        //     ctx.canvas.height * shared.gameScale * 0.5);
+        // ctx.translate(shared.player.positionSS.x, shared.player.positionSS.y);
+        // ctx.scale(0.50, 0.50);
+        // ctx.translate(-shared.player.positionSS.x, -shared.player.positionSS.y);
+        // canvas.style.zoom = 0.5;  // Slows the game down noticeably
+        // canvas.height *= 2;
+        // canvas.width *= 2;
+        // recalibrateScreen();
     }
 
     return ctx;
@@ -120,6 +139,27 @@ function drawPlatforms(ctx) {
         const platform = platforms[i];
         if (platform.isEnabled) platform.draw(ctx);
     }
+
+    if (!shared.player) return;
+    ctx.strokeStyle = "green"
+    ctx.beginPath();
+    ctx.moveTo(shared.player.leftScrollSS, 0);
+    ctx.lineTo(shared.player.leftScrollSS, 1000);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(shared.player.rightScrollSS, 0);
+    ctx.lineTo(shared.player.rightScrollSS, 1000);
+    ctx.stroke();
+
+    ctx.strokeStyle = "green"
+    ctx.beginPath();
+    ctx.moveTo(0, shared.player.topScrollSS);
+    ctx.lineTo(2000, shared.player.topScrollSS);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, shared.player.bottomScrollSS);
+    ctx.lineTo(2000, shared.player.bottomScrollSS);
+    ctx.stroke();
 }
 
 function drawServerStatus(ctx) {
@@ -156,6 +196,8 @@ function drawAltitude(ctx) {
 export function zoom(shouldZoomIn) {
     shouldZoomIn ? zoomIn() : zoomOut();
     shared.gameScale = gameScales[shared.gameScaleIndex];
+    recalibrateScreen();
+    shared.zoomOrigin = { x: shared.player.leftScrollSS, y: shared.player.topScrollSS };
 }
 
 function zoomIn() {

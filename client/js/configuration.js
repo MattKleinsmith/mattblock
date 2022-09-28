@@ -15,7 +15,7 @@ const frameRate = 120;
 export const frameTime = 1000 / frameRate;  // 1000 / 60 is 16.6666...
 export const beginning = performance.now();
 export const socket = new WebSocket(`wss://mattblock.io:${port}`);
-export const gameScales = [0.25, 0.5, 1];
+export const gameScales = [0.5, 1];
 
 export const shared = {
     id: undefined,

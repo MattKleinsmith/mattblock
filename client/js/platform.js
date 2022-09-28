@@ -1,4 +1,4 @@
-import { shared, frameTime, playerHeight } from "./configuration.js";
+import { shared, frameTime } from "./configuration.js";
 import { platforms } from "./gameData.js";
 
 export class Platform {
@@ -56,36 +56,44 @@ export class Platform {
         // Calibrate the world presentation to the shared.player's position
         // That is, calculate the screen space coordinates for each object
 
-        platforms.forEach(PROBABLY_NOT_THE_PLAYER => {
+        platforms.forEach(platform => {
             ////////////////
             // THE PLAYER //
             ////////////////
-            if (PROBABLY_NOT_THE_PLAYER === shared.player) {
+            if (platform === shared.player) {
                 if (this.isScrollingHorizontally) {
-                    shared.player.positionSS.x = shared.player.xLimitSS;
+                    shared.player.positionSS.x = (shared.player.xLimitSS);
                 } else {
-                    shared.player.positionSS.x = shared.player.positionWS.x - shared.player.leftScreenWS;
+                    shared.player.positionSS.x = (shared.player.positionWS.x - shared.player.cameraLeftWS);
                 }
 
                 if (this.isScrollingVertically) {
-                    shared.player.positionSS.y = shared.player.yLimitSS;
+                    shared.player.positionSS.y = (shared.player.yLimitSS);
 
                 } else {
-                    shared.player.positionSS.y = shared.player.positionWS.y - shared.player.topScreenWS;
+                    shared.player.positionSS.y = (shared.player.positionWS.y - shared.player.cameraTopWS);
                 }
             }
             ////////////////////
             // NOT THE PLAYER //
             ////////////////////
             else {
-                PROBABLY_NOT_THE_PLAYER.positionSS = {
-                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - shared.player.leftScreenWS,
-                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - shared.player.topScreenWS
+                platform.positionSS = {
+                    x: (platform.positionWS.x - shared.player.cameraLeftWS),
+                    y: (platform.positionWS.y - shared.player.cameraTopWS)
                 };
 
-                PROBABLY_NOT_THE_PLAYER.positionPS = {
-                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - shared.player.positionWS.x,
-                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - shared.player.positionWS.y
+                platform.positionSS.x -= shared.zoomOrigin.x;
+                platform.positionSS.x *= shared.gameScale;
+                platform.positionSS.x += shared.zoomOrigin.x;
+
+                platform.positionSS.y -= shared.zoomOrigin.y;
+                platform.positionSS.y *= shared.gameScale;
+                platform.positionSS.y += shared.zoomOrigin.y;
+
+                platform.positionPS = {
+                    x: platform.positionWS.x - shared.player.positionWS.x,
+                    y: platform.positionWS.y - shared.player.positionWS.y
                 };
             }
         })
@@ -136,7 +144,7 @@ export class Platform {
         if (withinRange(shared.player.positionWS.x, platform.positionWS.x, platform.positionWS.x + platform.size.width, true) ||
             withinRange(shared.player.positionWS.x + shared.player.size.width, platform.positionWS.x, platform.positionWS.x + platform.size.width, true)) {
 
-            if (withinRange(platform.positionWS.y, shared.player.oldPositionWS.y + playerHeight, shared.player.positionWS.y + playerHeight, true)) {
+            if (withinRange(platform.positionWS.y, shared.player.oldPositionWS.y + shared.player.size.height, shared.player.positionWS.y + shared.player.size.height, true)) {
                 shared.player.positionWS.y = platform.positionWS.y - shared.player.size.height;
                 this.allowedDirections.down = false;
                 this.velocity.y = 0;
@@ -178,20 +186,24 @@ export class Platform {
     }
 
     scrollHorizontally() {
-        shared.player.leftScrollSS = window.innerWidth * shared.player.leftScrollPercentage;
-        shared.player.rightScrollSS = window.innerWidth * shared.player.rightScrollPercentage;
-        shared.player.noScrollZoneWidth = shared.player.rightScrollSS - shared.player.leftScrollSS;
+        this.scrolllessZoneWidth = this.rightScrollSS - this.leftScrollSS;
 
         if (this.positionWS.x <= this.leftScrollWS) {
             if (!this.isScrollingLeft) {
+                // Draw player at left-limit
                 this.xLimitSS = this.leftScrollSS;
+
                 this.isScrollingLeft = true;
             }
 
+            // Push left-limit in WS
             this.leftScrollWS = this.positionWS.x;
-            this.rightScrollWS = this.leftScrollWS + shared.player.noScrollZoneWidth;
 
-            this.leftScreenWS = shared.player.positionWS.x - window.innerWidth * shared.player.leftScrollPercentage;
+            // Pull right-limit in WS
+            this.rightScrollWS = this.leftScrollWS + this.scrolllessZoneWidth;
+
+            // Push camera in WS
+            this.cameraLeftWS = this.positionWS.x - this.positionSS.x;  // / shared.gameScale
         } else {
             this.isScrollingLeft = false;
         }
@@ -202,9 +214,9 @@ export class Platform {
                 this.isScrollingRight = true;
             }
             this.rightScrollWS = this.positionWS.x;
-            this.leftScrollWS = this.rightScrollWS - shared.player.noScrollZoneWidth;
+            this.leftScrollWS = this.rightScrollWS - this.scrolllessZoneWidth;
 
-            this.leftScreenWS = shared.player.positionWS.x - window.innerWidth * shared.player.rightScrollPercentage;
+            this.cameraLeftWS = this.positionWS.x - window.innerWidth * this.rightScrollPercentage;
         } else {
             this.isScrollingRight = false;
         }
@@ -226,7 +238,7 @@ export class Platform {
             this.topScrollWS = this.positionWS.y;
             this.bottomScrollWS = this.topScrollWS + shared.player.noScrollZoneHeight;
 
-            this.topScreenWS = shared.player.positionWS.y - window.innerHeight * shared.player.topScrollPercentage;
+            this.cameraTopWS = shared.player.positionWS.y - window.innerHeight * shared.player.topScrollPercentage;
         } else {
             this.isScrollingUp = false;
         }
@@ -239,7 +251,7 @@ export class Platform {
             this.bottomScrollWS = this.positionWS.y;
             this.topScrollWS = this.bottomScrollWS - shared.player.noScrollZoneHeight;
 
-            this.topScreenWS = shared.player.positionWS.y - window.innerHeight * shared.player.bottomScrollPercentage;
+            this.cameraTopWS = shared.player.positionWS.y - window.innerHeight * shared.player.bottomScrollPercentage;
         } else {
             this.isScrollingDown = false;
         }
@@ -251,16 +263,16 @@ export class Platform {
         ctx.fillStyle = this.fillStyle;
 
         // Draw the rectangle
-        ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width, this.size.height);
+        ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width * shared.gameScale, this.size.height * shared.gameScale);
 
         // Draw the text
-        ctx.font = '48px sans-serif';
-        ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
+        ctx.font = `${48 * shared.gameScale}px sans-serif`;
+        ctx.fillText(this.name, this.positionSS.x + (this.nameOffset.x) * shared.gameScale, this.positionSS.y + (this.nameOffset.y) * shared.gameScale);
 
         // if (["", "connected"].includes(this.status)) return;
         // Draw the shared.player status
-        ctx.font = '40px sans-serif';
-        ctx.fillText(this.status, this.positionSS.x + this.nameOffset.x + 50, this.positionSS.y + this.nameOffset.y + 30);
+        ctx.font = `${40 * shared.gameScale}px sans-serif`;
+        ctx.fillText(this.status, this.positionSS.x + (this.nameOffset.x + 50) * shared.gameScale, this.positionSS.y + (this.nameOffset.y + 30) * shared.gameScale);
     }
 
     draw_Minimap(ctx) {
