@@ -262,7 +262,7 @@ function getIPv6(timer) {
 }
 
 // Returns all of the functions in an object, default to getting all of the IPs without any filtering applied.
-function getIPs(timer) {
+export function getIPs(timer) {
     return Object.assign(
         publicIPs(timer), {
         types: getIPTypes,

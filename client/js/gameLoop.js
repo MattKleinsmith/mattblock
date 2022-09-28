@@ -1,37 +1,30 @@
-setInterval(gameLoop, frameTime);
+import { shared, socket, minimapScale } from "./configuration.js";
+import { platforms } from "./gameData.js";
+import { getIPs } from "./ip.js";
 
-function gameLoop() {
-    ++numFrames;
-    // console.log((performance.now() - beginning) / numFrames);
-
-    movePlayer();  // Simulation
-    drawWorld(); // Presentation
-    sendPosition(); // Communication
-}
-
-function movePlayer() {
-    if (!player) return;
+export function movePlayer() {
+    if (!shared.player) return;
 
     const totalDirection = { x: 0, y: 0 };
-    for (const key in controller) {
-        if (controller[key].pressed) {
-            totalDirection.x += controller[key].direction.x;
-            totalDirection.y += controller[key].direction.y;
+    for (const key in shared.controller) {
+        if (shared.controller[key].pressed) {
+            totalDirection.x += shared.controller[key].direction.x;
+            totalDirection.y += shared.controller[key].direction.y;
             if (key === "r") {
-                player.oldPositionWS = { x: 0, y: 0 };
-                player.positionWS = { x: 0, y: 0 };
-                player.velocity = { x: 0, y: 0 };
+                shared.player.oldPositionWS = { x: 0, y: 0 };
+                shared.player.positionWS = { x: 0, y: 0 };
+                shared.player.velocity = { x: 0, y: 0 };
             }
             if (key === "v") {
-                player.positionWS = { x: player.positionWS.x, y: player.positionWS.y };
-                player.velocity = { x: 0, y: player.velocity.y + 1 };
+                shared.player.positionWS = { x: shared.player.positionWS.x, y: shared.player.positionWS.y };
+                shared.player.velocity = { x: 0, y: shared.player.velocity.y + 1 };
             }
         }
     }
-    player.move(totalDirection);
+    shared.player.move(totalDirection);
 }
 
-function drawWorld() {
+export function drawWorld() {
     const ctx = calibrateCanvas();
     drawPlatforms(ctx);
 
@@ -44,29 +37,29 @@ function drawWorld() {
     drawServerStatus(textCtx);
 }
 
-function sendPosition() {
-    if (!player) return;
-    if (player.positionWS.x !== player.oldPositionWS.x ||
-        player.positionWS.y !== player.oldPositionWS.y) {
-        const payload = { id: id, position: player.positionWS };
+export function sendPosition() {
+    if (!shared.player) return;
+    if (shared.player.positionWS.x !== shared.player.oldPositionWS.x ||
+        shared.player.positionWS.y !== shared.player.oldPositionWS.y) {
+        const payload = { id: shared.id, position: shared.player.positionWS };
         socket.send(JSON.stringify(payload));
     }
 }
 
 function sendProfile() {
-    const profilePayload = { id: id, color: player.fillStyle, name: player.name };
+    const profilePayload = { id: shared.id, color: shared.player.fillStyle, name: shared.player.name };
     socket.send(JSON.stringify(profilePayload));
 }
 
 function initializePlayer(payload) {
     console.log("id", payload.id);
-    id = payload.id;
-    player = platforms[id];
-    player.positionWS = payload.position;
-    player.oldPositionWS = { ...player.positionWS };
-    colorPicker.value = player.fillStyle;
-    nameInput.value = player.name;
-    controller = {
+    shared.id = payload.id;
+    shared.player = platforms[shared.id];
+    shared.player.positionWS = payload.position;
+    shared.player.oldPositionWS = { ...shared.player.positionWS };
+    colorPicker.value = shared.player.fillStyle;
+    nameInput.value = shared.player.name;
+    shared.controller = {
         "r": { pressed: false, direction: { x: 0, y: 0 } },
         "v": { pressed: false, direction: { x: 0, y: 0 } },
 
@@ -88,39 +81,39 @@ function initializePlayer(payload) {
 
 function recalibrateScreen() {
     {
-        player.leftScrollPercentage = 0.42;  // 0.50 for instascroll
-        player.rightScrollPercentage = 1 - player.leftScrollPercentage;
+        shared.player.leftScrollPercentage = 0.42;  // 0.50 for instascroll
+        shared.player.rightScrollPercentage = 1 - shared.player.leftScrollPercentage;
 
-        player.leftScrollSS = window.innerWidth * player.leftScrollPercentage;
-        player.rightScrollSS = window.innerWidth * player.rightScrollPercentage;
+        shared.player.leftScrollSS = window.innerWidth * shared.player.leftScrollPercentage;
+        shared.player.rightScrollSS = window.innerWidth * shared.player.rightScrollPercentage;
 
-        player.noScrollZoneHalfWidth = (player.rightScrollSS - player.leftScrollSS) * 0.5;
+        shared.player.noScrollZoneHalfWidth = (shared.player.rightScrollSS - shared.player.leftScrollSS) * 0.5;
 
-        player.leftScrollWS = player.positionWS.x - player.noScrollZoneHalfWidth;
-        player.rightScrollWS = player.positionWS.x + player.noScrollZoneHalfWidth;
+        shared.player.leftScrollWS = shared.player.positionWS.x - shared.player.noScrollZoneHalfWidth;
+        shared.player.rightScrollWS = shared.player.positionWS.x + shared.player.noScrollZoneHalfWidth;
 
-        player.leftScreenWS = player.positionWS.x - window.innerWidth * 0.5;
-        player.leftMMWS = player.positionWS.x - window.innerWidth * .10 * 0.5;
+        shared.player.leftScreenWS = shared.player.positionWS.x - window.innerWidth * 0.5;
+        shared.player.leftMMWS = shared.player.positionWS.x - window.innerWidth * .10 * 0.5;
     }
 
     {
-        player.topScrollPercentage = 0.35;
-        player.bottomScrollPercentage = 1 - player.topScrollPercentage;
+        shared.player.topScrollPercentage = 0.35;
+        shared.player.bottomScrollPercentage = 1 - shared.player.topScrollPercentage;
 
-        player.topScrollSS = window.innerHeight * player.topScrollPercentage;
-        player.bottomScrollSS = window.innerHeight * player.bottomScrollPercentage;
+        shared.player.topScrollSS = window.innerHeight * shared.player.topScrollPercentage;
+        shared.player.bottomScrollSS = window.innerHeight * shared.player.bottomScrollPercentage;
 
-        player.noScrollZoneHalfHeight = (player.bottomScrollSS - player.topScrollSS) * 0.5;
+        shared.player.noScrollZoneHalfHeight = (shared.player.bottomScrollSS - shared.player.topScrollSS) * 0.5;
 
-        player.topScrollWS = player.positionWS.y - player.noScrollZoneHalfHeight;
-        player.bottomScrollWS = player.positionWS.y + player.noScrollZoneHalfHeight;
+        shared.player.topScrollWS = shared.player.positionWS.y - shared.player.noScrollZoneHalfHeight;
+        shared.player.bottomScrollWS = shared.player.positionWS.y + shared.player.noScrollZoneHalfHeight;
 
-        player.topScreenWS = player.positionWS.y - window.innerHeight * 0.5;
+        shared.player.topScreenWS = shared.player.positionWS.y - window.innerHeight * 0.5;
     }
 }
 
 socket.addEventListener('open', (event) => {
-    getIPs().then(result => socket.send(JSON.stringify({ id: id, ip: result[0] })));
+    getIPs().then(result => socket.send(JSON.stringify({ id: shared.id, ip: result[0] })));
 });
 
 socket.onmessage = message => {
@@ -140,10 +133,10 @@ socket.onmessage = message => {
             platforms[payload.id].status = payload.status;
         }
         else if ("highscore" in payload) {
-            highScorePayload = payload;
+            shared.highScorePayload = payload;
         }
         else if ("serverDown" in payload) {
-            isServerDown = true;
+            shared.shared.isServerDown = true;
         }
     }
 }
@@ -160,12 +153,12 @@ function calibrateMinimap() {
 }
 
 function drawPlatforms_Minimap(ctx) {
-    if (!player) return;
+    if (!shared.player) return;
 
     ctx.fillStyle = "#181A1B";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    ctx.fillStyle = player.fillStyle;
+    ctx.fillStyle = shared.player.fillStyle;
 
     ctx.scale(minimapScale, minimapScale);
     const minimapCenterX = ctx.canvas.width * .5 / minimapScale;
@@ -173,34 +166,18 @@ function drawPlatforms_Minimap(ctx) {
     ctx.fillRect(
         minimapCenterX,
         minimapCenterY,
-        player.size.width,
-        player.size.height);
-    player.MM = { x: minimapCenterX, y: minimapCenterY };
+        shared.player.size.width,
+        shared.player.size.height);
+    shared.player.MM = { x: minimapCenterX, y: minimapCenterY };
 
     for (let i = platforms.length - 1; i >= 0; i--) {
-        if (i === id) continue;
+        if (i === shared.id) continue;
         const platform = platforms[i];
         if (platform.isEnabled) platform.draw_Minimap(ctx);
     }
 }
 
-//for zoom detection
-px_ratio = window.devicePixelRatio || window.screen.availWidth / document.documentElement.clientWidth;
-
-addEventListener('resize', (event) => isZooming());
-
-function isZooming() {
-    const newPx_ratio = window.devicePixelRatio || window.screen.availWidth / document.documentElement.clientWidth;
-    recalibrateScreen();
-    if (newPx_ratio != px_ratio) {
-        px_ratio = newPx_ratio;
-        console.log("zooming", newPx_ratio);
-        return true;
-    } else {
-        console.log("just resizing");
-        return false;
-    }
-}
+addEventListener('resize', (event) => recalibrateScreen);
 
 function calibrateCanvas() {
     const canvas = document.getElementById('canvas');
@@ -210,10 +187,10 @@ function calibrateCanvas() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
-    if (gameScale === 0.25) {
-        ctx.setTransform(gameScale, 0, 0, gameScale, ctx.canvas.width * gameScale * 1.5, ctx.canvas.height * gameScale * 1.5)
-    } else if (gameScale === 0.50) {
-        ctx.setTransform(gameScale, 0, 0, gameScale, ctx.canvas.width * gameScale * 0.5, ctx.canvas.height * gameScale * 0.5)
+    if (shared.gameScale === 0.25) {
+        ctx.setTransform(shared.gameScale, 0, 0, shared.gameScale, ctx.canvas.width * shared.gameScale * 1.5, ctx.canvas.height * shared.gameScale * 1.5)
+    } else if (shared.gameScale === 0.50) {
+        ctx.setTransform(shared.gameScale, 0, 0, shared.gameScale, ctx.canvas.width * shared.gameScale * 0.5, ctx.canvas.height * shared.gameScale * 0.5)
     }
 
     return ctx;
@@ -239,7 +216,7 @@ function drawPlatforms(ctx) {
 }
 
 function drawServerStatus(ctx) {
-    if (!isServerDown) return;
+    if (!shared.isServerDown) return;
     ctx.fillStyle = 'red';
     const fontSize = 48 / px_ratio;
     ctx.font = fontSize + 'px sans-serif';
@@ -258,24 +235,24 @@ function drawTopText(ctx, text, fillStyle, order = 1) {
 }
 
 function drawHighscore(ctx) {
-    if (!highScorePayload) return;
-    const text = `Highest player: ${highScorePayload.profile.name}: ${-highScorePayload.highscore}`;
-    drawTopText(ctx, text, highScorePayload.profile.color, 1);
+    if (!shared.highScorePayload) return;
+    const text = `Highest player: ${shared.highScorePayload.profile.name}: ${-shared.highScorePayload.highscore}`;
+    drawTopText(ctx, text, shared.highScorePayload.profile.color, 1);
 }
 
 function drawAltitude(ctx) {
-    if (!player) return;
-    const text = `Your altitude: ${-player.positionWS.y}`;
-    drawTopText(ctx, text, player.fillStyle, 2);
+    if (!shared.player) return;
+    const text = `Your altitude: ${-shared.player.positionWS.y}`;
+    drawTopText(ctx, text, shared.player.fillStyle, 2);
 }
 
 colorPicker.oninput = function (event) {
-    player.fillStyle = colorPicker.value;
+    shared.player.fillStyle = colorPicker.value;
     sendProfile();
 }
 
 nameInput.oninput = function (event) {
-    player.name = nameInput.value;
+    shared.player.name = nameInput.value;
     nameInput.style.width = nameInput.value.length + nameFieldSpaceCount + "ch";
     colorPicker.style.width = 2 * nameInput.value.length + 2 + nameFieldSpaceCount + "ch";
     sendProfile();
@@ -283,7 +260,7 @@ nameInput.oninput = function (event) {
 
 function zoom(shouldZoomIn) {
     shouldZoomIn ? zoomIn() : zoomOut();
-    gameScale = gameScales[gameScaleIndex];
+    shared.gameScale = gameScales[gameScaleIndex];
 }
 
 function zoomIn() {
@@ -296,7 +273,7 @@ function zoomOut() {
 
 document.addEventListener("keydown", event => {
     // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
-    if (allowMovement && controller[event.key]) controller[event.key].pressed = true;
+    if (shared.allowMovement && shared.controller[event.key]) shared.controller[event.key].pressed = true;
 
     if (((event.ctrlKey || event.metaKey) && ['-', '='].includes(event.key))) {
         event.preventDefault();
@@ -312,16 +289,16 @@ document.addEventListener("wheel", event => {
 }, { passive: false })
 
 document.addEventListener("keyup", event => {
-    if (controller[event.key]) controller[event.key].pressed = false;
+    if (shared.controller[event.key]) shared.controller[event.key].pressed = false;
 })
 
 document.addEventListener('contextmenu', function (event) {
     event.preventDefault();
 
-    allowMovement = false;
+    shared.allowMovement = false;
 
-    for (const key in controller) {
-        controller[key].pressed = false;
+    for (const key in shared.controller) {
+        shared.controller[key].pressed = false;
     }
 
     nameInput.style.display = "block";
@@ -341,5 +318,5 @@ document.addEventListener('contextmenu', function (event) {
 textCanvas.addEventListener('click', event => {
     nameInput.style.display = "none";
     colorPicker.style.display = "none";
-    allowMovement = true;
+    shared.allowMovement = true;
 });

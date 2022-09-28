@@ -5,9 +5,17 @@ const path = require('node:path');
 const host = '0.0.0.0';
 const { webServerPort, shouldRedirectHttp, httpsKeyPath, httpsCertificatePath } = require('./config.js');
 
+const extensionToType = {
+    "html": "text/html",
+    "css": "text/css",
+    "js": "text/javascript"
+}
+
 function sendFile(res, file) {
     const filename = path.join(__dirname, "/client", file);
     fs.promises.readFile(filename).then(data => {
+        const ext = file.split('.')[1];
+        res.setHeader("Content-Type", extensionToType[ext]);
         res.end(data);
     }).catch(err => {
         console.log(err);

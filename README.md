@@ -3,6 +3,8 @@
 ![image](./docs/intro.gif)
 
 # Changelog
+- 2022-09-27:
+    - Use ES6 modules instead of globals
 - 2022-09-24:
     - Prevent form fields from zooming out
     - Back up world daily

@@ -1,4 +1,7 @@
-class Platform {
+import { shared, frameTime, playerHeight } from "./configuration.js";
+import { platforms } from "./gameData.js";
+
+export class Platform {
     constructor(positionWS = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }, name = "", isEnabled = true) {
         // Profile
         {
@@ -27,7 +30,7 @@ class Platform {
     static ground = 800;
 
     move(direction = { x: 0, y: 0 }) {
-        player.oldPositionWS = { ...player.positionWS };
+        shared.player.oldPositionWS = { ...shared.player.positionWS };
         this.moveVertically(direction.y);
         this.moveHorizontally(direction.x);
         this.decollide();
@@ -38,7 +41,7 @@ class Platform {
     decollide() {
         this.resetAllowedDirections();
         for (const platform of platforms) {
-            if (platform === player || !platform.isEnabled) continue;
+            if (platform === shared.player || !platform.isEnabled) continue;
             if (this.handleVerticalCollision(platform)) break;
             if (this.handleHorizontalCollision(platform)) break;
         }
@@ -50,25 +53,25 @@ class Platform {
     }
 
     updateScreenSpace() {
-        // Calibrate the world presentation to the player's position
+        // Calibrate the world presentation to the shared.player's position
         // That is, calculate the screen space coordinates for each object
 
         platforms.forEach(PROBABLY_NOT_THE_PLAYER => {
             ////////////////
             // THE PLAYER //
             ////////////////
-            if (PROBABLY_NOT_THE_PLAYER === player) {
+            if (PROBABLY_NOT_THE_PLAYER === shared.player) {
                 if (this.isScrollingHorizontally) {
-                    player.positionSS.x = player.xLimitSS;
+                    shared.player.positionSS.x = shared.player.xLimitSS;
                 } else {
-                    player.positionSS.x = player.positionWS.x - player.leftScreenWS;
+                    shared.player.positionSS.x = shared.player.positionWS.x - shared.player.leftScreenWS;
                 }
 
                 if (this.isScrollingVertically) {
-                    player.positionSS.y = player.yLimitSS;
+                    shared.player.positionSS.y = shared.player.yLimitSS;
 
                 } else {
-                    player.positionSS.y = player.positionWS.y - player.topScreenWS;
+                    shared.player.positionSS.y = shared.player.positionWS.y - shared.player.topScreenWS;
                 }
             }
             ////////////////////
@@ -76,21 +79,21 @@ class Platform {
             ////////////////////
             else {
                 PROBABLY_NOT_THE_PLAYER.positionSS = {
-                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - player.leftScreenWS,
-                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - player.topScreenWS
+                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - shared.player.leftScreenWS,
+                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - shared.player.topScreenWS
                 };
 
                 PROBABLY_NOT_THE_PLAYER.positionPS = {
-                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - player.positionWS.x,
-                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - player.positionWS.y
+                    x: PROBABLY_NOT_THE_PLAYER.positionWS.x - shared.player.positionWS.x,
+                    y: PROBABLY_NOT_THE_PLAYER.positionWS.y - shared.player.positionWS.y
                 };
             }
         })
     }
 
     moveVertically(yDirection) {
-        if (tSpeed) {
-            this.positionWS.y += yDirection * frameTime * tSpeed;
+        if (shared.tSpeed) {
+            this.positionWS.y += yDirection * frameTime * shared.tSpeed;
             console.log(this.positionWS);
         }
         else {
@@ -105,8 +108,8 @@ class Platform {
     }
 
     moveHorizontally(xDirection) {
-        if (tSpeed) {
-            this.positionWS.x += xDirection * frameTime * tSpeed;
+        if (shared.tSpeed) {
+            this.positionWS.x += xDirection * frameTime * shared.tSpeed;
         } else {
             if (this.allowedDirections.left && xDirection < 0) {
                 this.velocity.x += Platform.runningForce * xDirection;
@@ -130,16 +133,16 @@ class Platform {
     }
 
     handleVerticalCollision(platform) {
-        if (withinRange(player.positionWS.x, platform.positionWS.x, platform.positionWS.x + platform.size.width, true) ||
-            withinRange(player.positionWS.x + player.size.width, platform.positionWS.x, platform.positionWS.x + platform.size.width, true)) {
+        if (withinRange(shared.player.positionWS.x, platform.positionWS.x, platform.positionWS.x + platform.size.width, true) ||
+            withinRange(shared.player.positionWS.x + shared.player.size.width, platform.positionWS.x, platform.positionWS.x + platform.size.width, true)) {
 
-            if (withinRange(platform.positionWS.y, player.oldPositionWS.y + playerHeight, player.positionWS.y + playerHeight, true)) {
-                player.positionWS.y = platform.positionWS.y - player.size.height;
+            if (withinRange(platform.positionWS.y, shared.player.oldPositionWS.y + playerHeight, shared.player.positionWS.y + playerHeight, true)) {
+                shared.player.positionWS.y = platform.positionWS.y - shared.player.size.height;
                 this.allowedDirections.down = false;
                 this.velocity.y = 0;
                 if (!this.allowedDirections.right || !this.allowedDirections.left) return true;
-            } else if (withinRange(platform.positionWS.y + platform.size.height, player.positionWS.y, player.oldPositionWS.y, true)) {
-                player.positionWS.y = platform.positionWS.y + platform.size.height;
+            } else if (withinRange(platform.positionWS.y + platform.size.height, shared.player.positionWS.y, shared.player.oldPositionWS.y, true)) {
+                shared.player.positionWS.y = platform.positionWS.y + platform.size.height;
                 this.allowedDirections.up = false;
                 this.velocity.y = 0;
                 if (!this.allowedDirections.right || !this.allowedDirections.left) return true;
@@ -149,16 +152,16 @@ class Platform {
     }
 
     handleHorizontalCollision(platform) {
-        if (withinRange(player.positionWS.y, platform.positionWS.y, platform.positionWS.y + platform.size.height, true) ||
-            withinRange(player.positionWS.y + player.size.height, platform.positionWS.y, platform.positionWS.y + platform.size.height, true)) {
+        if (withinRange(shared.player.positionWS.y, platform.positionWS.y, platform.positionWS.y + platform.size.height, true) ||
+            withinRange(shared.player.positionWS.y + shared.player.size.height, platform.positionWS.y, platform.positionWS.y + platform.size.height, true)) {
 
-            if (withinRange(platform.positionWS.x, player.oldPositionWS.x + player.size.width, player.positionWS.x + player.size.width, true)) {
-                player.positionWS.x = platform.positionWS.x - player.size.width;
+            if (withinRange(platform.positionWS.x, shared.player.oldPositionWS.x + shared.player.size.width, shared.player.positionWS.x + shared.player.size.width, true)) {
+                shared.player.positionWS.x = platform.positionWS.x - shared.player.size.width;
                 this.allowedDirections.right = false;
                 this.velocity.x = 0;
                 if (!this.allowedDirections.down || !this.allowedDirections.up) return true;
-            } else if (withinRange(platform.positionWS.x + platform.size.width, player.positionWS.x, player.oldPositionWS.x, true)) {
-                player.positionWS.x = platform.positionWS.x + platform.size.width;
+            } else if (withinRange(platform.positionWS.x + platform.size.width, shared.player.positionWS.x, shared.player.oldPositionWS.x, true)) {
+                shared.player.positionWS.x = platform.positionWS.x + platform.size.width;
                 this.allowedDirections.left = false;
                 this.velocity.x = 0;
                 if (!this.allowedDirections.down || !this.allowedDirections.up) return true;
@@ -175,9 +178,9 @@ class Platform {
     }
 
     scrollHorizontally() {
-        player.leftScrollSS = window.innerWidth * player.leftScrollPercentage;
-        player.rightScrollSS = window.innerWidth * player.rightScrollPercentage;
-        player.noScrollZoneWidth = player.rightScrollSS - player.leftScrollSS;
+        shared.player.leftScrollSS = window.innerWidth * shared.player.leftScrollPercentage;
+        shared.player.rightScrollSS = window.innerWidth * shared.player.rightScrollPercentage;
+        shared.player.noScrollZoneWidth = shared.player.rightScrollSS - shared.player.leftScrollSS;
 
         if (this.positionWS.x <= this.leftScrollWS) {
             if (!this.isScrollingLeft) {
@@ -186,9 +189,9 @@ class Platform {
             }
 
             this.leftScrollWS = this.positionWS.x;
-            this.rightScrollWS = this.leftScrollWS + player.noScrollZoneWidth;
+            this.rightScrollWS = this.leftScrollWS + shared.player.noScrollZoneWidth;
 
-            this.leftScreenWS = player.positionWS.x - window.innerWidth * player.leftScrollPercentage;
+            this.leftScreenWS = shared.player.positionWS.x - window.innerWidth * shared.player.leftScrollPercentage;
         } else {
             this.isScrollingLeft = false;
         }
@@ -199,9 +202,9 @@ class Platform {
                 this.isScrollingRight = true;
             }
             this.rightScrollWS = this.positionWS.x;
-            this.leftScrollWS = this.rightScrollWS - player.noScrollZoneWidth;
+            this.leftScrollWS = this.rightScrollWS - shared.player.noScrollZoneWidth;
 
-            this.leftScreenWS = player.positionWS.x - window.innerWidth * player.rightScrollPercentage;
+            this.leftScreenWS = shared.player.positionWS.x - window.innerWidth * shared.player.rightScrollPercentage;
         } else {
             this.isScrollingRight = false;
         }
@@ -210,9 +213,9 @@ class Platform {
     }
 
     scrollVertically() {
-        player.topScrollSS = window.innerHeight * player.topScrollPercentage;
-        player.bottomScrollSS = window.innerHeight * player.bottomScrollPercentage;
-        player.noScrollZoneHeight = player.bottomScrollSS - player.topScrollSS;
+        shared.player.topScrollSS = window.innerHeight * shared.player.topScrollPercentage;
+        shared.player.bottomScrollSS = window.innerHeight * shared.player.bottomScrollPercentage;
+        shared.player.noScrollZoneHeight = shared.player.bottomScrollSS - shared.player.topScrollSS;
 
         if (this.positionWS.y <= this.topScrollWS) {
             if (!this.isScrollingUp) {
@@ -221,9 +224,9 @@ class Platform {
             }
 
             this.topScrollWS = this.positionWS.y;
-            this.bottomScrollWS = this.topScrollWS + player.noScrollZoneHeight;
+            this.bottomScrollWS = this.topScrollWS + shared.player.noScrollZoneHeight;
 
-            this.topScreenWS = player.positionWS.y - window.innerHeight * player.topScrollPercentage;
+            this.topScreenWS = shared.player.positionWS.y - window.innerHeight * shared.player.topScrollPercentage;
         } else {
             this.isScrollingUp = false;
         }
@@ -234,9 +237,9 @@ class Platform {
                 this.isScrollingDown = true;
             }
             this.bottomScrollWS = this.positionWS.y;
-            this.topScrollWS = this.bottomScrollWS - player.noScrollZoneHeight;
+            this.topScrollWS = this.bottomScrollWS - shared.player.noScrollZoneHeight;
 
-            this.topScreenWS = player.positionWS.y - window.innerHeight * player.bottomScrollPercentage;
+            this.topScreenWS = shared.player.positionWS.y - window.innerHeight * shared.player.bottomScrollPercentage;
         } else {
             this.isScrollingDown = false;
         }
@@ -255,7 +258,7 @@ class Platform {
         ctx.fillText(this.name, this.positionSS.x + this.nameOffset.x, this.positionSS.y + this.nameOffset.y);
 
         // if (["", "connected"].includes(this.status)) return;
-        // Draw the player status
+        // Draw the shared.player status
         ctx.font = '40px sans-serif';
         ctx.fillText(this.status, this.positionSS.x + this.nameOffset.x + 50, this.positionSS.y + this.nameOffset.y + 30);
     }
@@ -263,8 +266,8 @@ class Platform {
     draw_Minimap(ctx) {
         ctx.fillStyle = this.fillStyle;
         const pos = {
-            x: this.positionPS.x + player.MM.x,
-            y: this.positionPS.y + player.MM.y
+            x: this.positionPS.x + shared.player.MM.x,
+            y: this.positionPS.y + shared.player.MM.y
         }
         ctx.fillRect(pos.x, pos.y, this.size.width, this.size.height);
     }

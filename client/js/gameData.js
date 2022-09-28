@@ -1,6 +1,8 @@
+import { Platform } from "./platform.js";
+import { playerHeight } from "./configuration.js";
+
 const maxPlayers = 150;
-const playerHeight = 50;
-const platforms = new Array(maxPlayers);
+export const platforms = new Array(maxPlayers);
 
 // PLAYERS
 for (let i = 0; i < maxPlayers; i++) {
