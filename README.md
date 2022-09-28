@@ -4,6 +4,7 @@
 
 # Changelog
 - 2022-09-27:
+    - Add favicon
     - Use ES6 modules instead of globals
 - 2022-09-24:
     - Prevent form fields from zooming out

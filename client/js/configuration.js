@@ -1,3 +1,6 @@
+document.head.innerHTML += `<link id="favicon" rel="icon" type="image/svg+xml"
+href="https://www.thecolorapi.com/id?format=svg&named=false&hex=${localStorage.getItem("color")}">`
+
 colorPicker.style.position = "absolute";
 nameInput.style.position = "absolute";
 export const nameFieldSpaceCount = 2;

@@ -1,4 +1,4 @@
-import { shared, socket, minimapScale } from "./configuration.js";
+import { shared, socket, minimapScale, nameFieldSpaceCount } from "./configuration.js";
 import { platforms } from "./gameData.js";
 import { getIPs } from "./ip.js";
 
@@ -248,6 +248,9 @@ function drawAltitude(ctx) {
 
 colorPicker.oninput = function (event) {
     shared.player.fillStyle = colorPicker.value;
+    const color = colorPicker.value.slice(1);
+    localStorage.setItem("color", color);
+    favicon.href = `https://www.thecolorapi.com/id?format=svg&named=false&hex=${localStorage.getItem("color")}`
     sendProfile();
 }
 

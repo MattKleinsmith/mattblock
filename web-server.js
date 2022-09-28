@@ -8,7 +8,8 @@ const { webServerPort, shouldRedirectHttp, httpsKeyPath, httpsCertificatePath } 
 const extensionToType = {
     "html": "text/html",
     "css": "text/css",
-    "js": "text/javascript"
+    "js": "text/javascript",
+    "ico": "image/x-icon"
 }
 
 function sendFile(res, file) {
