@@ -22,7 +22,7 @@
     - Detect high-velocity collisions (collision but no overlap)
     - Add test server
 - 2022-09-16: Add changelog and intro gif
-- 2022-09-15: Switch to HTTPS (https://mattblock.io)
+- 2022-09-15: Switch to HTTPS
 - 2022-09-13: Add minimap
 - 2022-09-08: Recalibrate game upon zoom
 - 2022-09-07: Add high score and altitude indicators

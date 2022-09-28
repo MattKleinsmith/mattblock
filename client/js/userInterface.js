@@ -60,18 +60,18 @@ document.addEventListener("keydown", event => {
     if (event.key === "b") {
         builder.enabled = !builder.enabled;
     }
-})
+});
 
 document.addEventListener("wheel", event => {
     if (event.ctrlKey || event.metaKey) {
         event.preventDefault();
         zoom(event.deltaY < 0);
     }
-}, { passive: false })
+}, { passive: false });
 
 document.addEventListener("keyup", event => {
     if (shared.controller[event.key]) shared.controller[event.key].pressed = false;
-})
+});
 
 document.addEventListener('contextmenu', event => {
     event.preventDefault();
@@ -99,32 +99,44 @@ document.addEventListener('contextmenu', event => {
 document.addEventListener('mousedown', event => {
     if (event.button === 0 && builder.enabled) { // LEFT CLICK
         builder.canvas = calibrateCanvas().canvas;
-        builder.topLeftWS = getMousePositionWS(builder.canvas, event, shared.player);
-        console.log(builder.topLeftWS);
-        builder.platform = createPlatform(builder.topLeftWS);
+        builder.startingPoint = getMousePositionWS(builder.canvas, event, shared.player);
+        builder.platform = createPlatform(builder.startingPoint);
     }
-})
+});
 
 document.addEventListener('mousemove', event => {
     if (event.button === 0 && builder.platform && builder.enabled) { // LEFT CLICK
-        builder.bottomRightWS = getMousePositionWS(builder.canvas, event, shared.player);
+        builder.endingPoint = getMousePositionWS(builder.canvas, event, shared.player);
         updatePlatform();
     }
-})
+});
 
 document.addEventListener('mouseup', event => {
     if (event.button === 0 && builder.enabled) { // LEFT CLICK
         builder.platform = null;
     }
-})
+});
 
-function createPlatform(topLeftWS, bottomRightWS = topLeftWS) {
+function findRectangle(startingPoint, endingPoint) {
+    const width = Math.abs(startingPoint.x - endingPoint.x);
+    const height = Math.abs(startingPoint.y - endingPoint.y);
+    const topLeft = {
+        x: Math.min(startingPoint.x, endingPoint.x),
+        y: Math.min(startingPoint.y, endingPoint.y)
+    }
+    return [topLeft, width, height];
+}
+
+function createPlatform(startingPoint, endingPoint = startingPoint) {
+
+    const [topLeftWS, width, height] = findRectangle(startingPoint, endingPoint);
+
     const platform = new Platform(
         topLeftWS,
         "#AA5555",
         {
-            width: (bottomRightWS.x - topLeftWS.x),
-            height: (topLeftWS.y - bottomRightWS.y)
+            width: width,
+            height: height
         },
         "",
         true
@@ -134,8 +146,10 @@ function createPlatform(topLeftWS, bottomRightWS = topLeftWS) {
 }
 
 function updatePlatform() {
+    const [topLeftWS, width, height] = findRectangle(builder.startingPoint, builder.endingPoint);
+    builder.platform.positionWS = topLeftWS;
     builder.platform.size = {
-        width: (builder.bottomRightWS.x - builder.topLeftWS.x),
-        height: (builder.bottomRightWS.y - builder.topLeftWS.y)
+        width: width,
+        height: height
     }
 }
