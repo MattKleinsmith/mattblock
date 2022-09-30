@@ -26,8 +26,8 @@ export const shared = {
     allowMovement: true,
     isServerDown: false,
     tSpeed: 0,
-    gameScaleIndex: 1,
-    gameScale: 1,
+    gameScaleWS2SSIndex: 1,
+    gameScaleWS2SS: 1,
     gameWidth: window.innerWidth,
     gameHeight: window.innerHeight,
 }

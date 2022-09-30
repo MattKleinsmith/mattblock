@@ -13,12 +13,12 @@ export function getMousePositionWS(canvas, event, player) {
     const mousePosition = getMousePositionSS(canvas, event);
 
     mousePosition.x -= shared.player.positionSS.x;
-    mousePosition.x /= shared.gameScale;
+    mousePosition.x /= shared.gameScaleWS2SS;
     mousePosition.x += shared.player.positionSS.x;
     mousePosition.x += player.cameraLeftWS;
 
     mousePosition.y -= shared.player.positionSS.y;
-    mousePosition.y /= shared.gameScale;
+    mousePosition.y /= shared.gameScaleWS2SS;
     mousePosition.y += shared.player.positionSS.y;
     mousePosition.y += player.cameraTopWS;
     return mousePosition;

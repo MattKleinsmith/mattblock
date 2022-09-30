@@ -20,14 +20,12 @@ export function recalibrateScreen() {
     {
         // const scrollPercentageDelta = 0.08;  // 0 for instascroll
         const scrollPercentageDelta = 0.0;  // 0 for instascroll
-        shared.player.leftScrollPercentage = 0.5 - scrollPercentageDelta * shared.gameScale;
+        shared.player.leftScrollPercentage = 0.5 - scrollPercentageDelta * shared.gameScaleWS2SS;
         shared.player.rightScrollPercentage = 1 - shared.player.leftScrollPercentage;
 
-        shared.player.leftScrollSS = window.innerWidth * shared.player.leftScrollPercentage;
-        shared.player.rightScrollSS = window.innerWidth * shared.player.rightScrollPercentage;
-        shared.player.xLimitSS = shared.player.leftScrollSS;
-
-        shared.player.noScrollZoneHalfWidth = (shared.player.rightScrollSS - shared.player.leftScrollSS) * 0.5;
+        shared.player.leftScrollLineSS = window.innerWidth * shared.player.leftScrollPercentage;
+        shared.player.rightScrollLineSS = window.innerWidth * shared.player.rightScrollPercentage;
+        shared.player.activeHorizontalScrollLineSS = shared.player.leftScrollLineSS;
 
         // CLUE: THE GAME IS INSENSITIVE TO THESE EXCEPT AT EXTREME VALUES
         // shared.player.leftScrollWS = shared.player.positionWS.x - shared.player.size.width * 2.5;
@@ -35,28 +33,29 @@ export function recalibrateScreen() {
         shared.player.leftScrollWS = shared.player.positionWS.x;
         shared.player.rightScrollWS = shared.player.positionWS.x;
 
-        shared.player.cameraLeftWS = shared.player.positionWS.x - (window.innerWidth * 0.5) / shared.gameScale;
+        shared.player.cameraLeftWS = shared.player.positionWS.x - (window.innerWidth * 0.5) / shared.gameScaleWS2SS;
         shared.player.leftMMWS = shared.player.positionWS.x - window.innerWidth * .10 * 0.5;
     }
 
     {
         const scrollPercentageDelta = 0.0;  // 0 for instascroll
-        shared.player.topScrollPercentage = 0.5 - scrollPercentageDelta * shared.gameScale;
+        shared.player.topScrollPercentage = 0.5 - scrollPercentageDelta * shared.gameScaleWS2SS;
         shared.player.bottomScrollPercentage = 1 - shared.player.topScrollPercentage;
 
-        shared.player.topScrollSS = window.innerHeight * shared.player.topScrollPercentage;
-        shared.player.bottomScrollSS = window.innerHeight * shared.player.bottomScrollPercentage;
-        shared.player.yLimitSS = shared.player.topScrollSS;
+        shared.player.topScrollLineSS = window.innerHeight * shared.player.topScrollPercentage;
+        shared.player.bottomScrollLineSS = window.innerHeight * shared.player.bottomScrollPercentage;
+        shared.player.activeVerticalScrollLineSS = shared.player.topScrollLineSS;
 
-        shared.player.noScrollZoneHalfHeight = (shared.player.bottomScrollSS - shared.player.topScrollSS) * 0.5;
+        // const noScrollZoneHalfHeight = (shared.player.bottomScrollLineSS - shared.player.topScrollLineSS) * 0.5;
+        // shared.player.topScrollWS = shared.player.positionWS.y - noScrollZoneHalfHeight;
+        // shared.player.bottomScrollWS = shared.player.positionWS.y + noScrollZoneHalfHeight;
+        shared.player.topScrollWS = shared.player.positionWS.y;
+        shared.player.bottomScrollWS = shared.player.positionWS.y;
 
-        shared.player.topScrollWS = shared.player.positionWS.y - shared.player.noScrollZoneHalfHeight;
-        shared.player.bottomScrollWS = shared.player.positionWS.y + shared.player.noScrollZoneHalfHeight;
-
-        shared.player.cameraTopWS = shared.player.positionWS.y - (window.innerHeight * 0.5) / shared.gameScale;
+        shared.player.cameraTopWS = shared.player.positionWS.y - (window.innerHeight * 0.5) / shared.gameScaleWS2SS;
     }
 
-    shared.zoomOrigin = { x: shared.player.leftScrollSS, y: shared.player.topScrollSS };
+    shared.scaleOriginSS = { x: shared.player.leftScrollLineSS, y: shared.player.topScrollLineSS };
 }
 
 function calibrateMinimap() {
@@ -105,17 +104,17 @@ export function calibrateCanvas() {
     if (!canvas.getContext) return;
     const ctx = canvas.getContext('2d');
 
-    // if (shared.gameScale === 0.25) {
+    // if (shared.gameScaleWS2SS === 0.25) {
     //     ctx.setTransform(
-    //         shared.gameScale, 0, 0,
-    //         shared.gameScale, ctx.canvas.width * shared.gameScale * 1.5,
-    //         ctx.canvas.height * shared.gameScale * 1.5);
+    //         shared.gameScaleWS2SS, 0, 0,
+    //         shared.gameScaleWS2SS, ctx.canvas.width * shared.gameScaleWS2SS * 1.5,
+    //         ctx.canvas.height * shared.gameScaleWS2SS * 1.5);
     // }
-    if (shared.gameScale === 0.50) {
+    if (shared.gameScaleWS2SS === 0.50) {
         // ctx.setTransform(
-        //     shared.gameScale, 0, 0,
-        //     shared.gameScale, ctx.canvas.width * shared.gameScale * 0.5,
-        //     ctx.canvas.height * shared.gameScale * 0.5);
+        //     shared.gameScaleWS2SS, 0, 0,
+        //     shared.gameScaleWS2SS, ctx.canvas.width * shared.gameScaleWS2SS * 0.5,
+        //     ctx.canvas.height * shared.gameScaleWS2SS * 0.5);
         // ctx.translate(shared.player.positionSS.x, shared.player.positionSS.y);
         // ctx.scale(0.50, 0.50);
         // ctx.translate(-shared.player.positionSS.x, -shared.player.positionSS.y);
@@ -151,22 +150,22 @@ function drawScrollLines(ctx) {
     if (!shared.player) return;
     ctx.strokeStyle = "green"
     ctx.beginPath();
-    ctx.moveTo(shared.player.leftScrollSS, 0);
-    ctx.lineTo(shared.player.leftScrollSS, 1000);
+    ctx.moveTo(shared.player.leftScrollLineSS, 0);
+    ctx.lineTo(shared.player.leftScrollLineSS, 1000);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(shared.player.rightScrollSS, 0);
-    ctx.lineTo(shared.player.rightScrollSS, 1000);
+    ctx.moveTo(shared.player.rightScrollLineSS, 0);
+    ctx.lineTo(shared.player.rightScrollLineSS, 1000);
     ctx.stroke();
 
     ctx.strokeStyle = "green"
     ctx.beginPath();
-    ctx.moveTo(0, shared.player.topScrollSS);
-    ctx.lineTo(2000, shared.player.topScrollSS);
+    ctx.moveTo(0, shared.player.topScrollLineSS);
+    ctx.lineTo(2000, shared.player.topScrollLineSS);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(0, shared.player.bottomScrollSS);
-    ctx.lineTo(2000, shared.player.bottomScrollSS);
+    ctx.moveTo(0, shared.player.bottomScrollLineSS);
+    ctx.lineTo(2000, shared.player.bottomScrollLineSS);
     ctx.stroke();
 }
 
@@ -203,14 +202,14 @@ function drawAltitude(ctx) {
 
 export function zoom(shouldZoomIn) {
     shouldZoomIn ? zoomIn() : zoomOut();
-    shared.gameScale = gameScales[shared.gameScaleIndex];
+    shared.gameScaleWS2SS = gameScales[shared.gameScaleWS2SSIndex];
     recalibrateScreen();
 }
 
 function zoomIn() {
-    if (++shared.gameScaleIndex === gameScales.length) shared.gameScaleIndex--;
+    if (++shared.gameScaleWS2SSIndex === gameScales.length) shared.gameScaleWS2SSIndex--;
 }
 
 function zoomOut() {
-    if (--shared.gameScaleIndex === -1) shared.gameScaleIndex++;
+    if (--shared.gameScaleWS2SSIndex === -1) shared.gameScaleWS2SSIndex++;
 }
