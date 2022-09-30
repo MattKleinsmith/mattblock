@@ -4,6 +4,7 @@ import { platforms } from "./gameData.js";
 export function drawWorld() {
     const ctx = calibrateCanvas();
     drawPlatforms(ctx);
+    drawScrollLines(ctx);
 
     const [minimapCtx, minimap] = calibrateMinimap();
     drawPlatforms_Minimap(minimapCtx, minimap);
@@ -15,6 +16,7 @@ export function drawWorld() {
 }
 
 export function recalibrateScreen() {
+    console.log("recalibrateScreen", shared.player.positionSS.x);
     {
         // const scrollPercentageDelta = 0.08;  // 0 for instascroll
         const scrollPercentageDelta = 0.0;  // 0 for instascroll
@@ -23,6 +25,7 @@ export function recalibrateScreen() {
 
         shared.player.leftScrollSS = window.innerWidth * shared.player.leftScrollPercentage;
         shared.player.rightScrollSS = window.innerWidth * shared.player.rightScrollPercentage;
+        shared.player.xLimitSS = shared.player.leftScrollSS;
 
         shared.player.noScrollZoneHalfWidth = (shared.player.rightScrollSS - shared.player.leftScrollSS) * 0.5;
 
@@ -43,6 +46,7 @@ export function recalibrateScreen() {
 
         shared.player.topScrollSS = window.innerHeight * shared.player.topScrollPercentage;
         shared.player.bottomScrollSS = window.innerHeight * shared.player.bottomScrollPercentage;
+        shared.player.yLimitSS = shared.player.topScrollSS;
 
         shared.player.noScrollZoneHalfHeight = (shared.player.bottomScrollSS - shared.player.topScrollSS) * 0.5;
 
@@ -51,6 +55,8 @@ export function recalibrateScreen() {
 
         shared.player.cameraTopWS = shared.player.positionWS.y - (window.innerHeight * 0.5) / shared.gameScale;
     }
+
+    shared.zoomOrigin = { x: shared.player.leftScrollSS, y: shared.player.topScrollSS };
 }
 
 function calibrateMinimap() {
@@ -139,7 +145,9 @@ function drawPlatforms(ctx) {
         const platform = platforms[i];
         if (platform.isEnabled) platform.draw(ctx);
     }
+}
 
+function drawScrollLines(ctx) {
     if (!shared.player) return;
     ctx.strokeStyle = "green"
     ctx.beginPath();
@@ -197,7 +205,6 @@ export function zoom(shouldZoomIn) {
     shouldZoomIn ? zoomIn() : zoomOut();
     shared.gameScale = gameScales[shared.gameScaleIndex];
     recalibrateScreen();
-    shared.zoomOrigin = { x: shared.player.leftScrollSS, y: shared.player.topScrollSS };
 }
 
 function zoomIn() {

@@ -78,19 +78,19 @@ export class Platform {
             // NOT THE PLAYER //
             ////////////////////
             else {
-                platform.positionSS = {
-                    x: (platform.positionWS.x - shared.player.cameraLeftWS),
-                    y: (platform.positionWS.y - shared.player.cameraTopWS)
+                function scale(position, scalar, pivot) {
+                    position.x = (position.x - pivot.x) * scalar + pivot.x;
+                    position.y = (position.y - pivot.y) * scalar + pivot.y;
+                    return position;
+                }
+
+                const positionCS = {  // Camera space (not screen space)
+                    x: platform.positionWS.x - shared.player.cameraLeftWS,
+                    y: platform.positionWS.y - shared.player.cameraTopWS
                 };
 
-                platform.positionSS.x -= shared.zoomOrigin.x;
-                platform.positionSS.x *= shared.gameScale;
-                platform.positionSS.x += shared.zoomOrigin.x;
-
-                platform.positionSS.y -= shared.zoomOrigin.y;
-                platform.positionSS.y *= shared.gameScale;
-                platform.positionSS.y += shared.zoomOrigin.y;
-
+                platform.positionSS = scale(positionCS, shared.gameScale, shared.zoomOrigin);
+                // For the minimap
                 platform.positionPS = {
                     x: platform.positionWS.x - shared.player.positionWS.x,
                     y: platform.positionWS.y - shared.player.positionWS.y
@@ -203,7 +203,7 @@ export class Platform {
             this.rightScrollWS = this.leftScrollWS + this.scrolllessZoneWidth;
 
             // Push camera in WS
-            this.cameraLeftWS = this.positionWS.x - this.positionSS.x;  // / shared.gameScale
+            this.cameraLeftWS = this.positionWS.x - this.positionSS.x;    // How can this work given the scale diff?
         } else {
             this.isScrollingLeft = false;
         }
@@ -216,7 +216,7 @@ export class Platform {
             this.rightScrollWS = this.positionWS.x;
             this.leftScrollWS = this.rightScrollWS - this.scrolllessZoneWidth;
 
-            this.cameraLeftWS = this.positionWS.x - window.innerWidth * this.rightScrollPercentage;
+            this.cameraLeftWS = this.positionWS.x - this.positionSS.x  // How can this work given the scale diff?
         } else {
             this.isScrollingRight = false;
         }
