@@ -64,14 +64,14 @@ export class Platform {
                 if (this.isScrollingHorizontally) {
                     shared.player.positionSS.x = shared.player.activeHorizontalScrollLineSS;
                 } else {
-                    shared.player.positionSS.x = shared.player.positionWS.x - shared.player.cameraLeftWS;
+                    shared.player.positionSS.x = (shared.player.positionWS.x - shared.player.cameraLeftWS) * shared.gameScaleWS2SS;
                 }
 
                 if (this.isScrollingVertically) {
-                    shared.player.positionSS.y = (shared.player.activeVerticalScrollLineSS);
+                    shared.player.positionSS.y = shared.player.activeVerticalScrollLineSS;
 
                 } else {
-                    shared.player.positionSS.y = (shared.player.positionWS.y - shared.player.cameraTopWS);
+                    shared.player.positionSS.y = (shared.player.positionWS.y - shared.player.cameraTopWS) * shared.gameScaleWS2SS;
                 }
             }
             ////////////////////
@@ -89,22 +89,7 @@ export class Platform {
                     return position;
                 }
 
-                // platform.positionSS = scale(positionCS, shared.gameScaleWS2SS, shared.scaleOriginSS);
                 platform.positionSS = scale(positionCS, shared.gameScaleWS2SS, { x: 0, y: 0 });
-                if (platform.name === "BlattMock") {
-                    // console.log(
-                    //     shared.player.positionSS.x,
-                    //     shared.player.positionWS.x,
-                    //     platform.positionSS.x,
-                    //     platform.positionWS.x,
-                    //     shared.player.cameraLeftWS
-                    // );
-                    // console.log(
-                    //     shared.player.positionSS.x,
-                    //     platform.positionSS.x,
-                    //     shared.player.cameraLeftWS
-                    // );
-                }
 
                 // For the minimap
                 platform.positionPS = {
@@ -133,6 +118,24 @@ export class Platform {
         this.isScrollingHorizontally = this.isScrollingLeft || this.isScrollingRight;
     }
 
+    scrollVertically() {
+        this.distanceBetweenVerticalScrollLinesSS = shared.player.bottomScrollLineSS - shared.player.topScrollLineSS;
+
+        if (this.positionWS.y <= this.topScrollWS) {
+            this.scrollUp();
+        } else {
+            this.isScrollingUp = false;
+        }
+
+        if (this.positionWS.y >= this.bottomScrollWS) {
+            this.scrollDown();
+        } else {
+            this.isScrollingDown = false;
+        }
+
+        this.isScrollingVertically = this.isScrollingUp || this.isScrollingDown;
+    }
+
     scrollLeft() {
         if (!this.isScrollingLeft) {
             this.activeHorizontalScrollLineSS = this.leftScrollLineSS;
@@ -141,7 +144,7 @@ export class Platform {
         // | CAMERA         | LEFT SCROLL LINE AND PLAYER        | RIGHT SCROLL LINE
         this.leftScrollWS = this.positionWS.x;
         this.rightScrollWS = this.leftScrollWS + this.distanceBetweenHorizontalScrollLinesSS / shared.gameScaleWS2SS;
-        this.cameraLeftWS = this.positionWS.x - this.positionSS.x / shared.gameScaleWS2SS;
+        this.cameraLeftWS = this.leftScrollWS - this.leftScrollLineSS / shared.gameScaleWS2SS;
     }
 
     scrollRight() {
@@ -152,7 +155,31 @@ export class Platform {
         // | CAMERA         | LEFT SCROLL LINE                  | RIGHT SCROLL LINE AND PLAYER
         this.rightScrollWS = this.positionWS.x;
         this.leftScrollWS = this.rightScrollWS - this.distanceBetweenHorizontalScrollLinesSS / shared.gameScaleWS2SS;
-        this.cameraLeftWS = this.positionWS.x - this.positionSS.x / shared.gameScaleWS2SS;
+        this.cameraLeftWS = this.leftScrollWS - this.leftScrollLineSS / shared.gameScaleWS2SS;
+    }
+
+    scrollUp() {
+        if (!this.isScrollingUp) {
+            this.activeVerticalScrollLineSS = this.topScrollLineSS;
+            this.isScrollingUp = true;
+        }
+
+        this.topScrollWS = this.positionWS.y;
+        this.bottomScrollWS = this.topScrollWS + this.distanceBetweenVerticalScrollLinesSS / shared.gameScaleWS2SS;
+        this.cameraTopWS = this.topScrollWS - this.topScrollLineSS / shared.gameScaleWS2SS;
+    }
+
+    scrollDown() {
+        // console.log(this.bottomScrollWS, this.positionWS.y);
+        if (!this.isScrollingDown) {
+            this.activeVerticalScrollLineSS = this.bottomScrollLineSS;
+            this.isScrollingDown = true;
+        }
+        this.bottomScrollWS = this.positionWS.y;
+        this.topScrollWS = this.bottomScrollWS - this.distanceBetweenVerticalScrollLinesSS / shared.gameScaleWS2SS;
+        this.cameraTopWS = this.topScrollWS - this.topScrollLineSS / shared.gameScaleWS2SS;
+
+        console.log("scrollDown, this.cameraTopWS:", this.cameraTopWS);
     }
 
     moveVertically(yDirection) {
@@ -239,48 +266,6 @@ export class Platform {
         this.allowedDirections.up = true;
         this.allowedDirections.right = true;
         this.allowedDirections.left = true;
-    }
-
-    scrollVertically() {
-        shared.player.topScrollLineSS = window.innerHeight * shared.player.topScrollPercentage;
-        shared.player.bottomScrollLineSS = window.innerHeight * shared.player.bottomScrollPercentage;
-        shared.player.noScrollZoneHeight = shared.player.bottomScrollLineSS - shared.player.topScrollLineSS;
-
-        if (this.positionWS.y <= this.topScrollWS) {
-            this.scrollUp();
-        } else {
-            this.isScrollingUp = false;
-        }
-
-        if (this.positionWS.y >= this.bottomScrollWS) {
-            this.scrollDown();
-        } else {
-            this.isScrollingDown = false;
-        }
-
-        this.isScrollingVertically = this.isScrollingUp || this.isScrollingDown;
-    }
-
-    scrollUp() {
-        if (!this.isScrollingUp) {
-            this.activeVerticalScrollLineSS = this.topScrollLineSS;
-            this.isScrollingUp = true;
-        }
-
-        this.topScrollWS = this.positionWS.y;
-        this.bottomScrollWS = this.topScrollWS + shared.player.noScrollZoneHeight / shared.gameScaleWS2SS;
-        this.cameraTopWS = shared.player.positionWS.y - window.innerHeight * shared.player.topScrollPercentage / shared.gameScaleWS2SS;
-    }
-
-    scrollDown() {
-        if (!this.isScrollingDown) {
-            this.activeVerticalScrollLineSS = this.bottomScrollLineSS;
-            this.isScrollingDown = true;
-        }
-        this.bottomScrollWS = this.positionWS.y;
-        this.topScrollWS = this.bottomScrollWS - shared.player.noScrollZoneHeight / shared.gameScaleWS2SS;
-
-        this.cameraTopWS = shared.player.positionWS.y - window.innerHeight * shared.player.bottomScrollPercentage / shared.gameScaleWS2SS;
     }
 
     draw(ctx) {
