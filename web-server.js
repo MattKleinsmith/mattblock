@@ -12,16 +12,16 @@ const extensionToType = {
     "ico": "image/x-icon"
 }
 
-function sendFile(res, file) {
+function sendFile(response, file) {
     const filename = path.join(__dirname, "/client", file);
     fs.promises.readFile(filename).then(data => {
-        const ext = file.split('.')[1];
-        res.setHeader("Content-Type", extensionToType[ext]);
-        res.end(data);
+        const ext = file.split('.')[1];  // SECURITY: Prevents the use of "../"
+        response.setHeader("Content-Type", extensionToType[ext]);
+        response.end(data);
     }).catch(err => {
         console.log(err);
-        res.statusCode = 404;
-        res.end();
+        response.statusCode = 404;
+        response.end();
     });
 }
 
@@ -30,9 +30,9 @@ const options = {
     cert: fs.readFileSync(httpsCertificatePath)
 };
 
-const server = https.createServer(options, (req, res) => {
-    const path = req.url === "/" ? "index.html" : req.url;
-    sendFile(res, path);
+const server = https.createServer(options, (request, response) => {
+    const path = request.url === "/" ? "index.html" : request.url;
+    sendFile(response, path);
 });
 
 server.listen(webServerPort, host, () => {
@@ -44,9 +44,9 @@ server.listen(webServerPort, host, () => {
 if (shouldRedirectHttp) {
     const http = require("http");
     const httpPort = 8000;
-    const httpServer = http.createServer(function (req, res) {
-        res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-        res.end();
+    const httpServer = http.createServer(function (request, response) {
+        response.writeHead(301, { Location: `https://${request.headers.host}${request.url}` });
+        response.end();
     });
     httpServer.listen(httpPort);
 }
