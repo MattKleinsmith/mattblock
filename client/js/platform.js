@@ -178,8 +178,6 @@ export class Platform {
         this.bottomScrollWS = this.positionWS.y;
         this.topScrollWS = this.bottomScrollWS - this.distanceBetweenVerticalScrollLinesSS / shared.gameScaleWS2SS;
         this.cameraTopWS = this.topScrollWS - this.topScrollLineSS / shared.gameScaleWS2SS;
-
-        console.log("scrollDown, this.cameraTopWS:", this.cameraTopWS);
     }
 
     moveVertically(yDirection) {
