@@ -170,7 +170,6 @@ export class Platform {
     }
 
     scrollDown() {
-        // console.log(this.bottomScrollWS, this.positionWS.y);
         if (!this.isScrollingDown) {
             this.activeVerticalScrollLineSS = this.bottomScrollLineSS;
             this.isScrollingDown = true;
@@ -183,7 +182,6 @@ export class Platform {
     moveVertically(yDirection) {
         if (shared.tSpeed) {
             this.positionWS.y += yDirection * frameTime * shared.tSpeed;
-            console.log(this.positionWS);
         }
         else {
             if (this.allowedDirections.down) {

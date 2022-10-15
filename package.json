@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "http": "^0.0.1-security"
+    "dotenv": "^16.0.3",
+    "http": "^0.0.1-security",
+    "pg": "^8.8.0"
   }
 }

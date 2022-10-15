@@ -5,3 +5,4 @@ game-server/cache
 *Zone.Identifier
 config.js
 scratch.js
+.env
