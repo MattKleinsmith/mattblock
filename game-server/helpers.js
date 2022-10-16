@@ -59,14 +59,16 @@ function loadWorld() {
             if (!("status" in profile)) profile.status = "💤"
         });
         if (!("highscore" in world)) world.highscore = getMaxAltitudeAndProfile(world);
-        if (!("highscoreHistory" in world)) world.highscoreHistory = [world.highscore]
+        if (!("highscoreHistory" in world)) world.highscoreHistory = [world.highscore];
+        if (!("platforms" in world)) world.platforms = [];
     }
     else {
         world = {
             highestId: -1,
             profiles: [],  // id index) --> id, color, name
-            positions: [],  // id (index) --> id, position
-            ids: {}   // ip --> id
+            positions: [],  // id (index) --> id, position,
+            ids: {},   // ip --> id
+            platforms: []
         }
     }
 
@@ -104,7 +106,7 @@ function randomHexColor() {
 }
 
 function sendWorld(socket, world) {
-    [world.profiles, world.positions].forEach(resources => resources.forEach(resource => socket.send(JSON.stringify(resource))));
+    [world.profiles, world.positions, world.platforms].forEach(resources => resources.forEach(resource => socket.send(JSON.stringify(resource))));
     socket.send(JSON.stringify(world.highscore));
 }
 
@@ -178,6 +180,12 @@ function broadcastPosition(gameServer, world, payload) {
     broadcast(gameServer, payload, payload.id); // Relay to all except sender;
 }
 
+function broadcastPlatform(gameServer, world, payload) {
+    console.log(payload);
+    world.platforms.push(payload);
+    broadcast(gameServer, payload, payload.id); // Relay to all except sender;
+}
+
 function broadcastOfflineStatus(gameServer, world, socket) {
     console.log("Closing", socket.id);
     try {
@@ -197,5 +205,6 @@ module.exports = {
     broadcastProfile,
     broadcastPosition,
     broadcastOfflineStatus,
-    broadcastServerDownAlert
+    broadcastServerDownAlert,
+    broadcastPlatform
 }

@@ -6,7 +6,8 @@ const {
     broadcastProfile,
     broadcastPosition,
     broadcastOfflineStatus,
-    broadcastServerDownAlert } = require('./helpers');
+    broadcastServerDownAlert,
+    broadcastPlatform } = require('./helpers');
 
 const gameServer = createGameServer();
 const world = loadWorld();
@@ -20,6 +21,7 @@ gameServer.on('connection', socket => {
         if ("ip" in payload) sendCharacter(gameServer, world, payload, socket);
         else if ("color" in payload) broadcastProfile(gameServer, world, payload);
         else if ("position" in payload) broadcastPosition(gameServer, world, payload);
+        else if ("size" in payload) broadcastPlatform(gameServer, world, payload);
     });
 
     socket.on('close', broadcastOfflineStatus.bind(null, gameServer, world, socket))
