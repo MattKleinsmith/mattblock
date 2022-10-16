@@ -3,6 +3,8 @@
 ![image](./docs/intro.gif)
 
 # Changelog
+- 2022-10-15:
+    - Broadcast level edits
 - 2022-09-28:
     - Add builder mode
 - 2022-09-27:

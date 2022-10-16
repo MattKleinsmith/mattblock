@@ -1,5 +1,5 @@
 import { shared, nameFieldSpaceCount, builder } from "./configuration.js";
-import { sendProfile } from "./network.js";
+import { sendProfile, sendPlatform } from "./network.js";
 import { zoom, calibrateCanvas } from "./draw.js";
 import { getMousePositionWS } from "./helpers.js";
 import { platforms } from "./gameData.js";
@@ -112,7 +112,8 @@ document.addEventListener('mousemove', event => {
 });
 
 document.addEventListener('mouseup', event => {
-    if (event.button === 0 && builder.enabled) { // LEFT CLICK
+    if (event.button === 0 && builder.enabled) { // LEFT MOUSE BUTTON
+        sendPlatform();
         builder.platform = null;
     }
 });

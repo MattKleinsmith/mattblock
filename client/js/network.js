@@ -1,7 +1,8 @@
-import { shared, socket } from "./configuration.js";
+import { shared, socket, builder } from "./configuration.js";
 import { getIPs } from "./ip.js";
 import { platforms } from "./gameData.js";
 import { zoom } from "./draw.js";
+import { Platform } from "./platform.js";
 
 export function sendPosition() {
     if (!shared.player) return;
@@ -15,6 +16,10 @@ export function sendPosition() {
 export function sendProfile() {
     const profilePayload = { id: shared.id, color: shared.player.fillStyle, name: shared.player.name };
     socket.send(JSON.stringify(profilePayload));
+}
+
+export function sendPlatform() {
+    socket.send(JSON.stringify({ id: shared.id, positionWS: builder.platform.positionWS, size: builder.platform.size }));
 }
 
 function initializePlayer(payload) {
@@ -70,6 +75,13 @@ socket.onmessage = message => {
         }
         else if ("serverDown" in payload) {
             shared.shared.isServerDown = true;
+        }
+        else if ("size" in payload) {
+            platforms.push(new Platform(
+                payload.positionWS,
+                "#222222",
+                payload.size,
+            ));
         }
     }
 }
