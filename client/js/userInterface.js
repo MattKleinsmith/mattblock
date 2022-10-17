@@ -11,8 +11,9 @@ export function movePlayer() {
     const totalDirection = { x: 0, y: 0 };
     for (const key in shared.controller) {
         if (shared.controller[key].pressed) {
-            totalDirection.x += shared.controller[key].direction.x;
-            totalDirection.y += shared.controller[key].direction.y;
+            if (totalDirection.x === 0) totalDirection.x = shared.controller[key].direction.x;
+            if (totalDirection.y === 0) totalDirection.y = shared.controller[key].direction.y;
+            console.log(totalDirection);
             if (key === "r") {
                 shared.player.oldPositionWS = { x: 0, y: 0 };
                 shared.player.positionWS = { x: 0, y: 0 };

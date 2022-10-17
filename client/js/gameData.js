@@ -31,6 +31,19 @@ platforms.push(new Platform(
     // "ground"
 ));
 
+// RIGHT WALL
+const wallWidth = 1000;
+const wallHeight = 20000;
+platforms.push(new Platform(
+    {
+        x: 2 * playerHeight * .95,
+        y: -wallHeight / 2
+    },
+    "#222222",
+    { width: wallWidth, height: wallHeight },
+    // "right wall"
+));
+
 platforms.push(new Platform(
     {
         x: -991.6666666666918,

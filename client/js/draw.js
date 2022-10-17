@@ -4,7 +4,7 @@ import { platforms, builtPlatforms, builtPlatformIds } from "./gameData.js";
 export function drawWorld() {
     const ctx = calibrateCanvas();
     drawPlatforms(ctx);
-    drawScrollLines(ctx);
+    // drawScrollLines(ctx);
 
     const [minimapCtx, minimap] = calibrateMinimap();
     drawPlatforms_Minimap(minimapCtx, minimap);
