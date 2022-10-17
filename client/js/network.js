@@ -1,6 +1,6 @@
 import { shared, socket, builder } from "./configuration.js";
 import { getIPs } from "./ip.js";
-import { platforms } from "./gameData.js";
+import { platforms, builtPlatforms, builtPlatformIds } from "./gameData.js";
 import { zoom } from "./draw.js";
 import { Platform } from "./platform.js";
 
@@ -19,7 +19,7 @@ export function sendProfile() {
 }
 
 export function sendPlatform() {
-    socket.send(JSON.stringify({ id: shared.id, positionWS: builder.platform.positionWS, size: builder.platform.size }));
+    socket.send(JSON.stringify({ creatorId: shared.id, positionWS: builder.platform.positionWS, size: builder.platform.size }));
 }
 
 function initializePlayer(payload) {
@@ -77,11 +77,16 @@ socket.onmessage = message => {
             shared.shared.isServerDown = true;
         }
         else if ("size" in payload) {
-            platforms.push(new Platform(
+            builtPlatformIds.push(payload.platformId);
+            builtPlatforms[payload.platformId] = new Platform(
                 payload.positionWS,
                 "#222222",
                 payload.size,
-            ));
+            );
+        }
+        else if ("idOfPlatformToDelete" in payload) {
+            builtPlatformIds.splice(payload.idOfPlatformToDelete, 1);
+            delete builtPlatforms[payload.idOfPlatformToDelete];
         }
     }
 }

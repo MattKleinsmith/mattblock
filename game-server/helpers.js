@@ -60,7 +60,8 @@ function loadWorld() {
         });
         if (!("highscore" in world)) world.highscore = getMaxAltitudeAndProfile(world);
         if (!("highscoreHistory" in world)) world.highscoreHistory = [world.highscore];
-        if (!("platforms" in world)) world.platforms = [];
+        if (!("highestPlatformId" in world)) world.highestPlatformId = -1;
+        if (!("platforms" in world)) world.platforms = {};
     }
     else {
         world = {
@@ -68,11 +69,12 @@ function loadWorld() {
             profiles: [],  // id index) --> id, color, name
             positions: [],  // id (index) --> id, position,
             ids: {},   // ip --> id
-            platforms: []
+            highestPlatformId: -1,
+            platforms: {}
         }
     }
 
-    setInterval(saveWorld.bind(null, world), 1000)
+    setInterval(saveWorld.bind(null, world), 1000);
 
     return world;
 }
@@ -106,7 +108,8 @@ function randomHexColor() {
 }
 
 function sendWorld(socket, world) {
-    [world.profiles, world.positions, world.platforms].forEach(resources => resources.forEach(resource => socket.send(JSON.stringify(resource))));
+    [world.profiles, world.positions, Object.values(world.platforms)]
+        .forEach(resources => resources.forEach(resource => socket.send(JSON.stringify(resource))));
     socket.send(JSON.stringify(world.highscore));
 }
 
@@ -177,13 +180,20 @@ function broadcastPosition(gameServer, world, payload) {
     world.positions[payload.id] = payload;
     if (payload.position.y < 1e4) console.log(world.profiles[payload.id].name, payload);
     checkForHighscore(gameServer, world, payload);
-    broadcast(gameServer, payload, payload.id); // Relay to all except sender;
+    broadcast(gameServer, payload, payload.id);  // Relay to all except sender;
 }
 
 function broadcastPlatform(gameServer, world, payload) {
     console.log(payload);
-    world.platforms.push(payload);
-    broadcast(gameServer, payload, payload.id); // Relay to all except sender;
+    payload.platformId = ++world.highestPlatformId;
+    world.platforms[payload.platformId] = payload;
+    broadcast(gameServer, payload);  // Send platform ID back to the sender
+}
+
+function broadcastPlatformDeletion(gameServer, world, payload) {
+    console.log("DELETE platform with id:", payload);
+    delete world.platforms[payload.idOfPlatformToDelete];
+    broadcast(gameServer, payload);
 }
 
 function broadcastOfflineStatus(gameServer, world, socket) {
@@ -191,7 +201,7 @@ function broadcastOfflineStatus(gameServer, world, socket) {
     try {
         const profile = world.profiles[socket.id];
         profile.status = "💤";
-        broadcast(gameServer, profile, socket.id); // Relay to all except sender;
+        broadcast(gameServer, profile, socket.id);  // Relay to all except sender;
     } catch (e) {
         console.log(e);
     }
@@ -206,5 +216,6 @@ module.exports = {
     broadcastPosition,
     broadcastOfflineStatus,
     broadcastServerDownAlert,
-    broadcastPlatform
+    broadcastPlatform,
+    broadcastPlatformDeletion
 }

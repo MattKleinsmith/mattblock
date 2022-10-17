@@ -34,6 +34,7 @@ export const shared = {
 
 export const builder = {
     enabled: false,
+    deletion: false,
     startingPoint: { x: 0, y: 0 },
     bottomRightWS: { x: 0, y: 0 }
 }

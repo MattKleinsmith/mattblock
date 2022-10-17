@@ -1,9 +1,9 @@
-import { shared, nameFieldSpaceCount, builder } from "./configuration.js";
+import { shared, nameFieldSpaceCount, builder, socket } from "./configuration.js";
 import { sendProfile, sendPlatform } from "./network.js";
 import { zoom, calibrateCanvas } from "./draw.js";
 import { getMousePositionWS } from "./helpers.js";
-import { platforms } from "./gameData.js";
-import { Platform } from "./platform.js";
+import { platforms, builtPlatformIds, builtPlatforms } from "./gameData.js";
+import { Platform, withinRange } from "./platform.js";
 
 export function movePlayer() {
     if (!shared.player) return;
@@ -43,10 +43,14 @@ nameInput.oninput = function (event) {
 }
 
 textCanvas.onclick = function (event) {
+    closeMenu();
+};
+
+function closeMenu() {
     nameInput.style.display = "none";
     colorPicker.style.display = "none";
     shared.allowMovement = true;
-};
+}
 
 document.addEventListener("keydown", event => {
     // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
@@ -57,8 +61,21 @@ document.addEventListener("keydown", event => {
         zoom(event.key === '=');
     }
 
-    if (event.key === "b") {
+    if (event.key === "F1") {
+        event.preventDefault();
         builder.enabled = !builder.enabled;
+        if (builder.enabled) builder.deletion = false;
+    }
+
+    if (event.key === "F2") {
+        event.preventDefault();
+        builder.deletion = !builder.deletion;
+        if (builder.deletion) builder.enabled = false;
+    }
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        closeMenu();
     }
 });
 
@@ -112,9 +129,26 @@ document.addEventListener('mousemove', event => {
 });
 
 document.addEventListener('mouseup', event => {
-    if (event.button === 0 && builder.enabled) { // LEFT MOUSE BUTTON
-        sendPlatform();
-        builder.platform = null;
+    if (event.button === 0) { // LEFT MOUSE BUTTON
+        if (builder.enabled) {
+            sendPlatform();
+            builtPlatformIds.splice(builtPlatformIds.indexOf("temp"), 1);
+            delete builtPlatforms["temp"];
+            builder.platform = null;
+        }
+        else if (builder.deletion) {
+            const deletionPoint = getMousePositionWS(calibrateCanvas().canvas, event, shared.player);
+            for (const platformId of builtPlatformIds) {
+                const platform = builtPlatforms[platformId];
+                if (!platform) continue;
+                if (withinRange(deletionPoint.x, platform.positionWS.x, platform.positionWS.x + platform.size.width) &&
+                    withinRange(deletionPoint.y, platform.positionWS.y, platform.positionWS.y + platform.size.height)) {
+                    console.log("Delete", platformId);
+                    socket.send(JSON.stringify({ senderId: shared.id, idOfPlatformToDelete: platformId }));
+                    break;
+                }
+            }
+        }
     }
 });
 
@@ -142,7 +176,8 @@ function createPlatform(startingPoint, endingPoint = startingPoint) {
         "",
         true
     );
-    platforms.push(platform);
+    builtPlatforms["temp"] = platform;
+    builtPlatformIds.push("temp");
     return platform;
 }
 

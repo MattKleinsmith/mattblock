@@ -1,5 +1,5 @@
-import { shared, minimapScale, gameScales } from "./configuration.js";
-import { platforms } from "./gameData.js";
+import { shared, minimapScale, gameScales, builder } from "./configuration.js";
+import { platforms, builtPlatforms, builtPlatformIds } from "./gameData.js";
 
 export function drawWorld() {
     const ctx = calibrateCanvas();
@@ -13,6 +13,8 @@ export function drawWorld() {
     drawHighscore(textCtx);
     drawAltitude(textCtx);
     drawServerStatus(textCtx);
+    drawDeletionMode(textCtx);
+    drawBuilderMode(textCtx);
 }
 
 export function recalibrateScreen() {
@@ -118,6 +120,13 @@ function drawPlatforms(ctx) {
     // Backwards to draw player names over NPC platforms
     for (let i = platforms.length - 1; i >= 0; i--) {
         const platform = platforms[i];
+        if (!platform) continue;
+        if (platform.isEnabled) platform.draw(ctx);
+    }
+
+    for (const platformId of builtPlatformIds) {
+        const platform = builtPlatforms[platformId];
+        if (!platform) continue;
         if (platform.isEnabled) platform.draw(ctx);
     }
 }
@@ -150,10 +159,26 @@ function drawScrollLines(ctx) {
 function drawServerStatus(ctx) {
     if (!shared.isServerDown) return;
     ctx.fillStyle = 'red';
-    const fontSize = 48 / px_ratio;
+    const fontSize = 48;
     ctx.font = fontSize + 'px sans-serif';
     ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100 + fontSize * 0.5);
     ctx.fillText(`(will automate this eventually)`, 100, 100 + fontSize * 1.5);
+}
+
+function drawDeletionMode(ctx) {
+    if (!builder.deletion) return;
+    ctx.fillStyle = 'red';
+    const fontSize = 48;
+    ctx.font = fontSize + 'px sans-serif';
+    ctx.fillText(`You're in deletion mode`, 100, 100 + fontSize * 0.5);
+}
+
+function drawBuilderMode(ctx) {
+    if (!builder.enabled) return;
+    ctx.fillStyle = 'green';
+    const fontSize = 48;
+    ctx.font = fontSize + 'px sans-serif';
+    ctx.fillText(`You're in builder mode`, 100, 100 + fontSize * 0.5);
 }
 
 function drawTopText(ctx, text, fillStyle, order = 1) {

@@ -7,7 +7,8 @@ const {
     broadcastPosition,
     broadcastOfflineStatus,
     broadcastServerDownAlert,
-    broadcastPlatform } = require('./helpers');
+    broadcastPlatform,
+    broadcastPlatformDeletion } = require('./helpers');
 
 const gameServer = createGameServer();
 const world = loadWorld();
@@ -22,6 +23,7 @@ gameServer.on('connection', socket => {
         else if ("color" in payload) broadcastProfile(gameServer, world, payload);
         else if ("position" in payload) broadcastPosition(gameServer, world, payload);
         else if ("size" in payload) broadcastPlatform(gameServer, world, payload);
+        else if ("idOfPlatformToDelete" in payload) broadcastPlatformDeletion(gameServer, world, payload);
     });
 
     socket.on('close', broadcastOfflineStatus.bind(null, gameServer, world, socket))

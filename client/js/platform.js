@@ -1,5 +1,5 @@
 import { shared, frameTime } from "./configuration.js";
-import { platforms } from "./gameData.js";
+import { builtPlatformIds, builtPlatforms, platforms } from "./gameData.js";
 
 export class Platform {
     constructor(positionWS = { x: 0, y: 0 }, fillStyle = "#ffffff", size = { width: 50, height: 50 }, name = "", isEnabled = true) {
@@ -24,7 +24,7 @@ export class Platform {
     }
 
     static gravity = 0.0045;
-    static jumpForce = 1.35 * 2;
+    static jumpForce = 1.35;
     static runningForce = .0625;
     static maxRunSpeed = 1;
 
@@ -39,7 +39,17 @@ export class Platform {
 
     decollide() {
         this.resetAllowedDirections();
+
         for (const platform of platforms) {
+            if (!platform) continue;
+            if (platform === shared.player || !platform.isEnabled) continue;
+            if (this.handleVerticalCollision(platform)) break;
+            if (this.handleHorizontalCollision(platform)) break;
+        }
+
+        for (const platformId of builtPlatformIds) {
+            const platform = builtPlatforms[platformId];
+            if (!platform) continue;
             if (platform === shared.player || !platform.isEnabled) continue;
             if (this.handleVerticalCollision(platform)) break;
             if (this.handleHorizontalCollision(platform)) break;
@@ -51,52 +61,54 @@ export class Platform {
         this.scrollVertically();
     }
 
+    updateScreenSpace_Player() {
+        if (this.isScrollingHorizontally) {
+            shared.player.positionSS.x = shared.player.activeHorizontalScrollLineSS;
+        } else {
+            shared.player.positionSS.x = (shared.player.positionWS.x - shared.player.cameraLeftWS) * shared.gameScaleWS2SS;
+        }
+
+        if (this.isScrollingVertically) {
+            shared.player.positionSS.y = shared.player.activeVerticalScrollLineSS;
+
+        } else {
+            shared.player.positionSS.y = (shared.player.positionWS.y - shared.player.cameraTopWS) * shared.gameScaleWS2SS;
+        }
+    }
+
+    updateScreenSpace_NotPlayer(platform) {
+        const positionCS = {  // Camera space (not screen space)
+            x: platform.positionWS.x - shared.player.cameraLeftWS,
+            y: platform.positionWS.y - shared.player.cameraTopWS
+        };
+
+        function scale(position, scalar, pivot) {
+            position.x = (position.x - pivot.x) * scalar + pivot.x;
+            position.y = (position.y - pivot.y) * scalar + pivot.y;
+            return position;
+        }
+
+        platform.positionSS = scale(positionCS, shared.gameScaleWS2SS, { x: 0, y: 0 });
+
+        // For the minimap
+        platform.positionPS = {
+            x: platform.positionWS.x - shared.player.positionWS.x,
+            y: platform.positionWS.y - shared.player.positionWS.y
+        };
+    }
+
+    updateScreenSpace_Platform(platform) {
+        if (!platform) return;
+        if (platform === shared.player) this.updateScreenSpace_Player();
+        else this.updateScreenSpace_NotPlayer(platform);
+    }
+
     updateScreenSpace() {
         // Calibrate the world presentation to the shared.player's position
         // That is, calculate the screen space coordinates for each object
 
-        platforms.forEach(platform => {
-            ////////////////
-            // THE PLAYER //
-            ////////////////
-            if (platform === shared.player) {
-                if (this.isScrollingHorizontally) {
-                    shared.player.positionSS.x = shared.player.activeHorizontalScrollLineSS;
-                } else {
-                    shared.player.positionSS.x = (shared.player.positionWS.x - shared.player.cameraLeftWS) * shared.gameScaleWS2SS;
-                }
-
-                if (this.isScrollingVertically) {
-                    shared.player.positionSS.y = shared.player.activeVerticalScrollLineSS;
-
-                } else {
-                    shared.player.positionSS.y = (shared.player.positionWS.y - shared.player.cameraTopWS) * shared.gameScaleWS2SS;
-                }
-            }
-            ////////////////////
-            // NOT THE PLAYER //
-            ////////////////////
-            else {
-                const positionCS = {  // Camera space (not screen space)
-                    x: platform.positionWS.x - shared.player.cameraLeftWS,
-                    y: platform.positionWS.y - shared.player.cameraTopWS
-                };
-
-                function scale(position, scalar, pivot) {
-                    position.x = (position.x - pivot.x) * scalar + pivot.x;
-                    position.y = (position.y - pivot.y) * scalar + pivot.y;
-                    return position;
-                }
-
-                platform.positionSS = scale(positionCS, shared.gameScaleWS2SS, { x: 0, y: 0 });
-
-                // For the minimap
-                platform.positionPS = {
-                    x: platform.positionWS.x - shared.player.positionWS.x,
-                    y: platform.positionWS.y - shared.player.positionWS.y
-                };
-            }
-        })
+        platforms.forEach(platform => this.updateScreenSpace_Platform(platform));
+        builtPlatformIds.forEach(platformId => this.updateScreenSpace_Platform(builtPlatforms[platformId]));
     }
 
     scrollHorizontally() {
@@ -290,7 +302,7 @@ export class Platform {
     }
 }
 
-function withinRange(number, min, max, includeBoundary) {
+export function withinRange(number, min, max, includeBoundary) {
     return includeBoundary ?
         number >= min && number <= max :
         number > min && number < max;
