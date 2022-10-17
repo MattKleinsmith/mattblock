@@ -27,7 +27,6 @@ export class Platform {
     static jumpForce = 1.35 * 2;
     static runningForce = .0625;
     static maxRunSpeed = 1;
-    static ground = 800;
 
     move(direction = { x: 0, y: 0 }) {
         shared.player.oldPositionWS = { ...shared.player.positionWS };
@@ -270,12 +269,13 @@ export class Platform {
         // Draw the rectangle
         ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width * shared.gameScaleWS2SS, this.size.height * shared.gameScaleWS2SS);
 
-        // Draw the text
+        if (this.status === '💤') return;
+        // Draw name
         ctx.font = `${48 * shared.gameScaleWS2SS}px sans-serif`;
         ctx.fillText(this.name, this.positionSS.x + (this.nameOffset.x) * shared.gameScaleWS2SS, this.positionSS.y + (this.nameOffset.y) * shared.gameScaleWS2SS);
 
-        // if (["", "connected"].includes(this.status)) return;
-        // Draw the shared.player status
+        if (this.status === undefined) return;
+        // Draw status
         ctx.font = `${40 * shared.gameScaleWS2SS}px sans-serif`;
         ctx.fillText(this.status, this.positionSS.x + (this.nameOffset.x + 50) * shared.gameScaleWS2SS, this.positionSS.y + (this.nameOffset.y + 30) * shared.gameScaleWS2SS);
     }
