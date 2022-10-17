@@ -130,7 +130,7 @@ document.addEventListener('mousemove', event => {
 
 document.addEventListener('mouseup', event => {
     if (event.button === 0) { // LEFT MOUSE BUTTON
-        if (builder.enabled) {
+        if (builder.enabled && builder.platform.size.width > 0 && builder.platform.size.height > 0) {
             sendPlatform();
             builtPlatformIds.splice(builtPlatformIds.indexOf("temp"), 1);
             delete builtPlatforms["temp"];
@@ -143,7 +143,6 @@ document.addEventListener('mouseup', event => {
                 if (!platform) continue;
                 if (withinRange(deletionPoint.x, platform.positionWS.x, platform.positionWS.x + platform.size.width) &&
                     withinRange(deletionPoint.y, platform.positionWS.y, platform.positionWS.y + platform.size.height)) {
-                    console.log("Delete", platformId);
                     socket.send(JSON.stringify({ senderId: shared.id, idOfPlatformToDelete: platformId }));
                     break;
                 }
