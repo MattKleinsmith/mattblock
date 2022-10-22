@@ -1,9 +1,9 @@
-import { frameTime, beginning } from "./configuration.js"
+import { frameTime, beginning, shared } from "./configuration.js"
 import { movePlayer } from "./userInterface.js"
 import { drawWorld } from "./draw.js"
 import { sendPosition } from "./network.js"
 
-let numFrames = 0;
+shared.numFrames = 0;
 
 if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
     document.body.style.visibility = "visible";
@@ -13,8 +13,8 @@ if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
 else setInterval(gameLoop, frameTime);
 
 function gameLoop() {
-    ++numFrames;
-    // console.log((performance.now() - beginning) / numFrames);
+    ++shared.numFrames;
+    // console.log((performance.now() - beginning) / shared.numFrames);
 
     movePlayer();  // Simulation
     drawWorld();  // Presentation

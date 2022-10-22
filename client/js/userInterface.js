@@ -13,7 +13,6 @@ export function movePlayer() {
         if (shared.controller[key].pressed) {
             if (totalDirection.x === 0) totalDirection.x = shared.controller[key].direction.x;
             if (totalDirection.y === 0) totalDirection.y = shared.controller[key].direction.y;
-            console.log(totalDirection);
             if (key === "r") {
                 shared.player.oldPositionWS = { x: 0, y: 0 };
                 shared.player.positionWS = { x: 0, y: 0 };
@@ -26,6 +25,14 @@ export function movePlayer() {
         }
     }
     shared.player.move(totalDirection);
+
+    if (shared.rewardCount % 2 === 1) {
+        rewards.style.left = shared.player.positionSS.x + 'px';
+        rewards.style.top = shared.player.positionSS.y - 50 + 'px';
+    } else {
+        rewards.style.left = shared.player.positionSS.x + 'px';
+        rewards.style.top = shared.player.positionSS.y + 50 + 'px';
+    }
 }
 
 colorPicker.oninput = function (event) {
@@ -50,12 +57,118 @@ textCanvas.onclick = function (event) {
 function closeMenu() {
     nameInput.style.display = "none";
     colorPicker.style.display = "none";
+    stats.style.display = "none";
     shared.allowMovement = true;
 }
 
+function cleanUpRewards() {
+    rewards.style.display = "none";
+    shared.rewardCount--;
+    if (shared.rewardCount === 0) {
+        document.querySelector("#jumpButton").remove();
+        document.querySelector("#runButton").remove();
+    }
+    if (+(run.innerText) > +(jump.innerText)) {
+        jumpLabel.textContent = "You choose her more than me :(";
+        runLabel.textContent = "Double down 😎";
+    } else if (+(run.innerText) < +(jump.innerText)) {
+        jumpLabel.textContent = "Me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+        runLabel.textContent = "bruh";
+    } else {
+        jumpLabel.textContent = "Choose me!";
+        runLabel.textContent = "No, pick me!";
+    }
+    shared.collectedRewardFrameNumber = shared.numFrames;
+}
+
+function giveReward() {
+    rewards.style.display = "block";
+    shared.rewardCount++;
+    if (shared.rewardCount === 1) {
+        // Create and destroy each time to deter cheating.
+        const jumpButton = document.createElement("button");
+        jumpButton.id = "jumpButton";
+        jumpButton.textContent = "🦘";
+        jumpReward.append(jumpButton);
+
+        const runButton = document.createElement("button");
+        runButton.id = "runButton";
+        runButton.textContent = "🐎";
+        runReward.append(runButton);
+
+        jumpButton.onmouseover = e => {
+            if (rewards.style.display === "block") jumpLabel.textContent = "Yes!"
+        };
+
+        jumpButton.onmouseleave = e => {
+            if (rewards.style.display === "block" && shared.numFrames > shared.collectedRewardFrameNumber + 2) {
+                jumpLabel.textContent = "nooo";
+            }
+        };
+
+        jumpButton.onclick = e => {
+            Platform.jumpForce += 0.2;
+            jump.innerText = +(jump.innerText) + 1;
+            cleanUpRewards();
+        }
+
+        runButton.onmouseover = e => {
+            if (rewards.style.display === "block") runLabel.textContent = "😎"
+        };
+
+        runButton.onmouseleave = e => {
+            if (rewards.style.display === "block" && shared.numFrames > shared.collectedRewardFrameNumber + 2) {
+                runLabel.textContent = "😮"
+            }
+        };
+
+        runButton.onclick = e => {
+            Platform.maxRunSpeed += 0.2;
+            run.innerText = +(run.innerText) + 1;
+            cleanUpRewards();
+        }
+    }
+}
+
+let isMoveLeftQuestComplete = false;
+let isMoveRightQuestComplete = false;
+let isJumpQuestComplete = false;
+
 document.addEventListener("keydown", event => {
     // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
-    if (shared.allowMovement && shared.controller[event.key]) shared.controller[event.key].pressed = true;
+    if (shared.allowMovement && shared.controller[event.key]) {
+        shared.controller[event.key].pressed = true;
+        if (!isMoveLeftQuestComplete && (event.key === "a" || event.key === "ArrowLeft")) {
+            questMoveLeft.innerHTML =
+                `<img class="bulletComplete" src="images/checkmark.png">` + questMoveLeft.innerHTML;
+            document.querySelector("#questMoveLeft>.bulletIncomplete").remove();
+            document.querySelector("#questMoveLeft>.questIncomplete").classList.replace("questIncomplete", "questComplete");
+
+            giveReward();
+
+            isMoveLeftQuestComplete = true;
+        }
+        if (!isMoveRightQuestComplete && (event.key === "d" || event.key === "ArrowRight")) {
+            questMoveRight.innerHTML =
+                `<img class="bulletComplete" src="images/checkmark.png">` + questMoveRight.innerHTML;
+            document.querySelector("#questMoveRight>.bulletIncomplete").remove();
+            document.querySelector("#questMoveRight>.questIncomplete").classList.replace("questIncomplete", "questComplete");
+
+            giveReward();
+
+            isMoveRightQuestComplete = true;
+        }
+        if (!isJumpQuestComplete && (event.key === "w" || event.key === "ArrowUp" || event.key === " ")) {
+            questJump.innerHTML =
+                `<img class="bulletComplete" src="images/checkmark.png">` + questJump.innerHTML;
+            document.querySelector("#questJump>.bulletIncomplete").remove();
+            document.querySelector("#questJump>.questIncomplete").classList.replace("questIncomplete", "questComplete");
+
+            giveReward();
+
+            isJumpQuestComplete = true;
+        }
+    }
 
     if (((event.ctrlKey || event.metaKey) && ['-', '='].includes(event.key))) {
         event.preventDefault();
@@ -104,7 +217,6 @@ document.addEventListener('contextmenu', event => {
     nameInput.style.left = event.clientX + 'px';
     nameInput.style.top = event.clientY + 'px';
     nameInput.style.width = nameInput.value.length + nameFieldSpaceCount + "ch";
-    nameInput.style.fontFamily = "monospace";
     nameInput.focus();
 
     colorPicker.style.display = "block";
@@ -112,6 +224,11 @@ document.addEventListener('contextmenu', event => {
     colorPicker.style.top = event.clientY + 50 + 'px';
     colorPicker.style.width = 2 * nameInput.value.length + 2 + nameFieldSpaceCount + "ch";
     colorPicker.style.height = 40 + "px";
+
+    stats.style.display = "block";
+    stats.style.left = event.clientX + 'px';
+    stats.style.top = event.clientY + 100 + 'px';
+    stats.style.height = 40 + "px";
 }, false);
 
 document.addEventListener('mousedown', event => {

@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+:root {
+    --offwhite: rgb(215, 215, 215);
+}
+
 html {
     color-scheme: dark !important;
 }
@@ -11,6 +15,7 @@ html {
 body {
     background-color: #181a1b;
     overflow: hidden;
+    font-family: monospace;
 }
 
 input:focus,
@@ -43,16 +48,113 @@ input[type="text"] {
     border-radius: 0px;
 }
 
+#colorPicker {
+    position: absolute;
+}
+
+#nameInput {
+    position: absolute;
+}
+
+#stats {
+    position: absolute;
+    font-size: 20px;
+}
+
 #minimap {
     position: fixed;
     left: 90%;
     border-left: 1px solid rgb(77, 77, 77);
 }
 
+#questWrapper {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    top: 15px;
+    left: 15px;
+    /* border: 1px solid gray; */
+}
+
 #textCanvas {
     position: fixed;
 }
 
-/* #canvas {
-    position: fixed;
-} */
+.quest {
+    margin-top: 7.5px;
+    margin-left: 5px;
+    margin-bottom: 15px;
+    vertical-align: -2.25px;
+}
+
+.questComplete {
+    color: gray
+}
+
+.questIncomplete {
+    color: var(--offwhite);
+}
+
+/* Rewards -------------------------------------------------- */
+
+#rewards {
+    position: absolute;
+    font-size: 20px;
+}
+
+#rewardChoices {
+    display: flex;
+    gap: 100px;
+    margin-left: -75px;
+    font-size: 15px;
+}
+
+#rewards button {
+    background-color: transparent;
+    border-color: transparent;
+    font-size: 20px;
+}
+
+/* -------------------------------------------------- */
+
+.keyboardKey {
+    padding: 1px 5px;
+    border: 1px solid;
+}
+
+.leftArrowKey {
+    font-size: 10px;
+    padding: 2.75px 0px;
+    padding-left: 4px;
+    padding-right: 5px;
+}
+
+.rightArrowKey {
+    font-size: 10px;
+    padding: 2.75px 0px;
+    padding-left: 5px;
+    padding-right: 4px;
+}
+
+.upArrowKey {
+    padding: 0px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+.bulletComplete {
+    width: 15px;
+}
+
+.bulletIncomplete {
+    display: inline-block;
+    width: 15px;
+    padding-left: 5px;
+}
+
+#tutorialHeader {
+    margin-bottom: 5px;
+}

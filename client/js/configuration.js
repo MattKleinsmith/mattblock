@@ -3,8 +3,6 @@ import { port } from "./config.js"
 document.head.innerHTML += `<link id="favicon" rel="icon" type="image/svg+xml"
 href="https://www.thecolorapi.com/id?format=svg&named=false&hex=${localStorage.getItem("color")}">`
 
-colorPicker.style.position = "absolute";
-nameInput.style.position = "absolute";
 export const nameFieldSpaceCount = 2;
 
 export const playerHeight = 50;
@@ -30,6 +28,9 @@ export const shared = {
     gameScaleWS2SS: 1,
     gameWidth: window.innerWidth,
     gameHeight: window.innerHeight,
+
+    rewardCount: 0,
+    collectedRewardFrameNumber: 0
 }
 
 export const builder = {

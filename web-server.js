@@ -9,7 +9,8 @@ const extensionToType = {
     "html": "text/html",
     "css": "text/css",
     "js": "text/javascript",
-    "ico": "image/x-icon"
+    "ico": "image/x-icon",
+    "png": "image/png"
 }
 
 function sendFile(response, file) {

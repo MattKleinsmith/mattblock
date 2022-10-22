@@ -9,6 +9,8 @@ export function drawWorld() {
     const [minimapCtx, minimap] = calibrateMinimap();
     drawPlatforms_Minimap(minimapCtx, minimap);
 
+    drawRewards();
+
     const textCtx = calibrateTextCanvas();
     drawHighscore(textCtx);
     drawAltitude(textCtx);
@@ -21,6 +23,12 @@ export function recalibrateScreen() {
     calibrateCamera();
     calibrateHorizontalScrollLines();
     calibrateVerticalScrollLines();
+}
+
+function drawRewards() {
+    if (shared.rewardCount > 0) {
+        rewards.style.display = "block";
+    }
 }
 
 function calibrateHorizontalScrollLines() {
