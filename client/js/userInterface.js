@@ -26,12 +26,18 @@ export function movePlayer() {
     }
     shared.player.move(totalDirection);
 
-    if (shared.rewardCount % 2 === 1) {
-        rewards.style.left = shared.player.positionSS.x + 'px';
-        rewards.style.top = shared.player.positionSS.y - 50 + 'px';
-    } else {
-        rewards.style.left = shared.player.positionSS.x + 'px';
-        rewards.style.top = shared.player.positionSS.y + 50 + 'px';
+    // if (shared.rewardCount % 2 === 1) {
+    rewards.style.left = shared.player.positionSS.x + 'px';
+    rewards.style.top = shared.player.positionSS.y - 50 + 'px';
+    // }
+    //  else {
+    //     rewards.style.left = shared.player.positionSS.x + 'px';
+    //     rewards.style.top = shared.player.positionSS.y + 50 + 'px';
+    // }
+
+    if (shared.recentlyChoseReward) {
+        stats.style.left = shared.player.positionSS.x - 12.5 + 'px';
+        stats.style.top = shared.player.positionSS.y + 50 + 'px';
     }
 }
 
@@ -69,16 +75,22 @@ function cleanUpRewards() {
         document.querySelector("#runButton").remove();
     }
     if (+(run.innerText) > +(jump.innerText)) {
-        jumpLabel.textContent = "You choose her more than me :(";
+        jumpLabel.textContent = "Have you ever doubted your choice?";
         runLabel.textContent = "Double down 😎";
     } else if (+(run.innerText) < +(jump.innerText)) {
-        jumpLabel.textContent = "Me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+        jumpLabel.textContent = "Me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
         runLabel.textContent = "bruh";
     } else {
         jumpLabel.textContent = "Choose me!";
         runLabel.textContent = "No, pick me!";
     }
     shared.collectedRewardFrameNumber = shared.numFrames;
+    shared.recentlyChoseReward = true;
+    stats.style.display = "block";
+    setTimeout(() => {
+        shared.recentlyChoseReward = false;
+        stats.style.display = "none";
+    }, 3000);
 }
 
 function giveReward() {

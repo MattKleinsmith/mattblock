@@ -30,7 +30,8 @@ export const shared = {
     gameHeight: window.innerHeight,
 
     rewardCount: 0,
-    collectedRewardFrameNumber: 0
+    collectedRewardFrameNumber: 0,
+    recentlyChoseReward: false
 }
 
 export const builder = {
