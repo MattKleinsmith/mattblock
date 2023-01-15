@@ -67,9 +67,13 @@ function closeMenu() {
     shared.allowMovement = true;
 }
 
+const defaultJumpLabel = "Click me!";
+const defaultRunLabel = "No, click me!";
+jumpLabel.textContent = defaultJumpLabel;
+runLabel.textContent = defaultRunLabel;
+
 function cleanUpRewards() {
     rewards.style.display = "none";
-    shared.rewardCount--;
     if (shared.rewardCount === 0) {
         document.querySelector("#jumpButton").remove();
         document.querySelector("#runButton").remove();
@@ -81,8 +85,8 @@ function cleanUpRewards() {
         jumpLabel.textContent = "Me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
         runLabel.textContent = "bruh";
     } else {
-        jumpLabel.textContent = "Choose me!";
-        runLabel.textContent = "No, pick me!";
+        jumpLabel.textContent = defaultJumpLabel;
+        runLabel.textContent = defaultRunLabel;
     }
     shared.collectedRewardFrameNumber = shared.numFrames;
     shared.recentlyChoseReward = true;
@@ -93,91 +97,103 @@ function cleanUpRewards() {
     }, 3000);
 }
 
-function giveReward() {
-    rewards.style.display = "block";
-    shared.rewardCount++;
-    if (shared.rewardCount === 1) {
-        // Create and destroy each time to deter cheating.
-        const jumpButton = document.createElement("button");
-        jumpButton.id = "jumpButton";
-        jumpButton.textContent = "🦘";
-        jumpReward.append(jumpButton);
+export const questIdToUI = {
+    1: () => {
+        questMoveLeft.innerHTML = `<img class="bulletComplete" src="images/checkmark.png">` + questMoveLeft.innerHTML;
+        document.querySelector("#questMoveLeft>.bulletIncomplete").remove();
+        document.querySelector("#questMoveLeft>.questIncomplete").classList.replace("questIncomplete", "questComplete");
+    },
+    2: () => {
+        questMoveRight.innerHTML = `<img class="bulletComplete" src="images/checkmark.png">` + questMoveRight.innerHTML;
+        document.querySelector("#questMoveRight>.bulletIncomplete").remove();
+        document.querySelector("#questMoveRight>.questIncomplete").classList.replace("questIncomplete", "questComplete");
+    },
+    3: () => {
+        questJump.innerHTML = `<img class="bulletComplete" src="images/checkmark.png">` + questJump.innerHTML;
+        document.querySelector("#questJump>.bulletIncomplete").remove();
+        document.querySelector("#questJump>.questIncomplete").classList.replace("questIncomplete", "questComplete");
+    },
+}
 
-        const runButton = document.createElement("button");
-        runButton.id = "runButton";
-        runButton.textContent = "🐎";
-        runReward.append(runButton);
+export function showRewardChoice() {
+    // Create and destroy each time to deter cheating.
+    const jumpButton = document.createElement("button");
+    jumpButton.id = "jumpButton";
+    jumpButton.textContent = "🦘";
+    jumpReward.append(jumpButton);
 
-        jumpButton.onmouseover = e => {
-            if (rewards.style.display === "block") jumpLabel.textContent = "Yes!"
-        };
+    const runButton = document.createElement("button");
+    runButton.id = "runButton";
+    runButton.textContent = "🐎";
+    runReward.append(runButton);
 
-        jumpButton.onmouseleave = e => {
-            if (rewards.style.display === "block" && shared.numFrames > shared.collectedRewardFrameNumber + 2) {
-                jumpLabel.textContent = "nooo";
-            }
-        };
+    jumpButton.onmouseover = e => {
+        if (rewards.style.display === "block") jumpLabel.textContent = "Yes!"
+    };
 
-        jumpButton.onclick = e => {
-            Platform.jumpForce += 0.2;
-            jump.innerText = +(jump.innerText) + 1;
-            cleanUpRewards();
+    jumpButton.onmouseleave = e => {
+        if (rewards.style.display === "block" && shared.numFrames > shared.collectedRewardFrameNumber + 2) {
+            jumpLabel.textContent = "nooo";
         }
+    };
 
-        runButton.onmouseover = e => {
-            if (rewards.style.display === "block") runLabel.textContent = "😎"
-        };
-
-        runButton.onmouseleave = e => {
-            if (rewards.style.display === "block" && shared.numFrames > shared.collectedRewardFrameNumber + 2) {
-                runLabel.textContent = "😮"
-            }
-        };
-
-        runButton.onclick = e => {
-            Platform.maxRunSpeed += 0.2;
-            run.innerText = +(run.innerText) + 1;
-            cleanUpRewards();
-        }
+    jumpButton.onclick = e => {
+        sendJumpRewardRequest();
+        cleanUpRewards();
     }
+
+    runButton.onmouseover = e => {
+        if (rewards.style.display === "block") runLabel.textContent = "😎"
+    };
+
+    runButton.onmouseleave = e => {
+        if (rewards.style.display === "block" && shared.numFrames > shared.collectedRewardFrameNumber + 2) {
+            runLabel.textContent = "😮"
+        }
+    };
+
+    runButton.onclick = e => {
+        sendRunRewardRequest();
+        cleanUpRewards();
+    }
+}
+
+function sendJumpRewardRequest() {
+    console.log("Sending jump reward request");
+    socket.send(JSON.stringify({ rewardRedemptionRequest: "jump" }));
+}
+
+function sendRunRewardRequest() {
+    socket.send(JSON.stringify({ rewardRedemptionRequest: "run" }));
+}
+
+export function giveRewardChoice() {
+    rewards.style.display = "block";
+    if (shared.rewardCount === 1) showRewardChoice();
 }
 
 let isMoveLeftQuestComplete = false;
 let isMoveRightQuestComplete = false;
 let isJumpQuestComplete = false;
 
+function requestQuestCompletion(questId) {
+    socket.send(JSON.stringify({ id: shared.id, questId, questCompletionRequest: true }));
+}
+
 document.addEventListener("keydown", event => {
     // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
     if (shared.allowMovement && shared.controller[event.key]) {
         shared.controller[event.key].pressed = true;
         if (!isMoveLeftQuestComplete && (event.key === "a" || event.key === "ArrowLeft")) {
-            questMoveLeft.innerHTML =
-                `<img class="bulletComplete" src="images/checkmark.png">` + questMoveLeft.innerHTML;
-            document.querySelector("#questMoveLeft>.bulletIncomplete").remove();
-            document.querySelector("#questMoveLeft>.questIncomplete").classList.replace("questIncomplete", "questComplete");
-
-            giveReward();
-
+            requestQuestCompletion(1);
             isMoveLeftQuestComplete = true;
         }
         if (!isMoveRightQuestComplete && (event.key === "d" || event.key === "ArrowRight")) {
-            questMoveRight.innerHTML =
-                `<img class="bulletComplete" src="images/checkmark.png">` + questMoveRight.innerHTML;
-            document.querySelector("#questMoveRight>.bulletIncomplete").remove();
-            document.querySelector("#questMoveRight>.questIncomplete").classList.replace("questIncomplete", "questComplete");
-
-            giveReward();
-
+            requestQuestCompletion(2);
             isMoveRightQuestComplete = true;
         }
         if (!isJumpQuestComplete && (event.key === "w" || event.key === "ArrowUp" || event.key === " ")) {
-            questJump.innerHTML =
-                `<img class="bulletComplete" src="images/checkmark.png">` + questJump.innerHTML;
-            document.querySelector("#questJump>.bulletIncomplete").remove();
-            document.querySelector("#questJump>.questIncomplete").classList.replace("questIncomplete", "questComplete");
-
-            giveReward();
-
+            requestQuestCompletion(3);
             isJumpQuestComplete = true;
         }
     }

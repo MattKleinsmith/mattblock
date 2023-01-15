@@ -3,6 +3,7 @@ import { getIPs } from "./ip.js";
 import { platforms, builtPlatforms, builtPlatformIds } from "./gameData.js";
 import { zoom } from "./draw.js";
 import { Platform } from "./platform.js";
+import { giveRewardChoice, questIdToUI, showRewardChoice } from "./userInterface.js";
 
 export function sendPosition() {
     if (!shared.player) return;
@@ -74,7 +75,7 @@ socket.onmessage = message => {
             shared.highScorePayload = payload;
         }
         else if ("serverDown" in payload) {
-            shared.shared.isServerDown = true;
+            shared.isServerDown = true;
         }
         else if ("size" in payload) {
             builtPlatformIds.push(payload.platformId);
@@ -87,6 +88,29 @@ socket.onmessage = message => {
         else if ("idOfPlatformToDelete" in payload) {
             builtPlatformIds.splice(payload.idOfPlatformToDelete, 1);
             delete builtPlatforms[payload.idOfPlatformToDelete];
+        }
+        else if ("questsCompleted" in payload) {
+            shared.questsCompleted = payload.questsCompleted;
+            payload.questsCompleted.forEach(questId => questIdToUI[questId]());
+            questWrapper.style.display = "block";
+        }
+        else if ("questId" in payload) {
+            // Quest completion
+            shared.questsCompleted.push(payload.questId);
+            questIdToUI[payload.questId]();
+        }
+        else if ("stats" in payload) {
+            // Remember the reward count
+            shared.rewardCount = payload.stats.rewardCount;
+
+            Platform.jumpForce = 1.35 + 0.2 * payload.stats.jump;
+            jump.innerText = payload.stats.jump;
+
+            Platform.maxRunSpeed = 1 + 0.2 * payload.stats.run;
+            run.innerText = payload.stats.run;
+
+            // If the player has unredeemed rewards, show the reward buttons
+            if (payload.stats.rewardCount > 0 && !document.querySelector("#rewards button")) showRewardChoice();
         }
     }
 }

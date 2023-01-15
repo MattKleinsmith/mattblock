@@ -62,6 +62,8 @@ function loadWorld() {
         if (!("highscoreHistory" in world)) world.highscoreHistory = [world.highscore];
         if (!("highestPlatformId" in world)) world.highestPlatformId = -1;
         if (!("platforms" in world)) world.platforms = {};
+        if (!("questsCompleted" in world)) world.questsCompleted = {};
+        if (!("stats" in world)) world.stats = {};
     }
     else {
         world = {
@@ -70,7 +72,9 @@ function loadWorld() {
             positions: [],  // id (index) --> id, position,
             ids: {},   // ip --> id
             highestPlatformId: -1,
-            platforms: {}
+            platforms: {},
+            questsCompleted: {},
+            stats: {}
         }
     }
 
@@ -90,7 +94,6 @@ function getMaxAltitudeAndProfile(world) {
     }
     return { highscore: min, profile: profile }
 }
-
 
 function broadcast(server, payload, senderId = -1) {
     server.clients
@@ -133,6 +136,13 @@ function sendCharacter(gameServer, world, payload, socket) {
     const initializationPayload = { initialization: true, ...world.positions[id] };
     console.log("Sending", JSON.stringify(initializationPayload));
     socket.send(JSON.stringify(initializationPayload));
+
+    socket.send(JSON.stringify({ questsCompleted: world.questsCompleted[socket.id] }));
+
+    if (!world.stats[socket.id]) {
+        world.stats[socket.id] = { rewardCount: 0, jump: 0, run: 0 };
+    }
+    sendStats(socket, world);
 
     world.profiles[id].status = "";
     broadcast(gameServer, world.profiles[id]);
@@ -207,6 +217,49 @@ function broadcastOfflineStatus(gameServer, world, socket) {
     }
 }
 
+function sendStats(socket, world) {
+    console.log("sendStats", { stats: world.stats[socket.id] });
+    socket.send(JSON.stringify({ stats: world.stats[socket.id] }));
+}
+
+function sendQuestCompletion(socket, payload) {
+    socket.send(JSON.stringify({ questId: payload.questId }));
+}
+
+function processQuestCompletion(gameServer, world, payload, socket) {
+    const questsCompleted = world.questsCompleted[payload.id];
+    if (questsCompleted) {
+        if (!questsCompleted.includes(payload.questId)) {
+            questsCompleted.push(payload.questId);
+        } else {
+            // Quest already complete. Might be a cheating attempt.
+            return;
+        }
+    } else {
+        world.questsCompleted[payload.id] = [payload.questId];
+    }
+    sendQuestCompletion(socket, payload);
+
+    if (!world.stats[payload.id]) {
+        world.stats[payload.id]
+    }
+    ++world.stats[payload.id].rewardCount;
+    sendStats(socket, world);
+}
+
+function processRewardRedemptionRequest(gameServer, world, payload, socket) {
+    console.log("processRewardRedemptionRequest", payload);
+    if (world.stats[socket.id].rewardCount > 0) {
+        world.stats[socket.id].rewardCount--;
+        if (payload.rewardRedemptionRequest === "jump") {
+            world.stats[socket.id].jump++;
+        } else if (payload.rewardRedemptionRequest === "run") {
+            world.stats[socket.id].run++;
+        }
+        sendStats(socket, world);
+    }
+}
+
 module.exports = {
     createGameServer,
     loadWorld,
@@ -217,5 +270,7 @@ module.exports = {
     broadcastOfflineStatus,
     broadcastServerDownAlert,
     broadcastPlatform,
-    broadcastPlatformDeletion
+    broadcastPlatformDeletion,
+    processQuestCompletion,
+    processRewardRedemptionRequest
 }

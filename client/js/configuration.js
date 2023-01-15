@@ -31,7 +31,9 @@ export const shared = {
 
     rewardCount: 0,
     collectedRewardFrameNumber: 0,
-    recentlyChoseReward: false
+    recentlyChoseReward: false,
+
+    questsCompleted: []
 }
 
 export const builder = {
