@@ -106,7 +106,7 @@ function randomHexColor() {
 }
 
 function sendWorld(socket, world) {
-    [world.profiles, world.positions, world.platforms].forEach(resources => resources.forEach(resource => socket.send(JSON.stringify(resource))));
+    [world.profiles, world.positions].forEach(resources => resources.forEach(resource => socket.send(JSON.stringify(resource))));
     socket.send(JSON.stringify(world.highscore));
 }
 
@@ -197,6 +197,18 @@ function broadcastOfflineStatus(gameServer, world, socket) {
     }
 }
 
+function deleteAccount(world, payload) {
+    for (const ip in world.ids) {
+        const id = world.ids[ip];
+        if (id === payload.id) {
+            delete world.ids[ip];
+            delete world.positions[id];
+            delete world.profiles[id];
+            return;
+        }
+    }
+}
+
 module.exports = {
     createGameServer,
     loadWorld,
@@ -206,5 +218,6 @@ module.exports = {
     broadcastPosition,
     broadcastOfflineStatus,
     broadcastServerDownAlert,
-    broadcastPlatform
+    broadcastPlatform,
+    deleteAccount
 }

@@ -22,10 +22,15 @@ export function sendPlatform() {
     socket.send(JSON.stringify({ id: shared.id, positionWS: builder.platform.positionWS, size: builder.platform.size }));
 }
 
+export function deleteAccount() {
+    socket.send(JSON.stringify({ id: shared.id, deleteAccount: true }));
+}
+
 function initializePlayer(payload) {
     console.log("id", payload.id);
     shared.id = payload.id;
     shared.player = platforms[shared.id];
+    shared.player.isEnabled = true;
     shared.player.positionWS = payload.position;
     shared.player.oldPositionWS = { ...shared.player.positionWS };
     colorPicker.value = shared.player.fillStyle;
@@ -50,13 +55,15 @@ function initializePlayer(payload) {
     zoom(false);
 }
 
-socket.addEventListener('open', (event) => {
-    getIPs().then(result => socket.send(JSON.stringify({ id: shared.id, ip: result[0] })));
+socket.addEventListener('open', async (event) => {
+    const ips = await getIPs();
+    socket.send(JSON.stringify({ id: shared.id, ip: ips[0] }));
 });
 
 socket.onmessage = message => {
 
     const payload = JSON.parse(message.data);
+    if (!payload) return;
 
     if ("initialization" in payload) {
         initializePlayer(payload);

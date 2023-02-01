@@ -1,5 +1,5 @@
 import { shared, nameFieldSpaceCount, builder } from "./configuration.js";
-import { sendProfile, sendPlatform } from "./network.js";
+import { sendProfile, sendPlatform, deleteAccount } from "./network.js";
 import { zoom, calibrateCanvas } from "./draw.js";
 import { getMousePositionWS } from "./helpers.js";
 import { platforms } from "./gameData.js";
@@ -59,6 +59,18 @@ document.addEventListener("keydown", event => {
 
     if (event.key === "b") {
         builder.enabled = !builder.enabled;
+    }
+
+    if (event.key === "F1") {
+        event.preventDefault();
+        console.log("Deleting account");
+        deleteAccount();
+    }
+
+
+    if (event.key === "F2") {
+        event.preventDefault();
+        console.log(platforms);
     }
 });
 
