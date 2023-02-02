@@ -27,7 +27,7 @@ export class Platform {
     static jumpForce = 1.35 * 2;
     static runningForce = .0625;
     static maxRunSpeed = 1;
-    static ground = 800;
+    static ground = 3000;
 
     move(direction = { x: 0, y: 0 }) {
         shared.player.oldPositionWS = { ...shared.player.positionWS };

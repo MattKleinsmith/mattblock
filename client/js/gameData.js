@@ -53,7 +53,7 @@ platforms.push(new Platform(
 platforms.push(new Platform(
     {
         x: 500,
-        y: -20000 + 900
+        y: -10000
     },
     "#222222",
     { width: 100, height: 20000 },
@@ -64,12 +64,44 @@ platforms.push(new Platform(
 platforms.push(new Platform(
     {
         x: shared.origin.x - 1000,
-        y: -10000 + 900
+        y: -10000
     },
     "#222222",
     { width: 100, height: 20000 },
     // "wall"
 ));
+
+// TUTORIAL
+// ---------------------------------------------------------------------------
+
+platforms.push(new Platform(
+    {
+        x: shared.origin.x + 500,
+        y: shared.origin.y - 600
+    },
+    "#339446",
+    { width: 400, height: 100 },
+));
+
+platforms.push(new Platform(
+    {
+        x: shared.origin.x + 100,
+        y: shared.origin.y - 1200
+    },
+    "#339446",
+    { width: 400, height: 100 },
+));
+
+platforms.push(new Platform(
+    {
+        x: shared.origin.x - 900,
+        y: shared.origin.y - 2200
+    },
+    "#339446",
+    { width: 400, height: 100 },
+));
+
+// ---------------------------------------------------------------------------
 
 platforms.push(new Platform(
     {

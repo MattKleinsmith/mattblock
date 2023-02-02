@@ -31,7 +31,7 @@ export const shared = {
     gameWidth: window.innerWidth,
     gameHeight: window.innerHeight,
 
-    origin: { x: -1450, y: 0 }
+    origin: { x: -1450, y: 2900 }
 }
 
 export const builder = {
