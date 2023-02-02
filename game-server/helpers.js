@@ -56,6 +56,7 @@ function loadWorld() {
     if (fs.existsSync(worldPath)) {
         world = require(worldPath);
         world.profiles.forEach(profile => {
+            if (!profile) return;
             if (!("status" in profile)) profile.status = "💤"
         });
         if (!("highscore" in world)) world.highscore = getMaxAltitudeAndProfile(world);

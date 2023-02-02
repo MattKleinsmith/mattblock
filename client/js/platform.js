@@ -270,14 +270,16 @@ export class Platform {
         // Draw the rectangle
         ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width * shared.gameScaleWS2SS, this.size.height * shared.gameScaleWS2SS);
 
+        if (this.positionWS.y > -1000 && this.status === "💤") return;
+
         // Draw the text
         ctx.font = `${48 * shared.gameScaleWS2SS}px sans-serif`;
         ctx.fillText(this.name, this.positionSS.x + (this.nameOffset.x) * shared.gameScaleWS2SS, this.positionSS.y + (this.nameOffset.y) * shared.gameScaleWS2SS);
 
         // if (["", "connected"].includes(this.status)) return;
         // Draw the shared.player status
-        ctx.font = `${40 * shared.gameScaleWS2SS}px sans-serif`;
-        ctx.fillText(this.status, this.positionSS.x + (this.nameOffset.x + 50) * shared.gameScaleWS2SS, this.positionSS.y + (this.nameOffset.y + 30) * shared.gameScaleWS2SS);
+        // ctx.font = `${40 * shared.gameScaleWS2SS}px sans-serif`;
+        // ctx.fillText(this.status, this.positionSS.x + (this.nameOffset.x + 50) * shared.gameScaleWS2SS, this.positionSS.y + (this.nameOffset.y + 30) * shared.gameScaleWS2SS);
     }
 
     draw_Minimap(ctx) {
