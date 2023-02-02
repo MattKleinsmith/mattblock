@@ -14,9 +14,7 @@ export function movePlayer() {
             totalDirection.x += shared.controller[key].direction.x;
             totalDirection.y += shared.controller[key].direction.y;
             if (key === "r") {
-                shared.player.oldPositionWS = { x: 0, y: 0 };
-                shared.player.positionWS = { x: 0, y: 0 };
-                shared.player.velocity = { x: 0, y: 0 };
+                respawn();
             }
             if (key === "v") {
                 shared.player.positionWS = { x: shared.player.positionWS.x, y: shared.player.positionWS.y };
@@ -25,9 +23,22 @@ export function movePlayer() {
         }
     }
     shared.player.move(totalDirection);
+
+    if (shared.player.positionWS.y > 5000) {
+        respawn();
+    }
+}
+
+function respawn() {
+    shared.player.oldPositionWS = { ...shared.origin };
+    shared.player.positionWS = { ...shared.origin };
+    shared.player.velocity = { x: 0, y: 0 };
 }
 
 colorPicker.oninput = function (event) {
+    if (colorPicker.value === "#181a1b") {
+        colorPicker.value = "#3DB856"
+    }
     shared.player.fillStyle = colorPicker.value;
     const color = colorPicker.value.slice(1);
     localStorage.setItem("color", color);

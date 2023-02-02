@@ -1,5 +1,5 @@
 import { Platform } from "./platform.js";
-import { playerHeight } from "./configuration.js";
+import { playerHeight, shared } from "./configuration.js";
 
 const maxPlayers = 150;
 export const platforms = new Array(maxPlayers);
@@ -28,7 +28,7 @@ const maxPlatformWidth = 1000;
 const platformWidthRange = maxPlatformWidth - minPlatformWidth;
 
 const groundHeight = 20000;
-const groundWidth = 4000;
+const groundWidth = 3050;
 
 const minPlatformX = -groundWidth * 0.5;
 const maxPlatformX = groundWidth * 0.5;
@@ -41,7 +41,7 @@ const platformYRange = maxPlatformY - minPlatformY;
 // GROUND
 platforms.push(new Platform(
     {
-        x: -500,
+        x: -2450,
         y: Platform.ground + playerHeight
     },
     "#222222",
@@ -49,10 +49,10 @@ platforms.push(new Platform(
     // "ground"
 ));
 
-// GROUND
+// WALL
 platforms.push(new Platform(
     {
-        x: groundWidth - 600,
+        x: 500,
         y: -20000 + 900
     },
     "#222222",
@@ -60,19 +60,17 @@ platforms.push(new Platform(
     // "wall"
 ));
 
-// RANDOM PLATFORMS
-// for (let i = 0; i < 200; i++) {
-//     platforms.push(new Platform(
-//         {
-//             x: Math.random() * platformXRange + minPlatformX,
-//             y: Math.random() * platformYRange + minPlatformY
-//         },
-//         "#000000",
-//         { width: Math.random() * platformWidthRange + minPlatformWidth, height: 100 },
-//     ));
-// }
+// WALL
+platforms.push(new Platform(
+    {
+        x: shared.origin.x - 1000,
+        y: -10000 + 900
+    },
+    "#222222",
+    { width: 100, height: 20000 },
+    // "wall"
+));
 
-//
 platforms.push(new Platform(
     {
         x: -991.6666666666918,
@@ -212,53 +210,3 @@ platforms.push(new Platform(
     { width: 50, height: 50 },
     "Flexbox Gang >"
 ));
-
-
-
-// R
-platforms.push(new Platform(
-    {
-        x: 250,
-        y: -350
-    },
-    "#AA5555",
-    { width: 250, height: 500 },
-    // "red"
-));
-
-// G
-platforms.push(new Platform(
-    {
-        x: 450,
-        y: 245
-    },
-    "#55AA55",
-    { width: 250, height: 100 },
-    // "green"
-));
-
-// UP
-for (let i = 0; i < 10; i++) {
-    platforms.push(new Platform(
-        {
-            x: -600 + (i * -200),
-            y: 250 + (i * -100)
-        },
-        "#5555AA",
-        { width: 250, height: 100 },
-        // "up " + i
-    ));
-}
-
-// DOWN
-for (let i = 0; i < 100; i++) {
-    platforms.push(new Platform(
-        {
-            x: -600 + (i * -200),
-            y: 450 + (i * 100)
-        },
-        "#5555AA",
-        { width: 250, height: 100 },
-        // "down " + i
-    ));
-}

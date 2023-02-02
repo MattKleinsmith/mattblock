@@ -30,6 +30,8 @@ export const shared = {
     gameScaleWS2SS: 1,
     gameWidth: window.innerWidth,
     gameHeight: window.innerHeight,
+
+    origin: { x: -1450, y: 0 }
 }
 
 export const builder = {
