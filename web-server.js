@@ -43,7 +43,7 @@ server.listen(webServerPort, host, () => {
 
 if (shouldRedirectHttp) {
     const http = require("http");
-    const httpPort = 8000;
+    const httpPort = 8003;
     const httpServer = http.createServer(function (request, response) {
         response.writeHead(301, { Location: `https://${request.headers.host}${request.url}` });
         response.end();
