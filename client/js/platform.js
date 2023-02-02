@@ -186,7 +186,8 @@ export class Platform {
         else {
             if (this.allowedDirections.down) {
                 this.velocity.y += Platform.gravity * frameTime;
-            } else if (yDirection !== 0) {
+            }
+            else if (yDirection !== 0) {
                 this.velocity.y = Platform.jumpForce * yDirection;
             }
 

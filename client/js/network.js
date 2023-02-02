@@ -37,7 +37,9 @@ function initializePlayer(payload) {
     nameInput.value = shared.player.name;
     shared.controller = {
         "r": { pressed: false, direction: { x: 0, y: 0 } },
-        "v": { pressed: false, direction: { x: 0, y: 0 } },
+
+        "ArrowDown": { pressed: false, direction: { x: 0, y: 0 } },
+        "s": { pressed: false, direction: { x: 0, y: 0 } },
 
         "ArrowLeft": { pressed: false, direction: { x: -1, y: 0 } },
         "a": { pressed: false, direction: { x: -1, y: 0 } },
@@ -48,8 +50,6 @@ function initializePlayer(payload) {
         "ArrowUp": { pressed: false, direction: { x: 0, y: -1 } },
         "w": { pressed: false, direction: { x: 0, y: -1 } },
         " ": { pressed: false, direction: { x: 0, y: -1 } },
-
-        "s": { pressed: false, direction: { x: 0, y: 1 } }
     }
     body.style.visibility = "visible";
     zoom(false);

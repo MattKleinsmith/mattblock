@@ -101,7 +101,7 @@ platforms.push(new Platform(
     },
     "#BBBBBB",
     { width: 400, height: 100 },
-    "Try holding W and spacebar, for example"
+    "Try holding W and spacebar. Keep holding until you super jump"
 ));
 
 // ---------------------------------------------------------------------------

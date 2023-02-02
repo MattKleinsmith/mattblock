@@ -16,9 +16,9 @@ export function movePlayer() {
             if (key === "r") {
                 respawn();
             }
-            if (key === "v") {
+            if (["s", "ArrowDown"].includes(key)) {
                 shared.player.positionWS = { x: shared.player.positionWS.x, y: shared.player.positionWS.y };
-                shared.player.velocity = { x: 0, y: shared.player.velocity.y + 1 };
+                shared.player.velocity = { x: 0, y: shared.player.velocity.y + .5 };
             }
         }
     }
@@ -78,7 +78,6 @@ document.addEventListener("keydown", event => {
         deleteAccount();
     }
 
-
     if (event.key === "F2") {
         event.preventDefault();
         console.log(platforms);
@@ -93,7 +92,8 @@ document.addEventListener("wheel", event => {
 }, { passive: false });
 
 document.addEventListener("keyup", event => {
-    if (shared.controller[event.key]) shared.controller[event.key].pressed = false;
+    if (shared.controller[event.key])
+        shared.controller[event.key].pressed = false;
 });
 
 document.addEventListener('contextmenu', event => {
