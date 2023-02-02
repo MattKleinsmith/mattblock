@@ -150,7 +150,7 @@ function drawScrollLines(ctx) {
 function drawServerStatus(ctx) {
     if (!shared.isServerDown) return;
     ctx.fillStyle = 'red';
-    const fontSize = 48 / px_ratio;
+    const fontSize = 48;
     ctx.font = fontSize + 'px sans-serif';
     ctx.fillText(`The server reset. Refresh to reconnect`, 100, 100 + fontSize * 0.5);
     ctx.fillText(`(will automate this eventually)`, 100, 100 + fontSize * 1.5);

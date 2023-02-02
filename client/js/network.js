@@ -81,7 +81,7 @@ socket.onmessage = message => {
             shared.highScorePayload = payload;
         }
         else if ("serverDown" in payload) {
-            shared.shared.isServerDown = true;
+            shared.isServerDown = true;
         }
         else if ("size" in payload) {
             platforms.push(new Platform(

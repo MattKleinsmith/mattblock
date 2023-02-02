@@ -79,8 +79,9 @@ platforms.push(new Platform(
         x: shared.origin.x + 500,
         y: shared.origin.y - 600
     },
-    "#339446",
+    "#BBBBBB",
     { width: 400, height: 100 },
+    "Jump with W, spacebar, or up arrow"
 ));
 
 platforms.push(new Platform(
@@ -88,8 +89,9 @@ platforms.push(new Platform(
         x: shared.origin.x + 100,
         y: shared.origin.y - 1200
     },
-    "#339446",
+    "#BBBBBB",
     { width: 400, height: 100 },
+    "Super jump by combinging jump keys"
 ));
 
 platforms.push(new Platform(
@@ -97,8 +99,9 @@ platforms.push(new Platform(
         x: shared.origin.x - 900,
         y: shared.origin.y - 2200
     },
-    "#339446",
+    "#BBBBBB",
     { width: 400, height: 100 },
+    "Try holding W and spacebar, for example"
 ));
 
 // ---------------------------------------------------------------------------
