@@ -11,7 +11,7 @@ export function drawWorld() {
 
     const textCtx = calibrateTextCanvas();
     drawHighscore(textCtx);
-    // drawAltitude(textCtx);
+    drawAltitude(textCtx);
     drawServerStatus(textCtx);
 }
 
