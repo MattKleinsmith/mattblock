@@ -116,10 +116,13 @@ function calibrateTextCanvas() {
 
 function drawPlatforms(ctx) {
     // Backwards to draw player names over NPC platforms
-    for (let i = platforms.length - 1; i >= 0; i--) {
-        const platform = platforms[i];
+    // for (let i = platforms.length - 1; i >= 0; i--) {
+    //     const platform = platforms[i];
+    //     if (platform.isEnabled) platform.draw(ctx);
+    // }
+    platforms.forEach(platform => {
         if (platform.isEnabled) platform.draw(ctx);
-    }
+    });
 }
 
 function drawScrollLines(ctx) {
