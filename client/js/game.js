@@ -7,9 +7,12 @@ let numFrames = 0;
 
 setInterval(gameLoop, frameTime);
 
+// setInterval(() => {
+//     console.log((performance.now() - beginning) / numFrames);
+// }, 1000)
+
 function gameLoop() {
     ++numFrames;
-    // console.log((performance.now() - beginning) / numFrames);
 
     movePlayer();  // Simulation
     drawWorld();  // Presentation
