@@ -139,7 +139,7 @@ function sendCharacter(gameServer, world, payload, socket) {
 function initializePlayer(gameServer, world, payload) {
     id = ++world.highestId;
     world.ids[payload.ip] = id;
-    const names = ["WASD to move", "Right click to change color", "R to respawn"];
+    const names = ["Move with the arrows keys"];
     const name = names[~~(Math.random() * names.length)]
     const profilePayload = {
         id: id,
@@ -147,7 +147,7 @@ function initializePlayer(gameServer, world, payload) {
         name: name
     }
     world.profiles[id] = profilePayload;
-    world.positions[id] = { id: id, position: { x: 0, y: 0 } };
+    world.positions[id] = { id: id, position: { x: -1450, y: 2900 } };
     console.log(`New player joined: "${world.profiles[id].name}", id: ${id}`);
     broadcast(gameServer, profilePayload); // Send to all, including sender
     return id;
