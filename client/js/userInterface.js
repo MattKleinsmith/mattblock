@@ -60,6 +60,7 @@ textCanvas.onclick = function (event) {
 };
 
 document.addEventListener("keydown", event => {
+    if (!shared.controller) return;
     // Props: https://medium.com/@dovern42/handling-multiple-key-presses-at-once-in-vanilla-javascript-for-game-controllers-6dcacae931b7
     if (shared.allowMovement && shared.controller[event.key]) shared.controller[event.key].pressed = true;
 
@@ -92,6 +93,7 @@ document.addEventListener("wheel", event => {
 }, { passive: false });
 
 document.addEventListener("keyup", event => {
+    if (!shared.controller) return;
     if (shared.controller[event.key])
         shared.controller[event.key].pressed = false;
 });

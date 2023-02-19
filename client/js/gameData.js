@@ -1,7 +1,7 @@
 import { Platform } from "./platform.js";
 import { playerHeight, shared } from "./configuration.js";
 
-const maxPlayers = 150;
+const maxPlayers = 200;
 export const platforms = new Array(maxPlayers);
 
 // PLAYERS

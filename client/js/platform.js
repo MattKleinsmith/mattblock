@@ -271,7 +271,8 @@ export class Platform {
         // Draw the rectangle
         ctx.fillRect(this.positionSS.x, this.positionSS.y, this.size.width * shared.gameScaleWS2SS, this.size.height * shared.gameScaleWS2SS);
 
-        if (this.positionWS.y > -1000 && this.status === "💤") return;
+        // Greater than means "below".
+        if (this.positionWS.y > 2000 && this.status === "💤") return;
 
         // Draw the text
         ctx.font = `${48 * shared.gameScaleWS2SS}px sans-serif`;

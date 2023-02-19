@@ -139,7 +139,7 @@ function sendCharacter(gameServer, world, payload, socket) {
 function initializePlayer(gameServer, world, payload) {
     id = ++world.highestId;
     world.ids[payload.ip] = id;
-    const names = ["Move with the arrows keys"];
+    const names = ["Move with the W, A, S, D keys"];
     const name = names[~~(Math.random() * names.length)]
     const profilePayload = {
         id: id,
